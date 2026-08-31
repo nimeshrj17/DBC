@@ -11,7 +11,8 @@ import {
   Printer, 
   Settings,
   Bell,
-  ChevronDown
+  ChevronDown,
+  Users
 } from 'lucide-react';
 import { useOrders } from '@/lib/hooks/useOrders';
 
@@ -131,6 +132,10 @@ export default function DashboardLayout({
             <Link href="/dashboard/orders" className={getLinkClass('/dashboard/orders')}>
               <Receipt className="h-5 w-5" />
               <span>Orders</span>
+            </Link>
+            <Link href="/dashboard/customers" className={getLinkClass('/dashboard/customers')}>
+              <Users className="h-5 w-5" />
+              <span>Customers</span>
             </Link>
             <Link href="/dashboard/menu" className={getLinkClass('/dashboard/menu')}>
               <Coffee className="h-5 w-5" />

@@ -10,7 +10,8 @@ import { MenuItem } from '@/lib/hooks/useMenu';
 import { useOrders, OrderItem, Order } from '@/lib/hooks/useOrders';
 import { useInventory } from '@/lib/hooks/useInventory';
 import { useSettings } from '@/lib/hooks/useSettings';
-import { doc, runTransaction } from 'firebase/firestore';
+import { useCustomers } from '@/lib/hooks/useCustomers';
+import { doc, runTransaction, increment } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import QRCodeGenerator from '@/components/dashboard/QRCodeGenerator';
 import PaymentModal from '@/components/dashboard/PaymentModal';
@@ -71,6 +72,7 @@ export default function DashboardPage() {
   const { tables, loading, updateTableStatus, addTable } = useTables();
   const { orders, loading: ordersLoading, updateOrder, updateOrderStatus, createOrder } = useOrders();
   const { settings, loading: settingsLoading } = useSettings();
+  const { addOrUpdateCustomer } = useCustomers();
   
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -88,6 +90,10 @@ export default function DashboardPage() {
   const [newTableNum, setNewTableNum] = useState<string>('');
   const [newTableSeats, setNewTableSeats] = useState<string>('');
   const [isSubmittingTable, setIsSubmittingTable] = useState(false);
+
+  const [assignCustomerModalOpen, setAssignCustomerModalOpen] = useState(false);
+  const [cName, setCName] = useState('');
+  const [cPhone, setCPhone] = useState('');
 
   useEffect(() => {
     if (selectedTable && activeOrders.length === 0 && !draftOrders[selectedTable.id]) {
@@ -583,6 +589,11 @@ export default function DashboardPage() {
             <div>
               <h2 className="text-xl font-bold">Table {selectedTable.number}</h2>
               <p className="text-sm text-muted-foreground">{selectedTable.seats} Seats</p>
+              {selectedTable.customerName && (
+                <p className="text-xs font-bold text-primary mt-1 bg-primary/10 inline-block px-2 py-0.5 rounded-full">
+                  Customer: {selectedTable.customerName}
+                </p>
+              )}
             </div>
             <div className="flex items-center space-x-3">
               <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${getStatusColor(selectedTable.status)}`}>
@@ -601,7 +612,10 @@ export default function DashboardPage() {
                   <LayoutGrid className="w-8 h-8 opacity-50" />
                 </div>
                 <p>Table is currently empty.</p>
-                <Button variant="primary" onClick={() => updateTableStatus(selectedTable.id, 'occupied', [])}>Mark as Occupied</Button>
+                <div className="flex gap-2 w-full max-w-[250px]">
+                  <Button variant="primary" className="flex-1" onClick={() => updateTableStatus(selectedTable.id, 'occupied', [])}>Occupied</Button>
+                  <Button variant="outline" className="flex-1" onClick={() => setAssignCustomerModalOpen(true)}>+ Customer</Button>
+                </div>
               </div>
             ) : (
               <div className="space-y-6">
@@ -765,15 +779,73 @@ export default function DashboardPage() {
 
       {isPaymentModalOpen && selectedTable && (
         <PaymentModal 
-          orderId={selectedTable.id} // using tableId as a ref for multiple orders
+          orderId={selectedTable.id}
           displayId={`Table ${selectedTable.number}`}
-          total={grandTotal}
+          total={allOrderItems.reduce((sum, item) => sum + (item.price * item.qty), 0)}
           onClose={() => setIsPaymentModalOpen(false)}
-          onConfirmPayment={async (method) => {
-            await handleCheckout(method);
-            setIsPaymentModalOpen(false);
-          }}
+          onConfirmPayment={handleCheckout}
         />
+      )}
+
+      {/* Assign Customer Modal */}
+      {assignCustomerModalOpen && selectedTable && (
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-background rounded-3xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 className="text-xl font-bold mb-2">Assign Customer</h3>
+            <p className="text-sm text-muted-foreground mb-6">Enter details for Table {selectedTable.number}</p>
+            
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              if (cName && cPhone) {
+                try {
+                  await addOrUpdateCustomer(cPhone, cName);
+                  await updateTableStatus(selectedTable.id, 'occupied', selectedTable.activeOrderIds || []);
+                  // also update customer details in table
+                  await runTransaction(db, async (t) => {
+                    t.update(doc(db, 'tables', selectedTable.id), {
+                      customerId: cPhone,
+                      customerName: cName,
+                      customerPhone: cPhone,
+                      status: 'occupied'
+                    });
+                  });
+                  setAssignCustomerModalOpen(false);
+                  setCName('');
+                  setCPhone('');
+                } catch (err) {
+                  console.error(err);
+                }
+              }
+            }} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold mb-1">Name</label>
+                <input 
+                  type="text" 
+                  value={cName}
+                  onChange={e => setCName(e.target.value)}
+                  className="w-full border-2 border-border rounded-xl px-4 py-3 bg-background focus:outline-none focus:border-primary transition-colors"
+                  placeholder="E.g. John Doe"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold mb-1">Phone Number</label>
+                <input 
+                  type="tel" 
+                  value={cPhone}
+                  onChange={e => setCPhone(e.target.value)}
+                  className="w-full border-2 border-border rounded-xl px-4 py-3 bg-background focus:outline-none focus:border-primary transition-colors"
+                  placeholder="10-digit mobile number"
+                  required
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button variant="outline" className="flex-1 py-6" onClick={() => setAssignCustomerModalOpen(false)}>Cancel</Button>
+                <Button variant="primary" type="submit" className="flex-1 py-6">Assign & Mark Occupied</Button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

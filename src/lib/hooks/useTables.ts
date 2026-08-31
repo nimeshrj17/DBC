@@ -10,6 +10,9 @@ export interface Table {
   activeOrderIds: string[];
   time?: string;
   price?: string;
+  customerId?: string;
+  customerName?: string;
+  customerPhone?: string;
 }
 
 export function useTables() {

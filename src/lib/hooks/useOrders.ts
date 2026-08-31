@@ -26,6 +26,7 @@ export interface Order {
   paymentStatus: 'unpaid' | 'awaiting_confirmation' | 'paid';
   createdAt: any;
   updatedAt: any;
+  customerId?: string; // To track who made the order
 }
 export const createOrderTransaction = async (orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt' | 'displayId'> & { displayIdPrefix?: string, idempotencyKey?: string }) => {
   try {

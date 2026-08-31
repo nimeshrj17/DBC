@@ -3,6 +3,7 @@ import React, { useState, useEffect, use } from 'react';
 import { useMenu, MenuItem } from '@/lib/hooks/useMenu';
 import { Table } from '@/lib/hooks/useTables';
 import { Order, createOrderTransaction } from '@/lib/hooks/useOrders';
+import { useCustomers } from '@/lib/hooks/useCustomers';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, doc, updateDoc, Timestamp, getDoc, onSnapshot, query, where, runTransaction } from 'firebase/firestore';
 import { Coffee, ShoppingBag, Plus, Minus, ChevronRight, Check, Clock, ChefHat, CheckCircle2, Banknote, QrCode } from 'lucide-react';
@@ -28,6 +29,10 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [tableOrders, setTableOrders] = useState<Order[]>([]);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [cName, setCName] = useState('');
+  const [cPhone, setCPhone] = useState('');
+  const { addOrUpdateCustomer } = useCustomers();
   const [justPaid, setJustPaid] = useState(false);
   const prevAwaitingRef = React.useRef(false);
 
@@ -105,8 +110,37 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const tax = subtotal * 0; // Assuming no tax for now or can fetch settings if needed
   const total = subtotal + tax;
 
-  const handlePlaceOrder = async () => {
-    if (cart.length === 0 || !table) return;
+  const handleCheckoutClick = () => {
+    if (!table?.customerId && !sessionStorage.getItem('skippedCustomerPrompt')) {
+      setShowCustomerModal(true);
+    } else {
+      executePlaceOrder();
+    }
+  };
+
+  const handleCustomerSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (cName && cPhone && table) {
+      try {
+        await addOrUpdateCustomer(cPhone, cName);
+        await updateDoc(doc(db, 'tables', table.id), {
+          customerId: cPhone,
+          customerName: cName,
+          customerPhone: cPhone
+        });
+        setTable(prev => prev ? {...prev, customerId: cPhone, customerName: cName, customerPhone: cPhone} : prev);
+      } catch (err) {
+        console.error(err);
+      }
+    } else {
+      sessionStorage.setItem('skippedCustomerPrompt', 'true');
+    }
+    setShowCustomerModal(false);
+    executePlaceOrder();
+  };
+
+  const executePlaceOrder = async () => {
+    if (!table || cart.length === 0 || isSubmitting) return;
     setIsSubmitting(true);
     try {
       const retailItems = cart.filter(i => i.category === 'Retail');
@@ -120,7 +154,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         const orderId = await createOrderTransaction({
           tableId: table.id,
           tableNumber: table.number,
-          customerPhone: null,
+          customerPhone: table.customerPhone || null,
           displayIdPrefix: 'QR',
           items: kitchenItems.map(i => ({
             menuItemId: i.id,
@@ -144,7 +178,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         const orderId = await createOrderTransaction({
           tableId: table.id,
           tableNumber: table.number,
-          customerPhone: null,
+          customerPhone: table.customerPhone || null,
           displayIdPrefix: 'QR',
           items: retailItems.map(i => ({
             menuItemId: i.id,
@@ -478,7 +512,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
             </div>
             
             <button 
-              onClick={handlePlaceOrder}
+              onClick={handleCheckoutClick}
               disabled={isSubmitting || cart.length === 0}
               className="w-full bg-[#A04010] text-white py-4 rounded-full font-black text-lg shadow-xl shadow-[#A04010]/20 hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center"
             >
@@ -512,6 +546,61 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           scrollbar-width: none;
         }
       `}} />
+      {/* Customer Info Modal */}
+      {showCustomerModal && (
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95">
+            <h3 className="text-xl font-bold mb-2 text-[#2A1A14]">Join our Family! ☕</h3>
+            <p className="text-sm text-gray-500 mb-6">Enter your details to receive exclusive offers and personalized recommendations.</p>
+            
+            <form onSubmit={handleCustomerSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Name</label>
+                <input 
+                  type="text" 
+                  value={cName}
+                  onChange={e => setCName(e.target.value)}
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#A04010] transition-colors"
+                  placeholder="E.g. John Doe"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Phone Number</label>
+                <input 
+                  type="tel" 
+                  value={cPhone}
+                  onChange={e => setCPhone(e.target.value)}
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#A04010] transition-colors"
+                  placeholder="10-digit mobile number"
+                  required
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button 
+                  type="button"
+                  onClick={() => {
+                    sessionStorage.setItem('skippedCustomerPrompt', 'true');
+                    setShowCustomerModal(false);
+                    executePlaceOrder();
+                  }}
+                  className="flex-1 py-3 font-bold text-gray-500 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  Skip
+                </button>
+                <button 
+                  type="submit"
+                  className="flex-2 bg-[#2A1A14] text-white py-3 px-6 font-bold rounded-xl shadow-md hover:bg-black transition-colors"
+                  style={{ flex: 2 }}
+                >
+                  Save & Continue
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
