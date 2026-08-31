@@ -351,7 +351,13 @@ export default function DashboardPage() {
         
         transaction.update(tableRef, {
           activeOrderIds: newActiveIds,
-          status: newActiveIds.length === 0 ? 'empty' : tableData.status
+          status: newActiveIds.length === 0 ? 'empty' : tableData.status,
+          ...(newActiveIds.length === 0 ? {
+            customerId: null,
+            customerName: null,
+            customerPhone: null,
+            currentSessionId: null
+          } : {})
         });
       });
       
@@ -472,7 +478,13 @@ export default function DashboardPage() {
         
         transaction.update(tableRef, {
           activeOrderIds: newActiveIds,
-          status: newActiveIds.length === 0 ? 'empty' : tableData.status
+          status: newActiveIds.length === 0 ? 'empty' : tableData.status,
+          ...(newActiveIds.length === 0 ? {
+            customerId: null,
+            customerName: null,
+            customerPhone: null,
+            currentSessionId: null
+          } : {})
         });
       });
       toast.success("Payment confirmed!");

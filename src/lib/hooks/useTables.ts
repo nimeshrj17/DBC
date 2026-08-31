@@ -13,6 +13,7 @@ export interface Table {
   customerId?: string;
   customerName?: string;
   customerPhone?: string;
+  currentSessionId?: string;
 }
 
 export function useTables() {

@@ -108,7 +108,13 @@ export default function OrdersPage() {
           
           transaction.update(tableRef, {
             activeOrderIds: newActiveOrders,
-            status: newActiveOrders.length === 0 ? 'empty' : tableData.status
+            status: newActiveOrders.length === 0 ? 'empty' : tableData.status,
+            ...(newActiveOrders.length === 0 ? {
+              customerId: null,
+              customerName: null,
+              customerPhone: null,
+              currentSessionId: null
+            } : {})
           });
         }
       });

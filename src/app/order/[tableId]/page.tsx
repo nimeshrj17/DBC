@@ -36,6 +36,16 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const { addOrUpdateCustomer } = useCustomers();
   const [justPaid, setJustPaid] = useState(false);
   const prevAwaitingRef = React.useRef(false);
+  const [deviceId, setDeviceId] = useState<string>('');
+
+  useEffect(() => {
+    let stored = localStorage.getItem('deviceId');
+    if (!stored) {
+      stored = 'dev_' + Math.random().toString(36).substring(2, 11);
+      localStorage.setItem('deviceId', stored);
+    }
+    setDeviceId(stored);
+  }, []);
 
   useEffect(() => {
     const isAwaiting = tableOrders.some(o => o.paymentStatus === 'awaiting_confirmation');
@@ -112,6 +122,11 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const total = subtotal + tax;
 
   const handleCheckoutClick = () => {
+    if (table?.currentSessionId && table.currentSessionId !== deviceId && table.status !== 'empty') {
+      toast.error("This table is currently being used by another device.");
+      return;
+    }
+    
     if (!table?.customerId && !sessionStorage.getItem('skippedCustomerPrompt')) {
       setShowCustomerModal(true);
     } else {
@@ -127,9 +142,10 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         await updateDoc(doc(db, 'tables', table.id), {
           customerId: cPhone,
           customerName: cName,
-          customerPhone: cPhone
+          customerPhone: cPhone,
+          currentSessionId: deviceId
         });
-        setTable(prev => prev ? {...prev, customerId: cPhone, customerName: cName, customerPhone: cPhone} : prev);
+        setTable(prev => prev ? {...prev, customerId: cPhone, customerName: cName, customerPhone: cPhone, currentSessionId: deviceId} : prev);
       } catch (err) {
         console.error(err);
       }
@@ -211,7 +227,8 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       await updateDoc(doc(db, 'tables', table.id), {
         activeOrderIds: newActiveIds,
         status: tableStatus,
-        updatedAt: Timestamp.now()
+        updatedAt: Timestamp.now(),
+        ...(table.status === 'empty' ? { currentSessionId: deviceId } : {})
       });
 
       setOrderPlaced(true);
