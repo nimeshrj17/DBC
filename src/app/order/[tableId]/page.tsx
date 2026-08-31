@@ -1,0 +1,324 @@
+'use client';
+import React, { useState, useEffect, use } from 'react';
+import { useMenu, MenuItem } from '@/lib/hooks/useMenu';
+import { Table } from '@/lib/hooks/useTables';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, doc, updateDoc, Timestamp, getDoc } from 'firebase/firestore';
+import { Coffee, ShoppingBag, Plus, Minus, ChevronRight, Check } from 'lucide-react';
+import { toast } from 'sonner';
+
+interface CartItem extends MenuItem {
+  qty: number;
+}
+
+export default function CustomerOrderPage({ params }: { params: Promise<{ tableId: string }> }) {
+  const resolvedParams = use(params);
+  const tableId = resolvedParams.tableId;
+
+  const { menuItems, loading: menuLoading } = useMenu();
+  const [table, setTable] = useState<Table | null>(null);
+  const [tableLoading, setTableLoading] = useState(true);
+  
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderPlaced, setOrderPlaced] = useState(false);
+
+  useEffect(() => {
+    const fetchTable = async () => {
+      try {
+        const tableDoc = await getDoc(doc(db, 'tables', tableId));
+        if (tableDoc.exists()) {
+          setTable({ id: tableDoc.id, ...tableDoc.data() } as Table);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setTableLoading(false);
+      }
+    };
+    fetchTable();
+  }, [tableId]);
+
+  const addToCart = (item: MenuItem) => {
+    setCart(prev => {
+      const existing = prev.find(i => i.id === item.id);
+      if (existing) {
+        return prev.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i);
+      }
+      return [...prev, { ...item, qty: 1 }];
+    });
+    toast.success(`Added ${item.name} to cart`, { duration: 1500 });
+  };
+
+  const updateQty = (id: string, delta: number) => {
+    setCart(prev => prev.map(i => {
+      if (i.id === id) {
+        const newQty = Math.max(0, i.qty + delta);
+        return { ...i, qty: newQty };
+      }
+      return i;
+    }).filter(i => i.qty > 0));
+  };
+
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  const tax = subtotal * 0; // Assuming no tax for now or can fetch settings if needed
+  const total = subtotal + tax;
+
+  const handlePlaceOrder = async () => {
+    if (cart.length === 0 || !table) return;
+    setIsSubmitting(true);
+    try {
+      // 1. Create order
+      const orderData = {
+        tableId: table.id,
+        tableNumber: table.number,
+        items: cart.map(i => ({
+          menuItemId: i.id,
+          name: i.name,
+          price: i.price,
+          category: i.category,
+          qty: i.qty
+        })),
+        subtotal,
+        tax,
+        total,
+        status: 'pending',
+        paymentStatus: 'unpaid',
+        paymentMethod: null,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now()
+      };
+
+      const orderRef = await addDoc(collection(db, 'orders'), orderData);
+
+      // 2. Update table active orders
+      const newActiveIds = [...(table.activeOrderIds || []), orderRef.id];
+      await updateDoc(doc(db, 'tables', table.id), {
+        activeOrderIds: newActiveIds,
+        status: table.status === 'empty' ? 'order_placed' : table.status,
+        updatedAt: Timestamp.now()
+      });
+
+      setOrderPlaced(true);
+      setCart([]);
+      setIsCartOpen(false);
+    } catch (error) {
+      console.error('Failed to place order', error);
+      toast.error('Failed to place order. Please try again or contact staff.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (tableLoading || menuLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FCFAFA]">
+        <div className="w-8 h-8 border-4 border-[#2A1A14] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!table) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FCFAFA] text-center">
+        <h1 className="text-2xl font-bold text-red-600 mb-2">Invalid QR Code</h1>
+        <p className="text-gray-600">This table does not exist or the link is invalid. Please ask staff for assistance.</p>
+      </div>
+    );
+  }
+
+  const categories = Array.from(new Set(menuItems.map(i => i.category)));
+
+  if (orderPlaced) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FCFAFA] text-center">
+        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
+          <Check className="w-10 h-10 text-green-600" />
+        </div>
+        <h1 className="text-3xl font-extrabold text-[#2A1A14] mb-2 tracking-tight">Order Placed!</h1>
+        <p className="text-gray-600 mb-8 text-lg">Your order has been sent to the kitchen. We'll bring it right out to Table {table.number}.</p>
+        <button 
+          onClick={() => setOrderPlaced(false)}
+          className="bg-[#2A1A14] text-[#D4C1B3] px-8 py-3 rounded-full font-bold shadow-lg"
+        >
+          Order More Items
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#FCFAFA] pb-24 font-sans text-[#2A1A14]">
+      {/* Header */}
+      <div className="bg-[#2A1A14] text-[#D4C1B3] pt-12 pb-8 px-6 rounded-b-[40px] shadow-xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
+          <Coffee className="w-64 h-64 -mt-10 -mr-10 transform rotate-12" />
+        </div>
+        <div className="relative z-10 flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-[#D4C1B3] rounded-full flex items-center justify-center">
+              <Coffee className="text-[#2A1A14] w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-black tracking-tight leading-none text-white">Dream Bean</h1>
+              <p className="text-sm font-medium opacity-80 tracking-widest uppercase mt-1">Café</p>
+            </div>
+          </div>
+          <div className="bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10 text-white font-bold shadow-sm text-sm">
+            Table {table.number}
+          </div>
+        </div>
+      </div>
+
+      {/* Menu Categories */}
+      <div className="px-4 mt-6">
+        <div className="flex overflow-x-auto hide-scrollbar gap-3 pb-2 -mx-4 px-4 snap-x">
+          {categories.map((cat, i) => (
+            <div key={i} className="snap-start shrink-0 bg-white border border-[#EBE2DC] shadow-sm px-5 py-2.5 rounded-full text-sm font-bold text-[#2A1A14] whitespace-nowrap shadow-sm">
+              {cat}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Menu Items */}
+      <div className="px-4 mt-6 space-y-4">
+        {menuItems.filter(i => i.available).map(item => {
+          const cartItem = cart.find(i => i.id === item.id);
+          return (
+            <div key={item.id} className="bg-white p-4 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#EBE2DC]/50 flex gap-4 overflow-hidden relative">
+              <div className="flex-1 flex flex-col justify-center">
+                <h3 className="font-bold text-[17px] text-[#2A1A14] leading-tight mb-1">{item.name}</h3>
+                {item.description && <p className="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed pr-2">{item.description}</p>}
+                
+                <div className="flex items-center justify-between mt-auto">
+                  <span className="font-extrabold text-[17px] text-[#A04010]">₹{item.price}</span>
+                  
+                  {cartItem ? (
+                    <div className="flex items-center bg-[#F5EFEA] rounded-full p-1 border border-[#EBE2DC]">
+                      <button onClick={() => updateQty(item.id, -1)} className="w-8 h-8 flex items-center justify-center bg-white rounded-full shadow-sm text-[#2A1A14]">
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="w-8 text-center font-bold text-[#2A1A14]">{cartItem.qty}</span>
+                      <button onClick={() => updateQty(item.id, 1)} className="w-8 h-8 flex items-center justify-center bg-[#2A1A14] rounded-full shadow-sm text-white">
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button 
+                      onClick={() => addToCart(item)}
+                      className="bg-[#2A1A14] text-white px-5 py-2 rounded-full font-bold text-sm shadow-md hover:scale-105 transition-transform active:scale-95"
+                    >
+                      Add
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Cart Floating Button */}
+      {cart.length > 0 && !isCartOpen && (
+        <div className="fixed bottom-6 left-0 right-0 px-6 z-40 animate-in slide-in-from-bottom-10 fade-in duration-300">
+          <button 
+            onClick={() => setIsCartOpen(true)}
+            className="w-full bg-[#2A1A14] text-white p-4 rounded-3xl shadow-2xl flex items-center justify-between group hover:bg-black transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 w-10 h-10 rounded-full flex items-center justify-center font-bold relative overflow-hidden">
+                <ShoppingBag className="w-5 h-5 absolute group-hover:-translate-y-10 transition-transform duration-300" />
+                <span className="absolute translate-y-10 group-hover:translate-y-0 transition-transform duration-300">
+                  {cart.reduce((sum, i) => sum + i.qty, 0)}
+                </span>
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="font-bold text-sm text-white/70">View Cart</span>
+                <span className="font-black text-[17px]">₹{total.toFixed(2)}</span>
+              </div>
+            </div>
+            <div className="bg-[#D4C1B3] text-[#2A1A14] px-5 py-2.5 rounded-2xl font-bold flex items-center gap-1 shadow-inner">
+              Checkout
+              <ChevronRight className="w-4 h-4" />
+            </div>
+          </button>
+        </div>
+      )}
+
+      {/* Cart Bottom Sheet */}
+      {isCartOpen && (
+        <>
+          <div 
+            className="fixed inset-0 bg-[#2A1A14]/40 backdrop-blur-sm z-40 animate-in fade-in duration-200"
+            onClick={() => setIsCartOpen(false)}
+          ></div>
+          <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[40px] z-50 p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom-full duration-300 max-h-[85vh] flex flex-col">
+            <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
+            
+            <h2 className="text-2xl font-black text-[#2A1A14] mb-6">Your Order</h2>
+            
+            <div className="flex-1 overflow-y-auto mb-6 -mx-2 px-2 space-y-4">
+              {cart.map(item => (
+                <div key={item.id} className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <h4 className="font-bold text-[#2A1A14]">{item.name}</h4>
+                    <span className="text-[#A04010] font-bold text-sm">₹{(item.price * item.qty).toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center bg-[#F5EFEA] rounded-full p-1 border border-[#EBE2DC]">
+                    <button onClick={() => updateQty(item.id, -1)} className="w-8 h-8 flex items-center justify-center bg-white rounded-full shadow-sm text-[#2A1A14]">
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <span className="w-8 text-center font-bold text-[#2A1A14]">{item.qty}</span>
+                    <button onClick={() => updateQty(item.id, 1)} className="w-8 h-8 flex items-center justify-center bg-[#2A1A14] rounded-full shadow-sm text-white">
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              
+              {cart.length === 0 && (
+                <p className="text-center text-gray-500 py-4">Your cart is empty.</p>
+              )}
+            </div>
+            
+            <div className="bg-[#FCFAFA] p-5 rounded-3xl border border-[#EBE2DC] mb-6">
+              <div className="flex justify-between text-sm font-medium text-gray-600 mb-2">
+                <span>Subtotal</span>
+                <span>₹{subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between font-black text-xl text-[#2A1A14] pt-3 border-t border-[#EBE2DC]">
+                <span>Total</span>
+                <span>₹{total.toFixed(2)}</span>
+              </div>
+            </div>
+            
+            <button 
+              onClick={handlePlaceOrder}
+              disabled={isSubmitting || cart.length === 0}
+              className="w-full bg-[#A04010] text-white py-4 rounded-full font-black text-lg shadow-xl shadow-[#A04010]/20 hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center"
+            >
+              {isSubmitting ? (
+                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                'Place Order'
+              )}
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Global hide scrollbar styles */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}} />
+    </div>
+  );
+}

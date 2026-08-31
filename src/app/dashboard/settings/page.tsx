@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
-import { Settings, Percent, Receipt, Info } from 'lucide-react';
+import { Settings, Percent, Receipt, Info, QrCode } from 'lucide-react';
 import { useSettings } from '@/lib/hooks/useSettings';
 import { toast } from 'sonner';
 
@@ -84,6 +84,33 @@ export default function SettingsPage() {
               <p className="text-xs text-muted-foreground mt-2 flex items-start">
                 <Info className="w-3 h-3 mr-1 mt-0.5 shrink-0" />
                 This rate will be applied to the subtotal of all new orders. Existing orders will not be affected.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl border-border shadow-sm overflow-hidden">
+          <div className="p-4 bg-muted/20 border-b border-border flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
+              <QrCode className="w-4 h-4" />
+            </div>
+            <h3 className="font-semibold">Payments & UPI</h3>
+          </div>
+          <CardContent className="p-6 space-y-6">
+            <div>
+              <label className="block text-sm font-medium mb-2">Store UPI ID</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="e.g. yourname@upi"
+                  value={settings.upiId || ''}
+                  onChange={(e) => updateSettings({ upiId: e.target.value }).catch(() => {})}
+                  className="w-full px-4 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 flex items-start">
+                <Info className="w-3 h-3 mr-1 mt-0.5 shrink-0" />
+                This UPI ID will be used to generate dynamic payment QR codes for customers.
               </p>
             </div>
           </CardContent>

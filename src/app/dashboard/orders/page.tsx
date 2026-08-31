@@ -7,6 +7,7 @@ import { useTables } from '@/lib/hooks/useTables';
 import { doc, runTransaction } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
+import PaymentModal from '@/components/dashboard/PaymentModal';
 
 const getStatusBadge = (status: string) => {
   switch(status) {
@@ -43,7 +44,6 @@ export default function OrdersPage() {
   const { tables, updateTableStatus } = useTables();
   const [searchQuery, setSearchQuery] = useState('');
   const [orderToPay, setOrderToPay] = useState<Order | null>(null);
-  const [viewOrder, setViewOrder] = useState<Order | null>(null);
 
   const handleStatusChange = async (order: Order, newStatus: Order['status']) => {
     try {
@@ -134,253 +134,147 @@ export default function OrdersPage() {
            `Table ${order.tableNumber}`.toLowerCase().includes(searchLower);
   });
 
-  if (loading) {
-    return <div className="flex items-center justify-center h-full"><p className="text-muted-foreground">Loading orders...</p></div>;
-  }
-
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10 h-full flex flex-col">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold mb-1">Orders History</h1>
-          <p className="text-sm text-muted-foreground">Manage and view all recent orders.</p>
-        </div>
-        
-        <div className="flex items-center space-x-3 w-full sm:w-auto">
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <input 
-              type="text" 
-              placeholder="Search order ID or table..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-            />
+    <div className="flex flex-col w-full h-full pb-6">
+      {/* Order Grid */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div className="flex items-center space-x-4">
+            <h1 className="text-2xl font-bold">Orders</h1>
           </div>
-          <button className="flex items-center space-x-2 px-4 py-2 bg-card border border-border rounded-xl text-sm font-medium hover:bg-muted/50 transition-colors">
-            <Filter className="w-4 h-4" />
-            <span>Filter</span>
-          </button>
+          
+          <div className="flex items-center space-x-3 w-full sm:w-auto">
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <input 
+                type="text" 
+                placeholder="Search by ID or table..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+            <select className="bg-card border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+              <option>All</option>
+              <option>Pending</option>
+              <option>Preparing</option>
+            </select>
+          </div>
         </div>
-      </div>
 
-      <Card className="rounded-2xl overflow-hidden border border-border shadow-sm flex-1 flex flex-col">
-        <div className="overflow-x-auto flex-1">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-muted/50 border-b border-border">
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Order ID</th>
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Date & Time</th>
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Table</th>
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Items</th>
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total</th>
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
+        {/* Scrollable Grid */}
+        <div className="flex-1 overflow-y-auto pr-2">
+          {filteredOrders.length === 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-muted-foreground">No orders found.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 pb-10">
               {filteredOrders.map((order) => {
                 const { time, date } = formatDate(order.createdAt);
-                const itemsStr = order.items.map(i => `${i.qty}x ${i.name}`).join(', ');
                 
                 let isStale = false;
                 if (order.status === 'prepared' && order.updatedAt) {
                   const updatedTime = typeof order.updatedAt?.toMillis === 'function' 
                     ? order.updatedAt.toMillis() 
                     : (order.updatedAt as any).seconds * 1000;
-                  
-                  if (Date.now() - updatedTime > 10 * 60 * 1000) {
-                    isStale = true;
-                  }
+                  if (Date.now() - updatedTime > 10 * 60 * 1000) isStale = true;
                 }
-                
+
                 return (
-                  <tr 
+                  <Card 
                     key={order.id} 
-                    onClick={() => setViewOrder(order)}
-                    className={`transition-colors group cursor-pointer ${isStale ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-muted/30'}`}
+                    className="p-4 rounded-2xl border border-border transition-all flex flex-col"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <span className={`font-bold text-sm ${isStale ? 'text-red-700' : ''}`}>{order.displayId}</span>
-                        {isStale && <span className="flex h-2 w-2 rounded-full bg-red-600 animate-pulse" title="Stale Order (>10m)"></span>}
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex gap-3 items-center">
+                        <div className="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm">
+                          T{order.tableNumber}
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-sm">Table {order.tableNumber}</h3>
+                          <p className="text-xs text-muted-foreground">{order.displayId}</p>
+                        </div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium">{time}</div>
-                      <div className="text-xs text-muted-foreground">{date}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-muted text-foreground">
-                        Table {order.tableNumber}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm text-muted-foreground max-w-xs truncate" title={itemsStr}>
-                        {itemsStr}
-                      </p>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="font-bold text-sm tabular-nums">₹ {order.total}</span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {getStatusBadge(order.status)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="flex justify-end space-x-2">
-                        {order.status === 'pending' && (
-                          <div className="flex space-x-2">
-                            <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'preparing') }} className="text-xs font-semibold px-3 py-1.5 bg-orange-100 text-orange-600 rounded-lg hover:bg-orange-200 transition-colors">Start Prep</button>
-                            <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'cancelled' as any) }} className="text-xs font-semibold px-3 py-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors">Void</button>
+                      <div className="flex flex-col items-end gap-1">
+                        {getStatusBadge(order.status)}
+                        <span className="text-[10px] text-muted-foreground font-medium mt-1">{time}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="text-xs text-muted-foreground mb-3">{date}</div>
+                    
+                    <div className="border-t border-border pt-3 mb-3 flex-1 flex flex-col">
+                      <div className="grid grid-cols-[1fr_auto_auto] gap-2 mb-2 text-xs font-semibold text-muted-foreground">
+                        <span>Items</span>
+                        <span className="px-2">Qty</span>
+                        <span>Price</span>
+                      </div>
+                      <div className="space-y-2 overflow-y-auto max-h-[150px] pr-1">
+                        {order.items.map((item, idx) => (
+                          <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-2 text-sm items-center">
+                            <span className="truncate pr-2 font-medium">{item.name}</span>
+                            <span className="px-2 text-muted-foreground">{item.qty}</span>
+                            <span className="font-medium">₹{(item.price * item.qty).toFixed(2)}</span>
                           </div>
-                        )}
-                        {order.status === 'preparing' && (
-                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'prepared') }} className="text-xs font-semibold px-3 py-1.5 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors">Mark Prepared</button>
-                        )}
-                        {order.status === 'prepared' && (
-                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'served') }} className="text-xs font-semibold px-3 py-1.5 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors">Mark Served</button>
-                        )}
-                        {order.status === 'served' && (
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); setOrderToPay(order) }} 
-                            className="text-xs font-semibold px-3 py-1.5 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
-                          >
-                            Mark Paid
-                          </button>
-                        )}
-                        {order.status === 'billed' && (
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); setOrderToPay(order) }} 
-                            className="text-xs font-semibold px-3 py-1.5 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
-                          >
-                            Mark Paid
-                          </button>
-                        )}
-                        {order.status === 'cancelled' && (
-                          <span className="text-xs font-semibold px-3 py-1.5 bg-red-50 text-red-500 rounded-lg">Voided</span>
-                        )}
-                        <button className="text-muted-foreground hover:text-foreground p-1 rounded transition-colors" title="More options">
-                          <MoreHorizontal className="w-5 h-5" />
-                        </button>
+                        ))}
                       </div>
-                    </td>
-                  </tr>
+                    </div>
+                    
+                    <div className="flex items-center justify-between pt-3 border-t border-border mb-4 mt-auto">
+                      <span className="font-bold text-sm">Total</span>
+                      <span className="font-bold text-base">₹{order.total.toFixed(2)}</span>
+                    </div>
+                    
+                    <div>
+                      {order.status === 'pending' && (
+                        <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'preparing') }} className="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold rounded-xl transition-colors shadow-sm">
+                          Start Prep
+                        </button>
+                      )}
+                      {order.status === 'preparing' && (
+                        <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'prepared') }} className="w-full py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-bold rounded-xl transition-colors shadow-sm">
+                          Mark Prepared
+                        </button>
+                      )}
+                      {order.status === 'prepared' && (
+                        <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'served') }} className="w-full py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-xl transition-colors shadow-sm">
+                          Serve
+                        </button>
+                      )}
+                      {(order.status === 'served' || order.status === 'billed') && (
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setOrderToPay(order) }} 
+                          className="w-full py-2.5 bg-green-500 hover:bg-green-600 text-white text-sm font-bold rounded-xl transition-colors shadow-sm"
+                        >
+                          Pay Bill
+                        </button>
+                      )}
+                      {order.status === 'cancelled' && (
+                        <button disabled className="w-full py-2.5 bg-gray-200 text-gray-500 text-sm font-bold rounded-xl cursor-not-allowed">
+                          Voided
+                        </button>
+                      )}
+                    </div>
+                  </Card>
                 );
               })}
-              {filteredOrders.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
-                    No orders found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+            </div>
+          )}
         </div>
-      </Card>
+      </div>
 
       {/* Payment Selection Modal */}
       {orderToPay && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={() => setOrderToPay(null)}>
-          <div className="bg-background rounded-3xl w-full max-w-md shadow-2xl overflow-hidden border border-border" onClick={e => e.stopPropagation()}>
-            <div className="p-6 border-b border-border flex justify-between items-center bg-muted/30">
-              <div>
-                <h2 className="text-xl font-bold">Select Payment Method</h2>
-                <p className="text-sm text-muted-foreground mt-1">Order {orderToPay.displayId}</p>
-              </div>
-              <button onClick={() => setOrderToPay(null)} className="p-2 hover:bg-muted rounded-full transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="p-6 space-y-4">
-              <div className="text-center p-6 bg-card border border-border rounded-2xl shadow-sm mb-6">
-                <p className="text-sm text-muted-foreground font-medium mb-1">Total Amount Due</p>
-                <div className="text-4xl font-bold text-foreground tracking-tight">₹ {orderToPay.total.toFixed(2)}</div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <button 
-                  onClick={() => handleMarkPaid('cash')}
-                  className="flex flex-col items-center justify-center p-6 border-2 border-border rounded-2xl hover:border-primary hover:bg-primary/5 transition-all group"
-                >
-                  <div className="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                    <Banknote className="w-6 h-6" />
-                  </div>
-                  <span className="font-bold">Cash</span>
-                </button>
-                <button 
-                  onClick={() => handleMarkPaid('qr')}
-                  className="flex flex-col items-center justify-center p-6 border-2 border-border rounded-2xl hover:border-primary hover:bg-primary/5 transition-all group"
-                >
-                  <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                    <QrCode className="w-6 h-6" />
-                  </div>
-                  <span className="font-bold">QR / Online</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Order Details Modal */}
-      {viewOrder && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={() => setViewOrder(null)}>
-          <div className="bg-background rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden border border-border" onClick={e => e.stopPropagation()}>
-            <div className="p-6 border-b border-border flex justify-between items-center bg-muted/30">
-              <div>
-                <h2 className="text-xl font-bold">Order Details</h2>
-                <p className="text-sm text-muted-foreground mt-1">{viewOrder.displayId} • Table {viewOrder.tableNumber}</p>
-              </div>
-              <button onClick={() => setViewOrder(null)} className="p-2 hover:bg-muted rounded-full transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <div className="text-sm text-muted-foreground">Status</div>
-                  <div className="mt-1">{getStatusBadge(viewOrder.status)}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm text-muted-foreground">Order Time</div>
-                  <div className="mt-1 font-medium">{formatDate(viewOrder.createdAt).time} - {formatDate(viewOrder.createdAt).date}</div>
-                </div>
-              </div>
-              
-              <div className="bg-card border border-border rounded-xl overflow-hidden">
-                <div className="px-4 py-3 bg-muted/30 border-b border-border font-medium text-sm">Order Items</div>
-                <ul className="divide-y divide-border">
-                  {viewOrder.items.map((item, idx) => (
-                    <li key={idx} className="p-4 flex justify-between items-center">
-                      <div className="flex items-center space-x-3">
-                        <span className="w-6 h-6 rounded-md bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">{item.qty}x</span>
-                        <span className="font-medium text-sm">{item.name}</span>
-                      </div>
-                      <span className="text-sm font-medium">₹ {(item.price * item.qty).toFixed(2)}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="p-4 bg-muted/10 border-t border-border">
-                  <div className="flex justify-between text-sm text-muted-foreground mb-2">
-                    <span>Subtotal</span>
-                    <span>₹ {viewOrder.subtotal.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm text-muted-foreground mb-3">
-                    <span>Tax</span>
-                    <span>₹ {viewOrder.tax.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between font-bold text-lg pt-3 border-t border-border">
-                    <span>Total</span>
-                    <span>₹ {viewOrder.total.toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PaymentModal 
+          orderId={orderToPay.id}
+          displayId={orderToPay.displayId}
+          total={orderToPay.total}
+          onClose={() => setOrderToPay(null)}
+          onConfirmPayment={async (method) => {
+            await handleMarkPaid(method);
+          }}
+        />
       )}
     </div>
   );

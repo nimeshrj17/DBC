@@ -5,11 +5,13 @@ import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
 export interface AppSettings {
   taxEnabled: boolean;
   taxPercentage: number;
+  upiId: string;
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
   taxEnabled: true,
   taxPercentage: 5,
+  upiId: '',
 };
 
 export function useSettings() {

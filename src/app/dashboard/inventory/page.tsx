@@ -36,8 +36,25 @@ export default function InventoryPage() {
 
   const [formData, setFormData] = useState(initialForm);
 
-  const rawMaterials = inventory.filter(i => i.type === 'raw');
-  const retailProducts = inventory.filter(i => i.type === 'retail');
+  const sortInventory = (items: InventoryItem[]) => {
+    return [...items].sort((a, b) => {
+      // 0 stock first
+      if (a.quantity <= 0 && b.quantity > 0) return -1;
+      if (b.quantity <= 0 && a.quantity > 0) return 1;
+      
+      // Low stock (<= 10) next
+      const aLow = a.quantity > 0 && a.quantity <= 10;
+      const bLow = b.quantity > 0 && b.quantity <= 10;
+      if (aLow && !bLow) return -1;
+      if (bLow && !aLow) return 1;
+      
+      // Otherwise sort alphabetically
+      return a.name.localeCompare(b.name);
+    });
+  };
+
+  const rawMaterials = sortInventory(inventory.filter(i => i.type === 'raw'));
+  const retailProducts = sortInventory(inventory.filter(i => i.type === 'retail'));
   const displayedInventory = activeTab === 'raw' ? rawMaterials : retailProducts;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -164,17 +181,27 @@ export default function InventoryPage() {
                 <tr key={item.id} className="hover:bg-muted/30 transition-colors group">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="w-8 h-8 rounded-full bg-primary/20 text-primary-foreground flex items-center justify-center mr-3">
-                        <Package className="w-4 h-4 text-primary" />
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${item.quantity <= 0 ? 'bg-red-100 text-red-600' : item.quantity <= 10 ? 'bg-orange-100 text-orange-600' : 'bg-primary/20 text-primary-foreground'}`}>
+                        <Package className={`w-4 h-4 ${item.quantity <= 0 ? 'text-red-600' : item.quantity <= 10 ? 'text-orange-600' : 'text-primary'}`} />
                       </div>
                       <div className="flex flex-col">
-                        <span className="font-bold text-sm">{item.name}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm">{item.name}</span>
+                          {item.quantity <= 0 && (
+                            <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded text-[10px] font-bold">Out of Stock</span>
+                          )}
+                          {item.quantity > 0 && item.quantity <= 10 && (
+                            <span className="bg-orange-100 text-orange-600 px-2 py-0.5 rounded text-[10px] font-bold">Low Stock</span>
+                          )}
+                        </div>
                         {item.company && <span className="text-[10px] text-muted-foreground">{item.company}</span>}
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="font-medium text-sm">{item.quantity} {item.unit}</span>
+                    <span className={`font-medium text-sm ${item.quantity <= 0 ? 'text-red-600' : item.quantity <= 10 ? 'text-orange-600' : ''}`}>
+                      {item.quantity} {item.unit}
+                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="font-medium text-sm text-red-600">₹ {item.totalCost.toFixed(2)}</span>

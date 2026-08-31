@@ -12,6 +12,8 @@ import { useInventory } from '@/lib/hooks/useInventory';
 import { useSettings } from '@/lib/hooks/useSettings';
 import { doc, runTransaction } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import QRCodeGenerator from '@/components/dashboard/QRCodeGenerator';
+import PaymentModal from '@/components/dashboard/PaymentModal';
 
 const getStatusColor = (status: string) => {
   switch(status) {
@@ -72,6 +74,7 @@ export default function DashboardPage() {
   
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   
   const selectedTable = tables.find(t => t.id === selectedTableId) || null;
   const activeOrders = selectedTable?.activeOrderIds 
@@ -417,6 +420,9 @@ export default function DashboardPage() {
                     <span className="text-sm font-bold">₹ {tableTotal.toFixed(2)}</span>
                   )}
                 </div>
+                <div className="mt-4" onClick={(e) => e.stopPropagation()}>
+                  <QRCodeGenerator tableId={table.id} tableNumber={table.number} />
+                </div>
               </CardContent>
             </Card>
           );
@@ -551,14 +557,9 @@ export default function DashboardPage() {
                 )}
 
                 {currentDraftItems.length === 0 && selectedTable.status === 'awaiting_payment' && (
-                  <>
-                    <Button variant="outline" onClick={() => handleCheckout('cash')} className="flex items-center justify-center">
-                      <Banknote className="w-4 h-4 mr-2" /> Cash
-                    </Button>
-                    <Button variant="primary" onClick={() => handleCheckout('qr')} className="flex items-center justify-center">
-                      <QrCode className="w-4 h-4 mr-2" /> QR / Card
-                    </Button>
-                  </>
+                  <Button variant="primary" className="col-span-2 text-base h-12 flex items-center justify-center font-bold" onClick={() => setIsPaymentModalOpen(true)}>
+                    <Banknote className="w-5 h-5 mr-2" /> Pay Bill
+                  </Button>
                 )}
               </div>
               
@@ -629,6 +630,19 @@ export default function DashboardPage() {
             </form>
           </div>
         </div>
+      )}
+
+      {isPaymentModalOpen && selectedTable && (
+        <PaymentModal 
+          orderId={selectedTable.id} // using tableId as a ref for multiple orders
+          displayId={`Table ${selectedTable.number}`}
+          total={grandTotal}
+          onClose={() => setIsPaymentModalOpen(false)}
+          onConfirmPayment={async (method) => {
+            await handleCheckout(method);
+            setIsPaymentModalOpen(false);
+          }}
+        />
       )}
     </div>
   );
