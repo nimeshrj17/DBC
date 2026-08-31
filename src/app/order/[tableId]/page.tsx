@@ -2,7 +2,7 @@
 import React, { useState, useEffect, use } from 'react';
 import { useMenu, MenuItem } from '@/lib/hooks/useMenu';
 import { Table } from '@/lib/hooks/useTables';
-import { Order } from '@/lib/hooks/useOrders';
+import { Order, createOrderTransaction } from '@/lib/hooks/useOrders';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, doc, updateDoc, Timestamp, getDoc, onSnapshot, query, where } from 'firebase/firestore';
 import { Coffee, ShoppingBag, Plus, Minus, ChevronRight, Check, Clock, ChefHat, CheckCircle2, Banknote } from 'lucide-react';
@@ -45,9 +45,9 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           unsubscribeOrders = onSnapshot(q, (snapshot) => {
             const ordersData: Order[] = [];
             snapshot.forEach((doc) => {
-              const data = doc.data() as Order;
+              const data = doc.data() as Omit<Order, 'id'>;
               if (data.status !== 'completed' && data.status !== 'cancelled' && data.paymentStatus !== 'paid') {
-                ordersData.push({ id: doc.id, ...data });
+                ordersData.push({ id: doc.id, ...data } as Order);
               }
             });
             // Sort by created at
@@ -97,36 +97,67 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     if (cart.length === 0 || !table) return;
     setIsSubmitting(true);
     try {
-      // 1. Create order
-      const displayId = `#QR-${Math.floor(1000 + Math.random() * 9000)}`;
-      const orderData = {
-        tableId: table.id,
-        tableNumber: table.number,
-        displayId,
-        items: cart.map(i => ({
-          menuItemId: i.id,
-          name: i.name,
-          price: i.price,
-          category: i.category,
-          qty: i.qty
-        })),
-        subtotal,
-        tax,
-        total,
-        status: 'pending',
-        paymentStatus: 'unpaid',
-        paymentMethod: null,
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now()
-      };
-
-      const orderRef = await addDoc(collection(db, 'orders'), orderData);
+      const retailItems = cart.filter(i => i.category === 'Retail');
+      const kitchenItems = cart.filter(i => i.category !== 'Retail');
+      
+      const newOrderIds = [];
+      
+      if (kitchenItems.length > 0) {
+        const sub = kitchenItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
+        // tax logic if any
+        const orderId = await createOrderTransaction({
+          tableId: table.id,
+          tableNumber: table.number,
+          customerPhone: null,
+          displayIdPrefix: 'QR',
+          items: kitchenItems.map(i => ({
+            menuItemId: i.id,
+            name: i.name,
+            price: i.price,
+            category: i.category,
+            qty: i.qty
+          })),
+          subtotal: sub,
+          tax: 0,
+          total: sub,
+          status: 'pending',
+          paymentMethod: null,
+          paymentStatus: 'unpaid'
+        });
+        newOrderIds.push(orderId);
+      }
+      
+      if (retailItems.length > 0) {
+        const sub = retailItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
+        const orderId = await createOrderTransaction({
+          tableId: table.id,
+          tableNumber: table.number,
+          customerPhone: null,
+          displayIdPrefix: 'QR',
+          items: retailItems.map(i => ({
+            menuItemId: i.id,
+            name: i.name,
+            price: i.price,
+            category: i.category,
+            qty: i.qty
+          })),
+          subtotal: sub,
+          tax: 0,
+          total: sub,
+          status: 'served',
+          paymentMethod: null,
+          paymentStatus: 'unpaid'
+        });
+        newOrderIds.push(orderId);
+      }
 
       // 2. Update table active orders
-      const newActiveIds = [...(table.activeOrderIds || []), orderRef.id];
+      const newActiveIds = [...(table.activeOrderIds || []), ...newOrderIds];
+      const tableStatus = kitchenItems.length > 0 ? (table.status === 'empty' ? 'order_placed' : table.status) : table.status;
+      
       await updateDoc(doc(db, 'tables', table.id), {
         activeOrderIds: newActiveIds,
-        status: table.status === 'empty' ? 'order_placed' : table.status,
+        status: tableStatus,
         updatedAt: Timestamp.now()
       });
 
