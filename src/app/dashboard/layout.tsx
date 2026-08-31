@@ -217,10 +217,34 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        <div className="flex-1 overflow-auto p-8 bg-transparent z-10">
+        <div className="flex-1 overflow-auto p-4 md:p-8 bg-transparent z-10 pb-24 md:pb-8">
           {children}
         </div>
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center p-3 pb-safe shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-50">
+        <Link href="/dashboard" className={`flex flex-col items-center gap-1 ${pathname === '/dashboard' ? 'text-[#2A1A14]' : 'text-gray-400'}`}>
+          <LayoutDashboard className="w-6 h-6" />
+          <span className="text-[10px] font-medium">Tables</span>
+        </Link>
+        <Link href="/dashboard/orders" className={`flex flex-col items-center gap-1 ${pathname.startsWith('/dashboard/orders') ? 'text-[#2A1A14]' : 'text-gray-400'}`}>
+          <Receipt className="w-6 h-6" />
+          <span className="text-[10px] font-medium">Orders</span>
+        </Link>
+        <Link href="/dashboard/menu" className={`flex flex-col items-center gap-1 ${pathname.startsWith('/dashboard/menu') ? 'text-[#2A1A14]' : 'text-gray-400'}`}>
+          <Coffee className="w-6 h-6" />
+          <span className="text-[10px] font-medium">Menu</span>
+        </Link>
+        <Link href="/dashboard/kiosk" className={`flex flex-col items-center gap-1 ${pathname.startsWith('/dashboard/kiosk') ? 'text-[#2A1A14]' : 'text-gray-400'}`}>
+          <Printer className="w-6 h-6" />
+          <span className="text-[10px] font-medium">Kitchen</span>
+        </Link>
+        <Link href="/dashboard/settings" className={`flex flex-col items-center gap-1 ${pathname.startsWith('/dashboard/settings') ? 'text-[#2A1A14]' : 'text-gray-400'}`}>
+          <Settings className="w-6 h-6" />
+          <span className="text-[10px] font-medium">Settings</span>
+        </Link>
+      </div>
     </div>
   );
 }
