@@ -96,7 +96,10 @@ export default function InventoryPage() {
           name: formData.name,
           description: formData.company ? `Brand: ${formData.company}` : 'Retail product',
           price: Number(formData.sellingPrice) || 0,
-          category: 'Retail',
+          category: formData.retailCategory 
+            ? formData.retailCategory.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') 
+            : 'Retail',
+          isRetail: true,
           available: true,
           linkedInventoryId: docRef,
           linkedInventoryAmount: 1
