@@ -612,10 +612,7 @@ export default function DashboardPage() {
                   <LayoutGrid className="w-8 h-8 opacity-50" />
                 </div>
                 <p>Table is currently empty.</p>
-                <div className="flex gap-2 w-full max-w-[250px]">
-                  <Button variant="primary" className="flex-1" onClick={() => updateTableStatus(selectedTable.id, 'occupied', [])}>Occupied</Button>
-                  <Button variant="outline" className="flex-1" onClick={() => setAssignCustomerModalOpen(true)}>+ Customer</Button>
-                </div>
+                <Button variant="primary" className="w-full max-w-[250px]" onClick={() => setAssignCustomerModalOpen(true)}>Mark Occupied & Add Customer</Button>
               </div>
             ) : (
               <div className="space-y-6">
