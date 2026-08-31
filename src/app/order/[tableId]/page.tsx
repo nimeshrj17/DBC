@@ -70,9 +70,11 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     setIsSubmitting(true);
     try {
       // 1. Create order
+      const displayId = `#QR-${Math.floor(1000 + Math.random() * 9000)}`;
       const orderData = {
         tableId: table.id,
         tableNumber: table.number,
+        displayId,
         items: cart.map(i => ({
           menuItemId: i.id,
           name: i.name,

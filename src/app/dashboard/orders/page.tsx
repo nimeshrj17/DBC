@@ -130,7 +130,7 @@ export default function OrdersPage() {
     if (order.status === 'completed' || order.status === 'cancelled') return false;
     
     const searchLower = searchQuery.toLowerCase();
-    return order.displayId.toLowerCase().includes(searchLower) || 
+    return (order.displayId || '').toLowerCase().includes(searchLower) || 
            `Table ${order.tableNumber}`.toLowerCase().includes(searchLower);
   });
 
