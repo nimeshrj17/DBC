@@ -354,6 +354,59 @@ export default function DashboardPage() {
     }
   };
 
+  const awaitingConfirmationOrders = orders.filter(o => o.paymentStatus === 'awaiting_confirmation');
+  const awaitingGroups = Object.entries(
+    awaitingConfirmationOrders.reduce((acc, o) => {
+      if (!acc[o.tableId]) acc[o.tableId] = [];
+      acc[o.tableId].push(o);
+      return acc;
+    }, {} as Record<string, typeof orders>)
+  );
+
+  const handleConfirmCustomerPayment = async (tableId: string, groupOrders: typeof orders) => {
+    try {
+      await runTransaction(db, async (transaction) => {
+        const tableRef = doc(db, 'tables', tableId);
+        const tableSnap = await transaction.get(tableRef);
+        
+        if (!tableSnap.exists()) throw new Error("Table not found");
+        
+        const tableData = tableSnap.data();
+        const currentActiveIds = tableData.activeOrderIds || [];
+        
+        const checkoutOrderIds = groupOrders.map(o => o.id);
+        
+        for (const orderId of checkoutOrderIds) {
+          const orderRef = doc(db, 'orders', orderId);
+          transaction.update(orderRef, {
+            paymentStatus: 'paid',
+            status: 'completed'
+          });
+        }
+        
+        const newActiveIds = currentActiveIds.filter((id: string) => !checkoutOrderIds.includes(id));
+        
+        transaction.update(tableRef, {
+          activeOrderIds: newActiveIds,
+          status: newActiveIds.length === 0 ? 'empty' : tableData.status
+        });
+      });
+      toast.success("Payment confirmed!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to confirm payment");
+    }
+  };
+
+  const handleRejectCustomerPayment = async (groupOrders: typeof orders) => {
+    try {
+      await Promise.all(groupOrders.map(o => updateOrder(o.id, { paymentStatus: 'unpaid' })));
+      toast.success("Payment rejected. Customer must try again.");
+    } catch (error) {
+      toast.error("Failed to reject payment");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -388,6 +441,27 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {awaitingGroups.length > 0 && (
+        <div className="space-y-3">
+          {awaitingGroups.map(([tableId, groupOrders]) => {
+            const tableNum = tables.find(t => t.id === tableId)?.number || '?';
+            const total = groupOrders.reduce((sum, o) => sum + o.total, 0);
+            return (
+              <div key={tableId} className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
+                <div>
+                  <h3 className="font-bold text-yellow-800">Payment Confirmation Required</h3>
+                  <p className="text-sm text-yellow-700">Table {tableNum} has marked their bill of ₹{total.toFixed(2)} as paid via QR.</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" className="border-yellow-300 text-yellow-800 hover:bg-yellow-100" onClick={() => handleRejectCustomerPayment(groupOrders)}>Reject</Button>
+                  <Button variant="primary" onClick={() => handleConfirmCustomerPayment(tableId, groupOrders)}>Confirm Receipt</Button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 overflow-y-auto pb-10">
         {tables.map((table) => {

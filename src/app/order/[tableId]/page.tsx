@@ -28,6 +28,16 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [tableOrders, setTableOrders] = useState<Order[]>([]);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [justPaid, setJustPaid] = useState(false);
+  const prevAwaitingRef = React.useRef(false);
+
+  useEffect(() => {
+    const isAwaiting = tableOrders.some(o => o.paymentStatus === 'awaiting_confirmation');
+    if (prevAwaitingRef.current && !isAwaiting && tableOrders.length === 0) {
+      setJustPaid(true);
+    }
+    prevAwaitingRef.current = isAwaiting;
+  }, [tableOrders]);
 
   useEffect(() => {
     let unsubscribeOrders: () => void;
@@ -185,29 +195,22 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         
         if (!tableSnap.exists()) throw new Error("Table not found");
         
-        const tableData = tableSnap.data();
-        const currentActiveIds = tableData.activeOrderIds || [];
-        
         const checkoutOrderIds = tableOrders.map(o => o.id);
         
         for (const orderId of checkoutOrderIds) {
           const orderRef = doc(db, 'orders', orderId);
           transaction.update(orderRef, {
             paymentMethod: method,
-            paymentStatus: 'paid',
-            status: 'completed'
+            paymentStatus: 'awaiting_confirmation',
           });
         }
         
-        const newActiveIds = currentActiveIds.filter((id: string) => !checkoutOrderIds.includes(id));
-        
         transaction.update(tableRef, {
-          activeOrderIds: newActiveIds,
-          status: newActiveIds.length === 0 ? 'empty' : tableData.status
+          status: 'awaiting_payment'
         });
       });
       
-      toast.success(`Payment successful! Thank you for visiting.`);
+      toast.success(`Waiting for cafe confirmation...`);
       setIsPaymentModalOpen(false);
     } catch (error) {
       console.error(error);
@@ -251,6 +254,25 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       </div>
     );
   }
+
+  if (justPaid) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FCFAFA] text-center">
+        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
+          <CheckCircle2 className="w-10 h-10 text-green-600" />
+        </div>
+        <h1 className="text-3xl font-extrabold text-[#2A1A14] mb-2 tracking-tight">Payment Confirmed!</h1>
+        <p className="text-gray-600 mb-8 text-lg">Thank you for visiting Dream Bean Café. Have a great day!</p>
+        <button 
+          onClick={() => setJustPaid(false)}
+          className="bg-[#2A1A14] text-[#D4C1B3] px-8 py-3 rounded-full font-bold shadow-lg"
+        >
+          Return to Menu
+        </button>
+      </div>
+    );
+  }
+  const isAwaitingConfirmation = tableOrders.some(o => o.paymentStatus === 'awaiting_confirmation');
 
   return (
     <div className="min-h-screen bg-[#FCFAFA] pb-24 font-sans text-[#2A1A14]">
@@ -324,13 +346,23 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               </div>
             </div>
           ))}
-          <button
-            onClick={() => setIsPaymentModalOpen(true)}
-            className="w-full mt-4 bg-[#2A1A14] text-[#D4C1B3] py-4 rounded-3xl font-bold shadow-md hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
-          >
-            <Banknote className="w-5 h-5" />
-            Pay Bill (₹{grandTotal.toFixed(2)})
-          </button>
+          {isAwaitingConfirmation ? (
+            <button
+              disabled
+              className="w-full mt-4 bg-[#EBE2DC] text-gray-500 py-4 rounded-3xl font-bold flex items-center justify-center gap-2 cursor-not-allowed"
+            >
+              <Clock className="w-5 h-5 animate-pulse" />
+              Waiting for Cafe Confirmation...
+            </button>
+          ) : (
+            <button
+              onClick={() => setIsPaymentModalOpen(true)}
+              className="w-full mt-4 bg-[#2A1A14] text-[#D4C1B3] py-4 rounded-3xl font-bold shadow-md hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+            >
+              <Banknote className="w-5 h-5" />
+              Pay Bill (₹{grandTotal.toFixed(2)})
+            </button>
+          )}
         </div>
       )}      {/* Menu Items */}
       <div className="px-4 mt-6 space-y-4">
