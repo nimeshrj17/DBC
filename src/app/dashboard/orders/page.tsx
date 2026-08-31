@@ -179,25 +179,31 @@ export default function OrdersPage() {
                 return (
                   <Card 
                     key={order.id} 
-                    className="p-4 rounded-2xl border border-border transition-all flex flex-col"
+                    className="p-3 md:p-4 rounded-2xl border border-border transition-all flex flex-col"
                   >
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex gap-3 items-center">
-                        <div className="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm">
+                    <div className="flex justify-between items-start mb-4 gap-2">
+                      <div className="flex gap-2 items-center overflow-hidden">
+                        <div className="min-w-10 w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm">
                           T{order.tableNumber}
                         </div>
-                        <div>
-                          <h3 className="font-bold text-sm">Table {order.tableNumber}</h3>
-                          <p className="text-xs text-muted-foreground mb-0.5">{order.displayId}</p>
+                        <div className="min-w-0">
+                          <h3 className="font-bold text-sm truncate">Table {order.tableNumber}</h3>
+                          <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5 truncate">{order.displayId}</p>
                           {(order.customerName || order.customerPhone) && (
-                            <p className="text-[10px] text-orange-600 font-medium">
+                            <p className="text-[10px] text-orange-600 font-medium truncate">
                               {order.customerName ? order.customerName : ''} {order.customerPhone ? `(${order.customerPhone})` : ''}
                             </p>
                           )}
                         </div>
                       </div>
-                      <div className="flex flex-col items-end gap-1">
+                      <div className="flex flex-col items-end gap-1 flex-shrink-0">
                         {getStatusBadge(order.status)}
+                        {isStale && (
+                          <span className="flex items-center text-[10px] text-red-500 font-bold bg-red-50 px-2 py-0.5 rounded-full">
+                            <Clock className="w-3 h-3 mr-1" />
+                            Waiting
+                          </span>
+                        )}
                         <span className="text-[10px] text-muted-foreground font-medium mt-1">{time}</span>
                       </div>
                     </div>
