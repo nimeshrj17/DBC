@@ -85,7 +85,7 @@ export default function PaymentModal({ orderId, displayId, total, onClose, onCon
 
           {view === 'qr' && (
             <div className="flex flex-col items-center">
-              <div className="bg-white p-4 rounded-2xl shadow-sm border border-border mb-6">
+              <div className="bg-white p-4 rounded-2xl shadow-sm border border-border mb-4">
                 <QRCodeSVG 
                   value={upiUri}
                   size={200}
@@ -94,8 +94,16 @@ export default function PaymentModal({ orderId, displayId, total, onClose, onCon
                   level="Q"
                 />
               </div>
+              
+              <a 
+                href={upiUri}
+                className="w-full bg-[#A04010] text-white py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 mb-4 shadow-md hover:bg-[#8A3000] transition-colors"
+              >
+                Open UPI App to Pay
+              </a>
+              
               <p className="text-sm text-muted-foreground mb-6 text-center">
-                Scan with any UPI app (GPay, PhonePe, Paytm, etc.) to pay ₹{total.toFixed(2)}.
+                Scan with any UPI app (GPay, PhonePe, Paytm, etc.) or tap the button above to pay ₹{total.toFixed(2)}.
               </p>
               
               <div className="flex gap-3 w-full">
