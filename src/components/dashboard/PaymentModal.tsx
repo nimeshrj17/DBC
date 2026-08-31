@@ -84,11 +84,7 @@ export default function PaymentModal({ orderId, displayId, total, onClose, onCon
               </button>
               <button 
                 onClick={() => {
-                  if (settings.upiId) {
-                    setView('qr');
-                  } else {
-                    handleConfirm('qr'); // Fallback if no UPI ID is set
-                  }
+                  setView('qr');
                 }}
                 disabled={isProcessing}
                 className="flex flex-col items-center justify-center p-6 border-2 border-border rounded-2xl hover:border-primary hover:bg-primary/5 transition-all group disabled:opacity-50"
@@ -103,15 +99,22 @@ export default function PaymentModal({ orderId, displayId, total, onClose, onCon
 
           {view === 'qr' && (
             <div className="flex flex-col items-center">
-              <div className="bg-white p-4 rounded-2xl shadow-sm border border-border mb-4">
-                <QRCodeSVG 
-                  value={upiUri}
-                  size={200}
-                  bgColor="#ffffff"
-                  fgColor="#000000"
-                  level="Q"
-                />
-              </div>
+              {!settings.upiId ? (
+                <div className="bg-orange-50 border border-orange-200 text-orange-800 p-4 rounded-2xl mb-4 text-center w-full">
+                  <p className="font-bold mb-1">UPI ID Not Configured</p>
+                  <p className="text-sm">Please ask the cafe owner to configure their UPI ID in the Admin Settings to enable online payments.</p>
+                </div>
+              ) : (
+                <div className="bg-white p-4 rounded-2xl shadow-sm border border-border mb-4">
+                  <QRCodeSVG 
+                    value={upiUri}
+                    size={200}
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                    level="Q"
+                  />
+                </div>
+              )}
               
               <div className="grid grid-cols-2 gap-3 w-full mb-4">
                 <a 
@@ -150,21 +153,17 @@ export default function PaymentModal({ orderId, displayId, total, onClose, onCon
               <div className="flex gap-3 w-full">
                 <button 
                   onClick={() => setView('select')}
-                  className="flex-1 py-3 px-4 rounded-xl border border-border font-bold text-muted-foreground hover:bg-muted transition-colors"
+                  className="flex-1 border-2 border-border text-foreground font-bold py-3 rounded-full hover:bg-muted transition-colors"
                 >
                   Back
                 </button>
                 <button 
                   onClick={() => handleConfirm('qr')}
                   disabled={isProcessing}
-                  className="flex-2 flex items-center justify-center py-3 px-4 rounded-xl bg-primary text-primary-foreground font-bold shadow-md hover:bg-primary/90 transition-colors disabled:opacity-50"
-                  style={{ flex: 2 }}
+                  className="flex-1 bg-[#2A1A14] text-[#D4C1B3] font-bold py-3 rounded-full shadow-md hover:bg-[#3A2A24] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {isProcessing ? 'Processing...' : (
-                    <>
-                      <CheckCircle2 className="w-5 h-5 mr-2" /> Confirm Paid
-                    </>
-                  )}
+                  {isProcessing && <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />}
+                  I have paid
                 </button>
               </div>
             </div>

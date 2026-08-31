@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect, use, useRef } from 'react';
 import { useMenu, MenuItem } from '@/lib/hooks/useMenu';
 import { Table } from '@/lib/hooks/useTables';
 import { Order, createOrderTransaction } from '@/lib/hooks/useOrders';
@@ -25,6 +25,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [tableOrders, setTableOrders] = useState<Order[]>([]);
@@ -136,17 +137,21 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       sessionStorage.setItem('skippedCustomerPrompt', 'true');
     }
     setShowCustomerModal(false);
-    executePlaceOrder();
+    executePlaceOrder({ cName, cPhone });
   };
 
-  const executePlaceOrder = async () => {
-    if (!table || cart.length === 0 || isSubmitting) return;
+  const executePlaceOrder = async (customerOverrides?: { cName: string, cPhone: string }) => {
+    if (!table || cart.length === 0 || isSubmittingRef.current) return;
+    
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
     try {
       const retailItems = cart.filter(i => i.isRetail || i.category === 'Retail');
       const kitchenItems = cart.filter(i => !i.isRetail && i.category !== 'Retail');
       
       const newOrderIds = [];
+      const finalCustomerName = customerOverrides?.cName || table.customerName || null;
+      const finalCustomerPhone = customerOverrides?.cPhone || table.customerPhone || null;
       
       if (kitchenItems.length > 0) {
         const sub = kitchenItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
@@ -154,8 +159,8 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         const orderId = await createOrderTransaction({
           tableId: table.id,
           tableNumber: table.number,
-          customerPhone: table.customerPhone || null,
-          customerName: table.customerName || null,
+          customerPhone: finalCustomerPhone,
+          customerName: finalCustomerName,
           displayIdPrefix: 'QR',
           items: kitchenItems.map(i => ({
             menuItemId: i.id,
@@ -179,8 +184,8 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         const orderId = await createOrderTransaction({
           tableId: table.id,
           tableNumber: table.number,
-          customerPhone: table.customerPhone || null,
-          customerName: table.customerName || null,
+          customerPhone: finalCustomerPhone,
+          customerName: finalCustomerName,
           displayIdPrefix: 'QR',
           items: retailItems.map(i => ({
             menuItemId: i.id,
@@ -216,6 +221,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       console.error('Failed to place order', error);
       toast.error('Failed to place order. Please try again or contact staff.');
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   };
