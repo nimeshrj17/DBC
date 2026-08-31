@@ -143,8 +143,8 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     if (!table || cart.length === 0 || isSubmitting) return;
     setIsSubmitting(true);
     try {
-      const retailItems = cart.filter(i => i.category === 'Retail');
-      const kitchenItems = cart.filter(i => i.category !== 'Retail');
+      const retailItems = cart.filter(i => i.isRetail || i.category === 'Retail');
+      const kitchenItems = cart.filter(i => !i.isRetail && i.category !== 'Retail');
       
       const newOrderIds = [];
       

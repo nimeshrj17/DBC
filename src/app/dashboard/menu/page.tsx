@@ -25,6 +25,7 @@ export default function MenuPage() {
     price: '',
     category: '',
     available: true,
+    isRetail: false,
     linkedInventoryId: '',
     linkedInventoryAmount: '',
     recipe: [] as { inventoryId: string, amount: number }[]
@@ -40,7 +41,7 @@ export default function MenuPage() {
 
   const handleOpenAdd = () => {
     setEditingItemId(null);
-    setFormData({ name: '', description: '', price: '', category: '', available: true, linkedInventoryId: '', linkedInventoryAmount: '', recipe: [] });
+    setFormData({ name: '', description: '', price: '', category: '', available: true, isRetail: false, linkedInventoryId: '', linkedInventoryAmount: '', recipe: [] });
     setIsAddModalOpen(true);
   };
 
@@ -52,6 +53,7 @@ export default function MenuPage() {
       price: item.price ? item.price.toString() : '',
       category: item.category || '',
       available: item.available ?? true,
+      isRetail: item.isRetail || false,
       linkedInventoryId: item.linkedInventoryId || '',
       linkedInventoryAmount: item.linkedInventoryAmount?.toString() || '',
       recipe: item.recipe || []
@@ -70,6 +72,7 @@ export default function MenuPage() {
       price: Number(formData.price),
       category: formData.category,
       available: formData.available,
+      isRetail: formData.isRetail,
       recipe: formData.recipe
     };
 
@@ -352,15 +355,27 @@ export default function MenuPage() {
                 </Button>
               </div>
               
-              <div className="flex items-center space-x-2 pt-2">
-                <input 
-                  type="checkbox" 
-                  id="available"
-                  checked={formData.available}
-                  onChange={(e) => setFormData({...formData, available: e.target.checked})}
-                  className="w-4 h-4 rounded border-border text-primary focus:ring-primary/50 cursor-pointer"
-                />
-                <label htmlFor="available" className="text-sm font-medium cursor-pointer select-none">Currently Available (In Stock)</label>
+              <div className="flex items-center space-x-4 pt-2">
+                <div className="flex items-center space-x-2">
+                  <input 
+                    type="checkbox" 
+                    id="available"
+                    checked={formData.available}
+                    onChange={(e) => setFormData({...formData, available: e.target.checked})}
+                    className="w-4 h-4 rounded border-border text-primary focus:ring-primary/50 cursor-pointer"
+                  />
+                  <label htmlFor="available" className="text-sm font-medium cursor-pointer select-none">Currently Available (In Stock)</label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input 
+                    type="checkbox" 
+                    id="isRetail"
+                    checked={formData.isRetail}
+                    onChange={(e) => setFormData({...formData, isRetail: e.target.checked})}
+                    className="w-4 h-4 rounded border-border text-primary focus:ring-primary/50 cursor-pointer"
+                  />
+                  <label htmlFor="isRetail" className="text-sm font-medium cursor-pointer select-none text-orange-600">Retail Item (Bypasses Kitchen)</label>
+                </div>
               </div>
               
               <div className="pt-4 flex justify-end space-x-3">

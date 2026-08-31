@@ -11,6 +11,7 @@ export interface MenuItem {
   available: boolean;
   imageUrl?: string;
   archived?: boolean;
+  isRetail?: boolean; // Flag to bypass kitchen routing
   linkedInventoryId?: string; // Legacy: used for 1-to-1 retail linkage
   linkedInventoryAmount?: number; // Legacy
   recipe?: { inventoryId: string, amount: number }[]; // BOM/Recipe array

@@ -163,6 +163,7 @@ export default function DashboardPage() {
             name: menuItem.name,
             price: menuItem.price,
             category: menuItem.category,
+            isRetail: menuItem.isRetail,
             qty: 1
           }]
         };
@@ -192,8 +193,8 @@ export default function DashboardPage() {
     setIsSubmitting(true);
     
     try {
-      const retailItems = currentDraftItems.filter(i => i.category === 'Retail');
-      const kitchenItems = currentDraftItems.filter(i => i.category !== 'Retail');
+      const retailItems = currentDraftItems.filter(i => i.isRetail || i.category === 'Retail');
+      const kitchenItems = currentDraftItems.filter(i => !i.isRetail && i.category !== 'Retail');
       
       const newOrderIds = [];
       

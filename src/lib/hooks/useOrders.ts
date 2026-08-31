@@ -9,6 +9,7 @@ export interface OrderItem {
   qty: number;
   notes?: string;
   category?: string;
+  isRetail?: boolean;
 }
 
 export interface Order {
