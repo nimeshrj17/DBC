@@ -29,7 +29,7 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-background rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div className="bg-background rounded-2xl w-full max-w-4xl h-[90vh] md:h-auto md:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
         
         {/* Header */}
         <div className="p-6 border-b border-border flex justify-between items-center bg-card">
