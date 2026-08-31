@@ -99,7 +99,7 @@ export default function PaymentModal({ orderId, displayId, total, onClose, onCon
               
               <div className="grid grid-cols-2 gap-3 w-full mb-4">
                 <a 
-                  href={getUpiUri('gpay')}
+                  href={getUpiUri('tez')}
                   className="bg-white border border-gray-200 text-gray-800 py-3 px-4 rounded-xl font-bold flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors text-sm"
                 >
                   <img src="https://upload.wikimedia.org/wikipedia/commons/c/c5/Google_Pay_Logo_%282020%29.svg" alt="GPay" className="h-4 mr-2" />
