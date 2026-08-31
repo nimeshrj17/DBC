@@ -72,7 +72,7 @@ export default function DashboardPage() {
   const { tables, loading, updateTableStatus, addTable } = useTables();
   const { orders, loading: ordersLoading, updateOrder, updateOrderStatus, createOrder } = useOrders();
   const { settings, loading: settingsLoading } = useSettings();
-  const { addOrUpdateCustomer } = useCustomers();
+  const { addOrUpdateCustomer, customers } = useCustomers();
   
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -326,7 +326,7 @@ export default function DashboardPage() {
           subtotal: mergedSubtotal,
           total: mergedTotal,
           tax: mergedTax,
-          paymentMethod: method,
+          paymentMethod: method || 'cash',
           paymentStatus: 'paid',
           status: 'completed'
         });
@@ -593,16 +593,6 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
-      
-      {/* Legend */}
-      <div className="flex flex-wrap items-center justify-center gap-6 mt-auto text-xs font-medium bg-card border border-border py-4 px-6 rounded-2xl mx-auto w-fit shadow-sm sticky bottom-0">
-        <div className="flex items-center"><span className="w-2.5 h-2.5 rounded-full bg-gray-400 mr-2"></span> Empty</div>
-        <div className="flex items-center"><span className="w-2.5 h-2.5 rounded-full bg-secondary mr-2"></span> Occupied</div>
-        <div className="flex items-center"><span className="w-2.5 h-2.5 rounded-full bg-primary mr-2"></span> Order Placed</div>
-        <div className="flex items-center"><span className="w-2.5 h-2.5 rounded-full bg-orange-500 mr-2"></span> Preparing</div>
-        <div className="flex items-center"><span className="w-2.5 h-2.5 rounded-full bg-green-500 mr-2"></span> Served</div>
-        <div className="flex items-center"><span className="w-2.5 h-2.5 rounded-full bg-red-500 mr-2"></span> Awaiting Payment</div>
-      </div>
 
       {/* Side Panel overlay */}
       {selectedTable && (
@@ -840,12 +830,23 @@ export default function DashboardPage() {
                 <label className="block text-xs font-bold mb-1">Name</label>
                 <input 
                   type="text" 
+                  list="customer-names"
                   value={cName}
-                  onChange={e => setCName(e.target.value)}
+                  onChange={e => {
+                    const val = e.target.value;
+                    setCName(val);
+                    const found = customers.find(c => c.name.toLowerCase() === val.toLowerCase());
+                    if (found && found.phone) setCPhone(found.phone);
+                  }}
                   className="w-full border-2 border-border rounded-xl px-4 py-3 bg-background focus:outline-none focus:border-primary transition-colors"
                   placeholder="E.g. John Doe"
                   required
                 />
+                <datalist id="customer-names">
+                  {customers.map(c => (
+                    <option key={c.id} value={c.name} />
+                  ))}
+                </datalist>
               </div>
               <div>
                 <label className="block text-xs font-bold mb-1">Phone Number</label>

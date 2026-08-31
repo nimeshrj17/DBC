@@ -183,7 +183,7 @@ export default function DashboardLayout({
 
         <header className="pt-8 pb-6 bg-transparent flex flex-col md:flex-row md:items-center justify-between px-8 z-10 border-b border-border/50">
           <div className="mb-4 md:mb-0">
-            <h2 className="text-3xl font-bold text-foreground mb-1">Good morning, Bella! 👋</h2>
+            <h2 className="text-3xl font-bold text-foreground mb-1">Good morning, Bella!</h2>
             <p className="text-muted-foreground">Here's what's happening at your cafe today.</p>
           </div>
           
