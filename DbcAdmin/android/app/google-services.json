@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "357679112647",
+    "firebase_url": "https://dbcafe-3f5ee-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "dbcafe-3f5ee",
+    "storage_bucket": "dbcafe-3f5ee.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:357679112647:android:2b377945350d4ff645b9e2",
+        "android_client_info": {
+          "package_name": "com.dbc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5Tj5_wePObEd-BqwYI-1X4EwKX8Qd2LE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
