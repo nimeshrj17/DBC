@@ -21,8 +21,8 @@ export interface Order {
   subtotal: number;
   tax: number;
   total: number;
-  status: 'pending' | 'preparing' | 'served' | 'billed';
-  paymentMethod: 'cash' | 'upi' | null;
+  status: 'pending' | 'preparing' | 'prepared' | 'served' | 'billed' | 'completed' | 'cancelled';
+  paymentMethod: 'cash' | 'upi' | 'qr' | null;
   paymentStatus: 'unpaid' | 'awaiting_confirmation' | 'paid';
   createdAt: any;
   updatedAt: any;

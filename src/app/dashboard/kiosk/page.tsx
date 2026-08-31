@@ -18,6 +18,7 @@ export default function KioskPage() {
   
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [tableNumber, setTableNumber] = useState('');
 
   const activeMenu = menuItems.filter(item => item.available && !item.archived);
