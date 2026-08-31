@@ -189,23 +189,23 @@ export default function DashboardLayout({
           
           <div className="flex items-center space-x-4">
             <div className="flex bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-              <div className="px-5 py-3 border-r border-border">
+              <div className="px-3 py-2 md:px-5 md:py-3 border-r border-border">
                 <div className="flex justify-between items-start mb-1">
-                  <span className="text-xs text-muted-foreground font-medium">Today's Revenue</span>
-                  <BarChart3 className="w-4 h-4 text-primary ml-4" />
+                  <span className="text-[10px] md:text-xs text-muted-foreground font-medium">Today's Revenue</span>
+                  <BarChart3 className="w-3 h-3 md:w-4 md:h-4 text-primary ml-2 md:ml-4" />
                 </div>
-                <div className="font-bold text-xl">₹ {todayRevenue.toFixed(2)}</div>
-                <div className="text-[10px] text-green-600 font-semibold mt-1">Today</div>
+                <div className="font-bold text-base md:text-xl truncate max-w-[90px] md:max-w-none">₹ {todayRevenue.toFixed(0)}</div>
+                <div className="text-[9px] md:text-[10px] text-green-600 font-semibold mt-1">Today</div>
               </div>
               
-              <div className="px-5 py-3">
+              <div className="px-3 py-2 md:px-5 md:py-3">
                 <div className="flex justify-between items-start mb-1">
-                  <span className="text-xs text-muted-foreground font-medium">Live Orders</span>
-                  <Receipt className="w-4 h-4 text-secondary ml-4" />
+                  <span className="text-[10px] md:text-xs text-muted-foreground font-medium">Live Orders</span>
+                  <Receipt className="w-3 h-3 md:w-4 md:h-4 text-secondary ml-2 md:ml-4" />
                 </div>
-                <div className="font-bold text-xl">{liveOrdersCount}</div>
-                <div className="text-[10px] text-muted-foreground flex items-center mt-1">
-                  <span className="w-2 h-2 rounded-full bg-secondary mr-1.5"></span> Active orders
+                <div className="font-bold text-base md:text-xl">{liveOrdersCount}</div>
+                <div className="text-[9px] md:text-[10px] text-muted-foreground flex items-center mt-1">
+                  <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-secondary mr-1 md:mr-1.5"></span> Active
                 </div>
               </div>
             </div>

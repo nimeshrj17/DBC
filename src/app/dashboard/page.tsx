@@ -673,18 +673,18 @@ export default function DashboardPage() {
           </div>
           
           {selectedTable.status !== 'empty' && (
-            <div className="p-6 border-t border-border bg-card shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
-              <div className="flex justify-between items-center mb-2 text-sm text-muted-foreground">
+            <div className="p-4 md:p-6 border-t border-border bg-card shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
+              <div className="flex justify-between items-center mb-1 md:mb-2 text-sm text-muted-foreground">
                 <span>Subtotal</span>
                 <span>₹ {totalSubtotal.toFixed(2)}</span>
               </div>
-                <div className="flex justify-between text-muted-foreground mb-3 font-medium">
+                <div className="flex justify-between text-sm text-muted-foreground mb-2 md:mb-3 font-medium">
                   <span>Tax {settings.taxEnabled ? `(${settings.taxPercentage}%)` : '(Disabled)'}</span>
                   <span>₹ {totalTax.toFixed(2)}</span>
                 </div>
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex justify-between items-center mb-4 md:mb-6">
                 <span className="font-bold">Total Tab</span>
-                <span className="font-bold text-xl">₹ {grandTotal.toFixed(2)}</span>
+                <span className="font-bold text-lg md:text-xl">₹ {grandTotal.toFixed(2)}</span>
               </div>
               
               <div className="grid grid-cols-2 gap-3 mb-3">
