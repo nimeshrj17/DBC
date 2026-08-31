@@ -163,7 +163,7 @@ export default function DashboardPage() {
             name: menuItem.name,
             price: menuItem.price,
             category: menuItem.category,
-            isRetail: menuItem.isRetail,
+            isRetail: menuItem.isRetail || false,
             qty: 1
           }]
         };

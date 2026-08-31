@@ -121,8 +121,11 @@ export const createOrderTransaction = async (orderData: Omit<Order, 'id' | 'crea
         orderRef = doc(collection(db, 'orders'));
       }
       
+      // Remove any undefined properties recursively to prevent Firestore crashes
+      const cleanDataToSave = JSON.parse(JSON.stringify(dataToSave));
+      
       transaction.set(orderRef, {
-        ...dataToSave,
+        ...cleanDataToSave,
         displayId,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
