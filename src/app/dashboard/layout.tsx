@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -38,6 +38,31 @@ export default function DashboardLayout({
     })
     .reduce((sum, order) => sum + order.total, 0);
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
+  const [pin, setPin] = useState('');
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const auth = localStorage.getItem('adminAuth');
+    if (auth === 'true') {
+      setIsAuthenticated(true);
+    }
+    setIsChecking(false);
+  }, []);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pin === '1234') { // Default PIN
+      localStorage.setItem('adminAuth', 'true');
+      setIsAuthenticated(true);
+      setError(false);
+    } else {
+      setError(true);
+      setPin('');
+    }
+  };
+
   const getLinkClass = (path: string) => {
     // If the path exactly matches, or it's a sub-path (except for exactly /dashboard)
     const isActive = pathname === path || (path !== '/dashboard' && pathname.startsWith(path));
@@ -47,6 +72,44 @@ export default function DashboardLayout({
     }
     return "flex items-center space-x-4 px-4 py-3.5 text-gray-400 hover:text-white transition-colors";
   };
+
+  if (isChecking) return <div className="h-screen bg-[#2A1A14]" />; // simple blank background while checking
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#2A1A14] flex items-center justify-center p-4 text-[#D4C1B3] font-sans">
+        <div className="bg-[#3D261C] p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center animate-in zoom-in-95">
+          <Coffee className="w-16 h-16 mx-auto mb-6 text-primary" />
+          <h1 className="text-2xl font-bold mb-2 text-white">Admin Dashboard</h1>
+          <p className="text-[#D4C1B3]/70 mb-8 text-sm">Enter the 4-digit PIN to access</p>
+          
+          <form onSubmit={handleLogin}>
+            <input 
+              type="password" 
+              maxLength={4}
+              value={pin}
+              onChange={(e) => {
+                setPin(e.target.value.replace(/\D/g, ''));
+                setError(false);
+              }}
+              className={`w-full bg-[#2A1A14] border-2 ${error ? 'border-red-500' : 'border-[#D4C1B3]/20'} rounded-xl py-4 px-6 text-3xl text-center tracking-[1em] font-bold focus:outline-none focus:border-primary transition-colors text-white placeholder-gray-600`}
+              placeholder="••••"
+              autoFocus
+            />
+            {error && <p className="text-red-400 text-sm mt-3">Incorrect PIN. Please try again.</p>}
+            
+            <button 
+              type="submit"
+              disabled={pin.length < 4}
+              className="w-full mt-6 bg-primary text-primary-foreground py-4 rounded-xl font-bold shadow-lg hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:hover:scale-100 transition-all text-lg"
+            >
+              Access Dashboard
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-background overflow-hidden font-sans">
