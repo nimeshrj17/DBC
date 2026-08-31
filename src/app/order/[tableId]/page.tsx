@@ -561,7 +561,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                   value={cName}
                   onChange={e => setCName(e.target.value)}
                   className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#A04010] transition-colors"
-                  placeholder="E.g. John Doe"
+                  placeholder="Aapka shubh naam?"
                   required
                 />
               </div>
@@ -576,22 +576,10 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                   required
                 />
               </div>
-              <div className="flex gap-3 pt-2">
-                <button 
-                  type="button"
-                  onClick={() => {
-                    sessionStorage.setItem('skippedCustomerPrompt', 'true');
-                    setShowCustomerModal(false);
-                    executePlaceOrder();
-                  }}
-                  className="flex-1 py-3 font-bold text-gray-500 hover:bg-gray-100 rounded-xl transition-colors"
-                >
-                  Skip
-                </button>
+              <div className="pt-2">
                 <button 
                   type="submit"
-                  className="flex-2 bg-[#2A1A14] text-white py-3 px-6 font-bold rounded-xl shadow-md hover:bg-black transition-colors"
-                  style={{ flex: 2 }}
+                  className="w-full bg-[#2A1A14] text-white py-3 px-6 font-bold rounded-xl shadow-md hover:bg-black transition-colors"
                 >
                   Save & Continue
                 </button>
