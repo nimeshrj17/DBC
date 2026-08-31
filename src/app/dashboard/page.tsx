@@ -336,9 +336,9 @@ export default function DashboardPage() {
           transaction.delete(orderRef);
         }
         
-        // Remove only the checked out orders from the table's active list
-        // (preserves any new orders added concurrently)
+        // Replace checked out orders with the single consolidated master order
         const newActiveIds = currentActiveIds.filter((id: string) => !checkoutOrderIds.includes(id));
+        newActiveIds.push(masterOrderId);
         
         // Update customer if exists
         if (tableData.customerId) {
@@ -351,13 +351,7 @@ export default function DashboardPage() {
         
         transaction.update(tableRef, {
           activeOrderIds: newActiveIds,
-          status: newActiveIds.length === 0 ? 'empty' : tableData.status,
-          ...(newActiveIds.length === 0 ? {
-            customerId: null,
-            customerName: null,
-            customerPhone: null,
-            currentSessionId: null
-          } : {})
+          status: 'occupied' // Table remains occupied after payment until explicitly cleared
         });
       });
       
@@ -466,6 +460,7 @@ export default function DashboardPage() {
         }
         
         const newActiveIds = currentActiveIds.filter((id: string) => !checkoutOrderIds.includes(id));
+        newActiveIds.push(masterOrderId);
         
         // Update customer if exists
         if (tableData.customerId) {
@@ -478,13 +473,7 @@ export default function DashboardPage() {
         
         transaction.update(tableRef, {
           activeOrderIds: newActiveIds,
-          status: newActiveIds.length === 0 ? 'empty' : tableData.status,
-          ...(newActiveIds.length === 0 ? {
-            customerId: null,
-            customerName: null,
-            customerPhone: null,
-            currentSessionId: null
-          } : {})
+          status: 'occupied'
         });
       });
       toast.success("Payment confirmed!");

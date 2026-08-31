@@ -50,6 +50,12 @@ export function useTables() {
       if (activeOrderIds !== undefined) {
         updates.activeOrderIds = activeOrderIds;
       }
+      if (status === 'empty') {
+        updates.customerId = null;
+        updates.customerName = null;
+        updates.customerPhone = null;
+        updates.currentSessionId = null;
+      }
       await updateDoc(tableRef, updates);
     } catch (error) {
       console.error("Error updating table status:", error);

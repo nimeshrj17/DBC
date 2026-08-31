@@ -222,7 +222,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 
       // 2. Update table active orders
       const newActiveIds = [...(table.activeOrderIds || []), ...newOrderIds];
-      const tableStatus = kitchenItems.length > 0 ? (table.status === 'empty' ? 'order_placed' : table.status) : table.status;
+      const tableStatus = kitchenItems.length > 0 ? (table.status === 'empty' || table.status === 'occupied' ? 'order_placed' : table.status) : table.status;
       
       await updateDoc(doc(db, 'tables', table.id), {
         activeOrderIds: newActiveIds,

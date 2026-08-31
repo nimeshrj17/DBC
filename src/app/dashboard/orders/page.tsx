@@ -102,19 +102,8 @@ export default function OrdersPage() {
 
         // 2. Update table
         if (tableSnap.exists()) {
-          const tableData = tableSnap.data();
-          const activeOrders = tableData.activeOrderIds || [];
-          const newActiveOrders = activeOrders.filter((id: string) => id !== orderToPay.id);
-          
           transaction.update(tableRef, {
-            activeOrderIds: newActiveOrders,
-            status: newActiveOrders.length === 0 ? 'empty' : tableData.status,
-            ...(newActiveOrders.length === 0 ? {
-              customerId: null,
-              customerName: null,
-              customerPhone: null,
-              currentSessionId: null
-            } : {})
+            status: 'occupied' // Table remains occupied after payment
           });
         }
       });
