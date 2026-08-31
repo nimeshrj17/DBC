@@ -172,54 +172,54 @@ export default function InventoryPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-muted/50 border-b border-border">
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Item Name</th>
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quantity</th>
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Cost</th>
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Purchase Date</th>
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right">Actions</th>
+                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">Item Name</th>
+                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">Qty</th>
+                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden sm:table-cell">Total Cost</th>
+                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden md:table-cell">Purchase Date</th>
+                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {displayedInventory.map((item) => (
                 <tr key={item.id} className="hover:bg-muted/30 transition-colors group">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 md:px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${item.quantity <= 0 ? 'bg-red-100 text-red-600' : item.quantity <= 10 ? 'bg-orange-100 text-orange-600' : 'bg-primary/20 text-primary-foreground'}`}>
-                        <Package className={`w-4 h-4 ${item.quantity <= 0 ? 'text-red-600' : item.quantity <= 10 ? 'text-orange-600' : 'text-primary'}`} />
+                      <div className={`w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center mr-2 md:mr-3 flex-shrink-0 ${item.quantity <= 0 ? 'bg-red-100 text-red-600' : item.quantity <= 10 ? 'bg-orange-100 text-orange-600' : 'bg-primary/20 text-primary-foreground'}`}>
+                        <Package className={`w-3 h-3 md:w-4 md:h-4 ${item.quantity <= 0 ? 'text-red-600' : item.quantity <= 10 ? 'text-orange-600' : 'text-primary'}`} />
                       </div>
                       <div className="flex flex-col">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-sm">{item.name}</span>
+                        <div className="flex items-center gap-1 md:gap-2">
+                          <span className="font-bold text-xs md:text-sm truncate max-w-[100px] md:max-w-[200px]">{item.name}</span>
                           {item.quantity <= 0 && (
-                            <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded text-[10px] font-bold">Out of Stock</span>
+                            <span className="bg-red-100 text-red-600 px-1 md:px-2 py-0.5 rounded text-[8px] md:text-[10px] font-bold hidden sm:inline-block">Out</span>
                           )}
                           {item.quantity > 0 && item.quantity <= 10 && (
-                            <span className="bg-orange-100 text-orange-600 px-2 py-0.5 rounded text-[10px] font-bold">Low Stock</span>
+                            <span className="bg-orange-100 text-orange-600 px-1 md:px-2 py-0.5 rounded text-[8px] md:text-[10px] font-bold hidden sm:inline-block">Low</span>
                           )}
                         </div>
-                        {item.company && <span className="text-[10px] text-muted-foreground">{item.company}</span>}
+                        {item.company && <span className="text-[9px] md:text-[10px] text-muted-foreground">{item.company}</span>}
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`font-medium text-sm ${item.quantity <= 0 ? 'text-red-600' : item.quantity <= 10 ? 'text-orange-600' : ''}`}>
-                      {item.quantity} {item.unit}
+                  <td className="px-4 md:px-6 py-4 whitespace-nowrap">
+                    <span className={`font-medium text-xs md:text-sm ${item.quantity <= 0 ? 'text-red-600' : item.quantity <= 10 ? 'text-orange-600' : ''}`}>
+                      {item.quantity} <span className="text-[10px]">{item.unit}</span>
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="font-medium text-sm text-red-600">₹ {item.totalCost.toFixed(2)}</span>
-                    <div className="text-[10px] text-muted-foreground">₹ {(item.totalCost / item.quantity).toFixed(2)} / {item.unit}</div>
+                  <td className="px-4 md:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                    <span className="font-medium text-xs md:text-sm text-red-600">₹ {item.totalCost.toFixed(2)}</span>
+                    <div className="text-[9px] md:text-[10px] text-muted-foreground">₹ {(item.totalCost / item.quantity).toFixed(2)} / {item.unit}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                  <td className="px-4 md:px-6 py-4 whitespace-nowrap text-xs md:text-sm text-muted-foreground hidden md:table-cell">
                     {formatDate(item.purchaseDate)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                  <td className="px-4 md:px-6 py-4 whitespace-nowrap text-right">
                     <button 
                       onClick={() => handleDelete(item.id, item.name)}
-                      className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-colors"
+                      className="text-red-500 hover:text-red-700 p-1 md:p-2 rounded-full hover:bg-red-50 transition-colors"
                       title="Delete entry"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
                     </button>
                   </td>
                 </tr>

@@ -63,11 +63,11 @@ export default function CustomersPage() {
           <table className="w-full text-sm text-left">
             <thead className="text-xs text-muted-foreground uppercase bg-muted/30 border-b border-border">
               <tr>
-                <th className="px-6 py-4 rounded-tl-xl font-semibold">Customer</th>
-                <th className="px-6 py-4 font-semibold">Phone</th>
-                <th className="px-6 py-4 font-semibold">Last Visit</th>
-                <th className="px-6 py-4 font-semibold text-center">Total Orders</th>
-                <th className="px-6 py-4 rounded-tr-xl font-semibold text-right">Revenue</th>
+                <th className="px-4 md:px-6 py-4 rounded-tl-xl font-semibold">Customer</th>
+                <th className="px-4 md:px-6 py-4 font-semibold hidden md:table-cell">Phone</th>
+                <th className="px-4 md:px-6 py-4 font-semibold hidden md:table-cell">Last Visit</th>
+                <th className="px-4 md:px-6 py-4 font-semibold text-center">Orders</th>
+                <th className="px-4 md:px-6 py-4 rounded-tr-xl font-semibold text-right">Revenue</th>
               </tr>
             </thead>
             <tbody>
@@ -87,30 +87,33 @@ export default function CustomersPage() {
               ) : (
                 filteredCustomers.map((customer) => (
                   <tr key={customer.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                    <td className="px-6 py-4 font-medium text-foreground flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">
+                    <td className="px-4 md:px-6 py-4 font-medium text-foreground flex items-center gap-2 md:gap-3 whitespace-nowrap">
+                      <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold flex-shrink-0">
                         {customer.name.charAt(0).toUpperCase()}
                       </div>
-                      {customer.name}
+                      <div className="flex flex-col">
+                        <span>{customer.name}</span>
+                        <span className="text-[10px] text-muted-foreground md:hidden">{customer.phone}</span>
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-muted-foreground">
+                    <td className="px-4 md:px-6 py-4 text-muted-foreground hidden md:table-cell whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <Phone className="w-3 h-3" />
                         {customer.phone}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-muted-foreground">
+                    <td className="px-4 md:px-6 py-4 text-muted-foreground hidden md:table-cell whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-3 h-3" />
                         {customer.lastVisit ? format(customer.lastVisit.toDate(), 'PP p') : 'Unknown'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-center font-semibold">
+                    <td className="px-4 md:px-6 py-4 text-center font-semibold">
                       <span className="bg-secondary/20 text-secondary-foreground px-2.5 py-1 rounded-full text-xs">
                         {customer.totalOrders}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right font-bold text-foreground">
+                    <td className="px-4 md:px-6 py-4 text-right font-bold text-foreground whitespace-nowrap">
                       ₹ {customer.totalRevenue.toFixed(2)}
                     </td>
                   </tr>

@@ -122,16 +122,16 @@ export default function AnalyticsPage() {
           <h3 className="font-bold text-lg">Completed Bills Ledger</h3>
           <p className="text-sm text-muted-foreground">A detailed list of all paid orders contributing to gross revenue.</p>
         </div>
-        <div className="w-full">
+        <div className="w-full overflow-x-auto hide-scrollbar">
           <table className="w-full text-left border-collapse relative">
             <thead className="sticky top-0 bg-muted/95 backdrop-blur z-10 shadow-sm">
               <tr className="border-b border-border">
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Order ID</th>
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Date & Time</th>
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Method</th>
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Subtotal</th>
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tax (5%)</th>
-                <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Paid</th>
+                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">Order ID</th>
+                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">Date & Time</th>
+                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden md:table-cell">Method</th>
+                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden md:table-cell">Subtotal</th>
+                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden md:table-cell">Tax</th>
+                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Paid</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -144,25 +144,25 @@ export default function AnalyticsPage() {
                     className="hover:bg-muted/30 transition-colors cursor-pointer"
                     onClick={() => setViewOrder(order)}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="font-bold text-sm">{order.displayId}</span>
+                    <td className="px-4 md:px-6 py-4 whitespace-nowrap">
+                      <span className="font-bold text-xs md:text-sm">{order.displayId}</span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium">{time}</div>
-                      <div className="text-xs text-muted-foreground">{date}</div>
+                    <td className="px-4 md:px-6 py-4 whitespace-nowrap">
+                      <div className="text-xs md:text-sm font-medium">{time}</div>
+                      <div className="text-[10px] md:text-xs text-muted-foreground">{date}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-green-100 text-green-700 uppercase">
+                    <td className="px-4 md:px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] md:text-xs font-semibold bg-green-100 text-green-700 uppercase">
                         {order.paymentMethod || 'Paid'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-muted-foreground text-sm">
+                    <td className="px-4 md:px-6 py-4 whitespace-nowrap text-muted-foreground text-xs md:text-sm hidden md:table-cell">
                       ₹ {order.subtotal?.toFixed(2) || '0.00'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-muted-foreground text-sm">
+                    <td className="px-4 md:px-6 py-4 whitespace-nowrap text-muted-foreground text-xs md:text-sm hidden md:table-cell">
                       ₹ {order.tax?.toFixed(2) || '0.00'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 md:px-6 py-4 whitespace-nowrap">
                       <span className="font-bold text-sm text-green-700">₹ {order.total.toFixed(2)}</span>
                     </td>
                   </tr>
