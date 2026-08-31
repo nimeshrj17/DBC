@@ -204,7 +204,8 @@ export default function DashboardPage() {
         const orderId = await createOrder({
           tableId: selectedTable.id,
           tableNumber: selectedTable.number,
-          customerPhone: null,
+          customerPhone: selectedTable.customerPhone || null,
+          customerName: selectedTable.customerName || null,
           items: kitchenItems,
           subtotal: sub,
           tax: t,
@@ -222,7 +223,8 @@ export default function DashboardPage() {
         const orderId = await createOrder({
           tableId: selectedTable.id,
           tableNumber: selectedTable.number,
-          customerPhone: null,
+          customerPhone: selectedTable.customerPhone || null,
+          customerName: selectedTable.customerName || null,
           items: retailItems,
           subtotal: sub,
           tax: t,
@@ -338,6 +340,15 @@ export default function DashboardPage() {
         // (preserves any new orders added concurrently)
         const newActiveIds = currentActiveIds.filter((id: string) => !checkoutOrderIds.includes(id));
         
+        // Update customer if exists
+        if (tableData.customerId) {
+          const customerRef = doc(db, 'customers', tableData.customerId);
+          transaction.update(customerRef, {
+            totalOrders: increment(1),
+            totalRevenue: increment(mergedTotal)
+          });
+        }
+        
         transaction.update(tableRef, {
           activeOrderIds: newActiveIds,
           status: newActiveIds.length === 0 ? 'empty' : tableData.status
@@ -449,6 +460,15 @@ export default function DashboardPage() {
         }
         
         const newActiveIds = currentActiveIds.filter((id: string) => !checkoutOrderIds.includes(id));
+        
+        // Update customer if exists
+        if (tableData.customerId) {
+          const customerRef = doc(db, 'customers', tableData.customerId);
+          transaction.update(customerRef, {
+            totalOrders: increment(1),
+            totalRevenue: increment(mergedTotal)
+          });
+        }
         
         transaction.update(tableRef, {
           activeOrderIds: newActiveIds,

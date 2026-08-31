@@ -28,12 +28,28 @@ export default function PaymentModal({ orderId, displayId, total, onClose, onCon
   };
 
   // Generate UPI URI
-  const getUpiUri = (appScheme: string) => {
-    return settings.upiId 
-      ? `${appScheme}://pay?pa=${settings.upiId}&pn=DreamBeanCafe&am=${total.toFixed(2)}&cu=INR&tr=${orderId}`
-      : '';
+  const getUpiUri = (appId: 'gpay' | 'phonepe' | 'paytm' | 'generic') => {
+    if (!settings.upiId) return '';
+    const baseParams = `pa=${settings.upiId}&pn=DreamBeanCafe&am=${total.toFixed(2)}&cu=INR&tr=${orderId}`;
+    
+    // Check if Android
+    const isAndroid = typeof window !== 'undefined' && /android/i.test(navigator.userAgent);
+    
+    if (isAndroid) {
+      if (appId === 'gpay') return `intent://pay?${baseParams}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end;`;
+      if (appId === 'phonepe') return `intent://pay?${baseParams}#Intent;scheme=upi;package=com.phonepe.app;end;`;
+      if (appId === 'paytm') return `intent://pay?${baseParams}#Intent;scheme=upi;package=net.one97.paytm;end;`;
+      return `upi://pay?${baseParams}`; // generic
+    }
+    
+    // iOS / Default
+    if (appId === 'gpay') return `tez://upi/pay?${baseParams}`;
+    if (appId === 'phonepe') return `phonepe://pay?${baseParams}`;
+    if (appId === 'paytm') return `paytmmp://pay?${baseParams}`;
+    
+    return `upi://pay?${baseParams}`;
   };
-  const upiUri = getUpiUri('upi');
+  const upiUri = getUpiUri('generic');
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-sm" onClick={onClose}>
@@ -99,7 +115,7 @@ export default function PaymentModal({ orderId, displayId, total, onClose, onCon
               
               <div className="grid grid-cols-2 gap-3 w-full mb-4">
                 <a 
-                  href={getUpiUri('tez')}
+                  href={getUpiUri('gpay')}
                   className="bg-white border border-gray-200 text-gray-800 py-3 px-4 rounded-xl font-bold flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors text-sm"
                 >
                   <img src="https://upload.wikimedia.org/wikipedia/commons/c/c5/Google_Pay_Logo_%282020%29.svg" alt="GPay" className="h-4 mr-2" />
@@ -113,14 +129,14 @@ export default function PaymentModal({ orderId, displayId, total, onClose, onCon
                   PhonePe
                 </a>
                 <a 
-                  href={getUpiUri('paytmmp')}
+                  href={getUpiUri('paytm')}
                   className="bg-white border border-gray-200 text-gray-800 py-3 px-4 rounded-xl font-bold flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors text-sm"
                 >
                   <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Paytm_Logo_%28standalone%29.svg" alt="Paytm" className="h-3 mr-2" />
                   Paytm
                 </a>
                 <a 
-                  href={getUpiUri('upi')}
+                  href={getUpiUri('generic')}
                   className="bg-[#A04010] text-white py-3 px-4 rounded-xl font-bold flex items-center justify-center shadow-md hover:bg-[#8A3000] transition-colors text-sm"
                 >
                   More Apps

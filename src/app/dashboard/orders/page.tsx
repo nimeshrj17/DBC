@@ -193,7 +193,12 @@ export default function OrdersPage() {
                         </div>
                         <div>
                           <h3 className="font-bold text-sm">Table {order.tableNumber}</h3>
-                          <p className="text-xs text-muted-foreground">{order.displayId}</p>
+                          <p className="text-xs text-muted-foreground mb-0.5">{order.displayId}</p>
+                          {(order.customerName || order.customerPhone) && (
+                            <p className="text-[10px] text-orange-600 font-medium">
+                              {order.customerName ? order.customerName : ''} {order.customerPhone ? `(${order.customerPhone})` : ''}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-1">

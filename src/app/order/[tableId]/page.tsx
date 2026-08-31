@@ -155,6 +155,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           tableId: table.id,
           tableNumber: table.number,
           customerPhone: table.customerPhone || null,
+          customerName: table.customerName || null,
           displayIdPrefix: 'QR',
           items: kitchenItems.map(i => ({
             menuItemId: i.id,
@@ -179,6 +180,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           tableId: table.id,
           tableNumber: table.number,
           customerPhone: table.customerPhone || null,
+          customerName: table.customerName || null,
           displayIdPrefix: 'QR',
           items: retailItems.map(i => ({
             menuItemId: i.id,

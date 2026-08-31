@@ -18,6 +18,7 @@ export interface Order {
   tableId: string;
   tableNumber: number;
   customerPhone: string | null;
+  customerName?: string | null;
   items: OrderItem[];
   subtotal: number;
   tax: number;
