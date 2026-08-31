@@ -120,9 +120,7 @@ export default function MenuPage() {
         </div>
         
         <div className="flex items-center space-x-3 w-full sm:w-auto">
-          <Button variant="outline" onClick={seedChalkboardMenu}>
-            Load Chalkboard Menu
-          </Button>
+
           <Button 
             variant="primary" 
             className="shadow-[0_0_15px_rgba(204,255,0,0.3)] whitespace-nowrap"

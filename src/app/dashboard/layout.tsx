@@ -210,10 +210,7 @@ export default function DashboardLayout({
               </div>
             </div>
 
-            <button className="relative p-4 bg-card border border-border shadow-sm rounded-xl text-foreground hover:bg-muted/50 transition-colors">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-3.5 right-3.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-card"></span>
-            </button>
+
           </div>
         </header>
 
