@@ -2,9 +2,10 @@
 import React, { useState, useEffect, use } from 'react';
 import { useMenu, MenuItem } from '@/lib/hooks/useMenu';
 import { Table } from '@/lib/hooks/useTables';
+import { Order } from '@/lib/hooks/useOrders';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, doc, updateDoc, Timestamp, getDoc } from 'firebase/firestore';
-import { Coffee, ShoppingBag, Plus, Minus, ChevronRight, Check } from 'lucide-react';
+import { collection, addDoc, doc, updateDoc, Timestamp, getDoc, onSnapshot, query, where } from 'firebase/firestore';
+import { Coffee, ShoppingBag, Plus, Minus, ChevronRight, Check, Clock, ChefHat, CheckCircle2, Banknote } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CartItem extends MenuItem {
@@ -23,13 +24,36 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [tableOrders, setTableOrders] = useState<Order[]>([]);
 
   useEffect(() => {
+    let unsubscribeOrders: () => void;
+    
     const fetchTable = async () => {
       try {
         const tableDoc = await getDoc(doc(db, 'tables', tableId));
         if (tableDoc.exists()) {
           setTable({ id: tableDoc.id, ...tableDoc.data() } as Table);
+          
+          // Listen to orders for this table that aren't completed/cancelled
+          const q = query(
+            collection(db, 'orders'),
+            where('tableId', '==', tableId)
+          );
+          
+          unsubscribeOrders = onSnapshot(q, (snapshot) => {
+            const ordersData: Order[] = [];
+            snapshot.forEach((doc) => {
+              const data = doc.data() as Order;
+              if (data.status !== 'completed' && data.status !== 'cancelled' && data.paymentStatus !== 'paid') {
+                ordersData.push({ id: doc.id, ...data });
+              }
+            });
+            // Sort by created at
+            ordersData.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+            setTableOrders(ordersData);
+          });
         }
       } catch (err) {
         console.error(err);
@@ -38,6 +62,10 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       }
     };
     fetchTable();
+    
+    return () => {
+      if (unsubscribeOrders) unsubscribeOrders();
+    };
   }, [tableId]);
 
   const addToCart = (item: MenuItem) => {
@@ -176,17 +204,59 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       {/* Menu Categories */}
       <div className="px-4 mt-6">
         <div className="flex overflow-x-auto hide-scrollbar gap-3 pb-2 -mx-4 px-4 snap-x">
+          <div 
+            onClick={() => setActiveCategory('All')}
+            className={`cursor-pointer snap-start shrink-0 border shadow-sm px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-colors ${activeCategory === 'All' ? 'bg-[#2A1A14] text-white border-[#2A1A14]' : 'bg-white border-[#EBE2DC] text-[#2A1A14]'}`}
+          >
+            All
+          </div>
           {categories.map((cat, i) => (
-            <div key={i} className="snap-start shrink-0 bg-white border border-[#EBE2DC] shadow-sm px-5 py-2.5 rounded-full text-sm font-bold text-[#2A1A14] whitespace-nowrap shadow-sm">
+            <div 
+              key={i} 
+              onClick={() => setActiveCategory(cat || '')}
+              className={`cursor-pointer snap-start shrink-0 border shadow-sm px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-colors ${activeCategory === cat ? 'bg-[#2A1A14] text-white border-[#2A1A14]' : 'bg-white border-[#EBE2DC] text-[#2A1A14]'}`}
+            >
               {cat}
             </div>
           ))}
         </div>
       </div>
 
+      {/* Active Orders for Table */}
+      {tableOrders.length > 0 && (
+        <div className="px-4 mt-6 space-y-3">
+          <h2 className="font-bold text-[#2A1A14] text-lg px-1">Your Table's Orders</h2>
+          {tableOrders.map(order => (
+            <div key={order.id} className="bg-white p-4 rounded-3xl shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-[#EBE2DC] flex flex-col">
+              <div className="flex justify-between items-center mb-3">
+                <span className="font-bold text-sm text-[#2A1A14]">{order.displayId}</span>
+                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                  order.status === 'pending' ? 'bg-gray-100 text-gray-600' :
+                  order.status === 'preparing' ? 'bg-orange-100 text-orange-600' :
+                  order.status === 'prepared' ? 'bg-yellow-100 text-yellow-600' :
+                  order.status === 'served' ? 'bg-blue-100 text-blue-600' :
+                  'bg-green-100 text-green-600'
+                }`}>
+                  {order.status === 'pending' ? 'Received' : order.status}
+                </span>
+              </div>
+              <div className="space-y-1">
+                {order.items.map((item, idx) => (
+                  <div key={idx} className="flex justify-between text-xs text-gray-600">
+                    <span>{item.qty}x {item.name}</span>
+                    <span>₹{item.price * item.qty}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Menu Items */}
       <div className="px-4 mt-6 space-y-4">
-        {menuItems.filter(i => i.available).map(item => {
+        <h2 className="font-bold text-[#2A1A14] text-lg px-1">Menu</h2>
+        {menuItems.filter(i => i.available && (activeCategory === 'All' || i.category === activeCategory)).map(item => {
           const cartItem = cart.find(i => i.id === item.id);
           return (
             <div key={item.id} className="bg-white p-4 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#EBE2DC]/50 flex gap-4 overflow-hidden relative">
