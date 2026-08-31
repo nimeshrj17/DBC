@@ -4,9 +4,10 @@ import { useMenu, MenuItem } from '@/lib/hooks/useMenu';
 import { Table } from '@/lib/hooks/useTables';
 import { Order, createOrderTransaction } from '@/lib/hooks/useOrders';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, doc, updateDoc, Timestamp, getDoc, onSnapshot, query, where } from 'firebase/firestore';
-import { Coffee, ShoppingBag, Plus, Minus, ChevronRight, Check, Clock, ChefHat, CheckCircle2, Banknote } from 'lucide-react';
+import { collection, addDoc, doc, updateDoc, Timestamp, getDoc, onSnapshot, query, where, runTransaction } from 'firebase/firestore';
+import { Coffee, ShoppingBag, Plus, Minus, ChevronRight, Check, Clock, ChefHat, CheckCircle2, Banknote, QrCode } from 'lucide-react';
 import { toast } from 'sonner';
+import PaymentModal from '@/components/dashboard/PaymentModal';
 
 interface CartItem extends MenuItem {
   qty: number;
@@ -26,6 +27,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [tableOrders, setTableOrders] = useState<Order[]>([]);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   useEffect(() => {
     let unsubscribeOrders: () => void;
@@ -172,6 +174,47 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     }
   };
 
+  const grandTotal = tableOrders.reduce((sum, order) => sum + order.total, 0);
+
+  const handleCustomerCheckout = async (method: 'cash' | 'qr') => {
+    if (tableOrders.length === 0 || !table) return;
+    try {
+      await runTransaction(db, async (transaction) => {
+        const tableRef = doc(db, 'tables', table.id);
+        const tableSnap = await transaction.get(tableRef);
+        
+        if (!tableSnap.exists()) throw new Error("Table not found");
+        
+        const tableData = tableSnap.data();
+        const currentActiveIds = tableData.activeOrderIds || [];
+        
+        const checkoutOrderIds = tableOrders.map(o => o.id);
+        
+        for (const orderId of checkoutOrderIds) {
+          const orderRef = doc(db, 'orders', orderId);
+          transaction.update(orderRef, {
+            paymentMethod: method,
+            paymentStatus: 'paid',
+            status: 'completed'
+          });
+        }
+        
+        const newActiveIds = currentActiveIds.filter((id: string) => !checkoutOrderIds.includes(id));
+        
+        transaction.update(tableRef, {
+          activeOrderIds: newActiveIds,
+          status: newActiveIds.length === 0 ? 'empty' : tableData.status
+        });
+      });
+      
+      toast.success(`Payment successful! Thank you for visiting.`);
+      setIsPaymentModalOpen(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to process payment");
+    }
+  };
+
   if (tableLoading || menuLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FCFAFA]">
@@ -281,10 +324,15 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               </div>
             </div>
           ))}
+          <button
+            onClick={() => setIsPaymentModalOpen(true)}
+            className="w-full mt-4 bg-[#2A1A14] text-[#D4C1B3] py-4 rounded-3xl font-bold shadow-md hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+          >
+            <Banknote className="w-5 h-5" />
+            Pay Bill (₹{grandTotal.toFixed(2)})
+          </button>
         </div>
-      )}
-
-      {/* Menu Items */}
+      )}      {/* Menu Items */}
       <div className="px-4 mt-6 space-y-4">
         <h2 className="font-bold text-[#2A1A14] text-lg px-1">Menu</h2>
         {menuItems.filter(i => i.available && (activeCategory === 'All' || i.category === activeCategory)).map(item => {
@@ -410,6 +458,16 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
             </button>
           </div>
         </>
+      )}
+
+      {isPaymentModalOpen && table && (
+        <PaymentModal
+          orderId={table.id} // using tableId as a ref for multiple orders
+          displayId={`Table ${table.number}`}
+          total={grandTotal}
+          onClose={() => setIsPaymentModalOpen(false)}
+          onConfirmPayment={handleCustomerCheckout}
+        />
       )}
 
       {/* Global hide scrollbar styles */}
