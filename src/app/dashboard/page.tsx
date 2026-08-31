@@ -288,15 +288,43 @@ export default function DashboardPage() {
         
         // Find which orders were just checked out
         const checkoutOrderIds = activeOrders.map(o => o.id);
+        if (checkoutOrderIds.length === 0) return;
         
-        // Update all checked out orders
-        for (const orderId of checkoutOrderIds) {
-          const orderRef = doc(db, 'orders', orderId);
-          transaction.update(orderRef, {
-            paymentMethod: method,
-            paymentStatus: 'paid',
-            status: 'completed'
+        const masterOrderId = checkoutOrderIds[0];
+        const masterOrderRef = doc(db, 'orders', masterOrderId);
+        
+        let mergedItems: OrderItem[] = [];
+        let mergedSubtotal = 0;
+        let mergedTotal = 0;
+        let mergedTax = 0;
+        
+        activeOrders.forEach(o => {
+          mergedSubtotal += o.subtotal;
+          mergedTotal += o.total;
+          mergedTax += o.tax;
+          o.items.forEach(item => {
+            const existing = mergedItems.find(i => i.menuItemId === item.menuItemId);
+            if (existing) {
+              existing.qty += item.qty;
+            } else {
+              mergedItems.push({...item});
+            }
           });
+        });
+        
+        transaction.update(masterOrderRef, {
+          items: mergedItems,
+          subtotal: mergedSubtotal,
+          total: mergedTotal,
+          tax: mergedTax,
+          paymentMethod: method,
+          paymentStatus: 'paid',
+          status: 'completed'
+        });
+        
+        for (let i = 1; i < checkoutOrderIds.length; i++) {
+          const orderRef = doc(db, 'orders', checkoutOrderIds[i]);
+          transaction.delete(orderRef);
         }
         
         // Remove only the checked out orders from the table's active list
@@ -375,13 +403,42 @@ export default function DashboardPage() {
         const currentActiveIds = tableData.activeOrderIds || [];
         
         const checkoutOrderIds = groupOrders.map(o => o.id);
+        if (checkoutOrderIds.length === 0) return;
         
-        for (const orderId of checkoutOrderIds) {
-          const orderRef = doc(db, 'orders', orderId);
-          transaction.update(orderRef, {
-            paymentStatus: 'paid',
-            status: 'completed'
+        const masterOrderId = checkoutOrderIds[0];
+        const masterOrderRef = doc(db, 'orders', masterOrderId);
+        
+        let mergedItems: OrderItem[] = [];
+        let mergedSubtotal = 0;
+        let mergedTotal = 0;
+        let mergedTax = 0;
+        
+        groupOrders.forEach(o => {
+          mergedSubtotal += o.subtotal;
+          mergedTotal += o.total;
+          mergedTax += o.tax;
+          o.items.forEach(item => {
+            const existing = mergedItems.find(i => i.menuItemId === item.menuItemId);
+            if (existing) {
+              existing.qty += item.qty;
+            } else {
+              mergedItems.push({...item});
+            }
           });
+        });
+        
+        transaction.update(masterOrderRef, {
+          items: mergedItems,
+          subtotal: mergedSubtotal,
+          total: mergedTotal,
+          tax: mergedTax,
+          paymentStatus: 'paid',
+          status: 'completed'
+        });
+        
+        for (let i = 1; i < checkoutOrderIds.length; i++) {
+          const orderRef = doc(db, 'orders', checkoutOrderIds[i]);
+          transaction.delete(orderRef);
         }
         
         const newActiveIds = currentActiveIds.filter((id: string) => !checkoutOrderIds.includes(id));

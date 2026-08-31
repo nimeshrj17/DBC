@@ -117,12 +117,12 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Completed Orders Table */}
-      <Card className="rounded-2xl overflow-hidden border border-border shadow-sm flex-1 flex flex-col mt-6 min-h-[400px]">
-        <div className="p-6 border-b border-border bg-muted/20 shrink-0">
+      <Card className="rounded-2xl border border-border shadow-sm mt-6 mb-12">
+        <div className="p-6 border-b border-border bg-muted/20">
           <h3 className="font-bold text-lg">Completed Bills Ledger</h3>
           <p className="text-sm text-muted-foreground">A detailed list of all paid orders contributing to gross revenue.</p>
         </div>
-        <div className="overflow-auto flex-1">
+        <div className="w-full">
           <table className="w-full text-left border-collapse relative">
             <thead className="sticky top-0 bg-muted/95 backdrop-blur z-10 shadow-sm">
               <tr className="border-b border-border">
