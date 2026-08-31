@@ -283,9 +283,18 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         <p className="text-gray-600 mb-8 text-lg">Your order has been sent to the kitchen. We'll bring it right out to Table {table.number}.</p>
         <button 
           onClick={() => setOrderPlaced(false)}
-          className="bg-[#2A1A14] text-[#D4C1B3] px-8 py-3 rounded-full font-bold shadow-lg"
+          className="bg-[#2A1A14] text-[#D4C1B3] px-8 py-3 rounded-full font-bold shadow-lg w-full max-w-[280px]"
         >
           Order More Items
+        </button>
+        <button 
+          onClick={() => {
+            setOrderPlaced(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          className="mt-4 bg-transparent border-2 border-[#2A1A14] text-[#2A1A14] px-8 py-3 rounded-full font-bold w-full max-w-[280px]"
+        >
+          Continue to Current Order
         </button>
       </div>
     );
