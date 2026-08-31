@@ -221,25 +221,25 @@ export default function DashboardLayout({
 
       {/* Mobile Bottom Navigation */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center p-3 pb-safe shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-50">
+        <Link href="/dashboard/customers" className={`flex flex-col items-center gap-1 ${pathname.startsWith('/dashboard/customers') ? 'text-[#2A1A14]' : 'text-gray-400'}`}>
+          <Users className="w-6 h-6" />
+          <span className="text-[10px] font-medium">Customers</span>
+        </Link>
         <Link href="/dashboard" className={`flex flex-col items-center gap-1 ${pathname === '/dashboard' ? 'text-[#2A1A14]' : 'text-gray-400'}`}>
           <LayoutDashboard className="w-6 h-6" />
-          <span className="text-[10px] font-medium">Tables</span>
+          <span className="text-[10px] font-medium">Dashboard</span>
         </Link>
         <Link href="/dashboard/orders" className={`flex flex-col items-center gap-1 ${pathname.startsWith('/dashboard/orders') ? 'text-[#2A1A14]' : 'text-gray-400'}`}>
           <Receipt className="w-6 h-6" />
           <span className="text-[10px] font-medium">Orders</span>
         </Link>
-        <Link href="/dashboard/menu" className={`flex flex-col items-center gap-1 ${pathname.startsWith('/dashboard/menu') ? 'text-[#2A1A14]' : 'text-gray-400'}`}>
-          <Coffee className="w-6 h-6" />
-          <span className="text-[10px] font-medium">Menu</span>
+        <Link href="/dashboard/inventory" className={`flex flex-col items-center gap-1 ${pathname.startsWith('/dashboard/inventory') ? 'text-[#2A1A14]' : 'text-gray-400'}`}>
+          <Package className="w-6 h-6" />
+          <span className="text-[10px] font-medium">Inventory</span>
         </Link>
-        <Link href="/dashboard/kiosk" className={`flex flex-col items-center gap-1 ${pathname.startsWith('/dashboard/kiosk') ? 'text-[#2A1A14]' : 'text-gray-400'}`}>
-          <Printer className="w-6 h-6" />
-          <span className="text-[10px] font-medium">Kitchen</span>
-        </Link>
-        <Link href="/dashboard/settings" className={`flex flex-col items-center gap-1 ${pathname.startsWith('/dashboard/settings') ? 'text-[#2A1A14]' : 'text-gray-400'}`}>
-          <Settings className="w-6 h-6" />
-          <span className="text-[10px] font-medium">Settings</span>
+        <Link href="/dashboard/analytics" className={`flex flex-col items-center gap-1 ${pathname.startsWith('/dashboard/analytics') ? 'text-[#2A1A14]' : 'text-gray-400'}`}>
+          <BarChart3 className="w-6 h-6" />
+          <span className="text-[10px] font-medium">Revenue</span>
         </Link>
       </div>
     </div>
