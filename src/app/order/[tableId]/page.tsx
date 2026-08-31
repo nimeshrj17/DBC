@@ -294,6 +294,17 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     );
   }
 
+  if (table.currentSessionId && table.currentSessionId !== deviceId && table.status !== 'empty') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FCFAFA] text-center">
+        <h1 className="text-2xl font-bold text-[#A04010] mb-2">Table In Use</h1>
+        <p className="text-gray-600 font-medium">This table is currently locked to another device.</p>
+        <p className="text-gray-500 text-sm mt-2">To prevent duplicate orders, only the person who scanned the QR code first can place orders or view the bill for this table.</p>
+        <p className="text-gray-400 text-sm mt-6 font-medium italic">Please ask your table host to place your order.</p>
+      </div>
+    );
+  }
+
   const categories = Array.from(new Set(menuItems.map(i => i.category)));
 
   if (orderPlaced) {
