@@ -69,12 +69,13 @@ const getIconColorClass = (status: string) => {
 };
 
 export default function DashboardPage() {
-  const { tables, loading, updateTableStatus, addTable } = useTables();
+  const { tables, loading, updateTableStatus, addTable, updateTableDetails } = useTables();
   const { orders, loading: ordersLoading, updateOrder, updateOrderStatus, createOrder } = useOrders();
   const { settings, loading: settingsLoading } = useSettings();
   const { addOrUpdateCustomer, customers } = useCustomers();
   
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
+  const [editingTableId, setEditingTableId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   
@@ -88,6 +89,8 @@ export default function DashboardPage() {
   const [draftOrders, setDraftOrders] = useState<Record<string, OrderItem[]>>({});
   
   const [newTableNum, setNewTableNum] = useState<string>('');
+  const [newTableName, setNewTableName] = useState<string>('');
+  const [newTableSection, setNewTableSection] = useState<string>('Inner Hall');
   const [newTableSeats, setNewTableSeats] = useState<string>('');
   const [isSubmittingTable, setIsSubmittingTable] = useState(false);
 
@@ -387,14 +390,22 @@ export default function DashboardPage() {
     
     setIsSubmittingTable(true);
     try {
-      await addTable(Number(newTableNum), Number(newTableSeats));
+      if (editingTableId) {
+        await updateTableDetails(editingTableId, newTableName, newTableSection, Number(newTableNum), Number(newTableSeats));
+        toast.success("Table updated successfully");
+      } else {
+        await addTable(Number(newTableNum), Number(newTableSeats), newTableName, newTableSection);
+        toast.success("Table added successfully");
+      }
       setIsAddTableOpen(false);
+      setEditingTableId(null);
       setNewTableNum('');
+      setNewTableName('');
+      setNewTableSection('Inner Hall');
       setNewTableSeats('');
-      toast.success("Table added successfully");
     } catch (error) {
       console.error(error);
-      toast.error("Failed to add table");
+      toast.error(editingTableId ? "Failed to update table" : "Failed to add table");
     } finally {
       setIsSubmittingTable(false);
     }
@@ -548,44 +559,61 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 overflow-y-auto pb-10">
-        {tables.map((table) => {
-          const tableOrders = table.activeOrderIds 
-            ? orders.filter(o => table.activeOrderIds.includes(o.id)) 
-            : [];
-          const tableTotal = tableOrders.reduce((sum, o) => sum + o.total, 0);
-          
-          return (
-            <Card 
-              key={table.id} 
-              onClick={() => setSelectedTableId(table.id)}
-              className={`cursor-pointer transition-all hover:shadow-md border-t-[3px] rounded-2xl ${getTopBorderClass(table.status)}`}
-            >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 pt-5">
-                <CardTitle className="text-lg font-bold">Table {table.number}</CardTitle>
-                <Users className={`w-6 h-6 ${getIconColorClass(table.status)}`} />
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground mb-6">
-                  {table.seats} Seats
-                  {tableOrders.length > 0 && <span className="ml-2 text-xs bg-muted px-2 py-0.5 rounded-full">{tableOrders.length} tickets</span>}
-                </div>
-                <div className="flex justify-between items-end mt-2 h-8">
-                  <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${getStatusColor(table.status)}`}>
-                    {getStatusBadge(table.status)}
-                  </span>
-                  
-                  {tableTotal > 0 && (
-                    <span className="text-sm font-bold">₹ {tableTotal.toFixed(2)}</span>
-                  )}
-                </div>
-                <div className="mt-4" onClick={(e) => e.stopPropagation()}>
-                  <QRCodeGenerator tableId={table.id} tableNumber={table.number} />
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+      <div className="overflow-y-auto pb-10 space-y-8">
+        {Array.from(new Set(tables.map(t => t.section || 'Main Hall'))).map(section => (
+          <div key={section}>
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-primary"></div>
+              {section}
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5">
+              {tables.filter(t => (t.section || 'Main Hall') === section).map((table) => {
+                const tableOrders = table.activeOrderIds 
+                  ? orders.filter(o => table.activeOrderIds.includes(o.id)) 
+                  : [];
+                const tableTotal = tableOrders.reduce((sum, o) => sum + o.total, 0);
+                
+                return (
+                  <Card 
+                    key={table.id} 
+                    onClick={() => setSelectedTableId(table.id)}
+                    className={`cursor-pointer transition-all hover:shadow-md border-t-[3px] rounded-2xl flex flex-col justify-between ${getTopBorderClass(table.status)}`}
+                  >
+                    <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2 pt-5">
+                      <div>
+                        <CardTitle className="text-lg font-bold line-clamp-1 break-all pr-2" title={table.name || `Table ${table.number}`}>
+                          {table.name || `Table ${table.number}`}
+                        </CardTitle>
+                        {table.name && table.name !== `Table ${table.number}` && (
+                          <div className="text-xs text-muted-foreground mt-1">Table {table.number}</div>
+                        )}
+                      </div>
+                      <Users className={`w-6 h-6 flex-shrink-0 ${getIconColorClass(table.status)}`} />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-sm text-muted-foreground mb-6">
+                        {table.seats} Seats
+                        {tableOrders.length > 0 && <span className="ml-2 text-xs bg-muted px-2 py-0.5 rounded-full">{tableOrders.length} tickets</span>}
+                      </div>
+                      <div className="flex justify-between items-end mt-2 h-8">
+                        <span className={`text-[10px] md:text-xs font-semibold px-2 md:px-3 py-1.5 rounded-full ${getStatusColor(table.status)}`}>
+                          {getStatusBadge(table.status)}
+                        </span>
+                        
+                        {tableTotal > 0 && (
+                          <span className="text-sm font-bold">₹ {tableTotal.toFixed(2)}</span>
+                        )}
+                      </div>
+                      <div className="mt-4" onClick={(e) => e.stopPropagation()}>
+                        <QRCodeGenerator tableId={table.id} tableNumber={table.number} />
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        ))}
         {tables.length === 0 && (
           <div className="col-span-full py-10 text-center">
             <p className="text-muted-foreground mb-4">No tables found.</p>
@@ -599,7 +627,23 @@ export default function DashboardPage() {
         <div className="absolute inset-y-0 right-0 w-full max-w-md bg-card shadow-2xl border-l border-border flex flex-col transform transition-transform z-50">
           <div className="p-6 flex items-center justify-between border-b border-border">
             <div>
-              <h2 className="text-xl font-bold">Table {selectedTable.number}</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-bold">{selectedTable.name || `Table ${selectedTable.number}`}</h2>
+                <button 
+                  onClick={() => {
+                    setEditingTableId(selectedTable.id);
+                    setNewTableNum(selectedTable.number.toString());
+                    setNewTableSeats(selectedTable.seats.toString());
+                    setNewTableName(selectedTable.name || '');
+                    setNewTableSection(selectedTable.section || 'Inner Hall');
+                    setIsAddTableOpen(true);
+                  }}
+                  className="text-muted-foreground hover:text-primary transition-colors ml-2"
+                  title="Edit Table"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                </button>
+              </div>
               <p className="text-sm text-muted-foreground">{selectedTable.seats} Seats</p>
               {selectedTable.customerName && (
                 <p className="text-xs font-bold text-primary mt-1 bg-primary/10 inline-block px-2 py-0.5 rounded-full">
@@ -741,8 +785,15 @@ export default function DashboardPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-background rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
             <div className="p-6 border-b border-border flex justify-between items-center bg-card">
-              <h2 className="text-xl font-bold">Add New Table</h2>
-              <button onClick={() => setIsAddTableOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
+              <h2 className="text-xl font-bold">{editingTableId ? 'Edit Table' : 'Add New Table'}</h2>
+              <button onClick={() => {
+                setIsAddTableOpen(false);
+                setEditingTableId(null);
+                setNewTableNum('');
+                setNewTableName('');
+                setNewTableSection('Inner Hall');
+                setNewTableSeats('');
+              }} className="p-2 hover:bg-muted rounded-full transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -773,12 +824,43 @@ export default function DashboardPage() {
                     placeholder="e.g. 4"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Table Name</label>
+                  <input 
+                    type="text" 
+                    value={newTableName}
+                    onChange={(e) => setNewTableName(e.target.value)}
+                    className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    placeholder="e.g. VIP Table (Optional)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Section</label>
+                  <select
+                    value={newTableSection}
+                    onChange={(e) => setNewTableSection(e.target.value)}
+                    className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  >
+                    <option value="Inner Hall">Inner Hall</option>
+                    <option value="Shed">Shed</option>
+                    <option value="Corners">Corners</option>
+                    <option value="Patio">Patio</option>
+                    <option value="Bar">Bar</option>
+                  </select>
+                </div>
               </div>
               
               <div className="pt-4 flex justify-end space-x-3">
-                <Button type="button" variant="outline" onClick={() => setIsAddTableOpen(false)}>Cancel</Button>
+                <Button type="button" variant="outline" onClick={() => {
+                  setIsAddTableOpen(false);
+                  setEditingTableId(null);
+                  setNewTableNum('');
+                  setNewTableName('');
+                  setNewTableSection('Inner Hall');
+                  setNewTableSeats('');
+                }}>Cancel</Button>
                 <Button type="submit" variant="primary" disabled={isSubmittingTable}>
-                  {isSubmittingTable ? 'Adding...' : 'Add Table'}
+                  {isSubmittingTable ? (editingTableId ? 'Updating...' : 'Adding...') : (editingTableId ? 'Save Changes' : 'Add Table')}
                 </Button>
               </div>
             </form>
@@ -789,7 +871,7 @@ export default function DashboardPage() {
       {isPaymentModalOpen && selectedTable && (
         <PaymentModal 
           orderId={selectedTable.id}
-          displayId={`Table ${selectedTable.number}`}
+          displayId={selectedTable.name || `Table ${selectedTable.number}`}
           total={allOrderItems.reduce((sum, item) => sum + (item.price * item.qty), 0)}
           onClose={() => setIsPaymentModalOpen(false)}
           onConfirmPayment={handleCheckout}
@@ -801,7 +883,7 @@ export default function DashboardPage() {
         <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-background rounded-3xl p-6 w-full max-w-sm shadow-2xl">
             <h3 className="text-xl font-bold mb-2">Assign Customer</h3>
-            <p className="text-sm text-muted-foreground mb-6">Enter details for Table {selectedTable.number}</p>
+            <p className="text-sm text-muted-foreground mb-6">Enter details for {selectedTable.name || `Table ${selectedTable.number}`}</p>
             
             <form onSubmit={async (e) => {
               e.preventDefault();

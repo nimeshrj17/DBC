@@ -5,6 +5,8 @@ import { db } from '../firebase';
 export interface Table {
   id: string;
   number: number;
+  name?: string;
+  section?: string;
   seats: number;
   status: 'empty' | 'occupied' | 'order_placed' | 'preparing' | 'served' | 'awaiting_payment';
   activeOrderIds: string[];
@@ -62,10 +64,12 @@ export function useTables() {
     }
   };
 
-  const addTable = async (number: number, seats: number) => {
+  const addTable = async (number: number, seats: number, name?: string, section?: string) => {
     try {
       const docRef = await addDoc(collection(db, 'tables'), {
         number,
+        name: name || `Table ${number}`,
+        section: section || 'Main Hall',
         seats,
         status: 'empty',
         activeOrderIds: []
@@ -77,5 +81,14 @@ export function useTables() {
     }
   };
 
-  return { tables, loading, updateTableStatus, addTable };
+  const updateTableDetails = async (id: string, name: string, section: string, number: number, seats: number) => {
+    try {
+      await updateDoc(doc(db, 'tables', id), { name, section, number, seats });
+    } catch (error) {
+      console.error("Error updating table details:", error);
+      throw error;
+    }
+  };
+
+  return { tables, loading, updateTableStatus, addTable, updateTableDetails };
 }

@@ -314,7 +314,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           <Check className="w-10 h-10 text-green-600" />
         </div>
         <h1 className="text-3xl font-extrabold text-[#2A1A14] mb-2 tracking-tight">Order Placed!</h1>
-        <p className="text-gray-600 mb-8 text-lg">Your order has been sent to the kitchen. We'll bring it right out to Table {table.number}.</p>
+        <p className="text-gray-600 mb-8 text-lg">Your order has been sent to the kitchen. We'll bring it right out to {table.name || `Table ${table.number}`}.</p>
         <button 
           onClick={() => setOrderPlaced(false)}
           className="bg-[#2A1A14] text-[#D4C1B3] px-8 py-3 rounded-full font-bold shadow-lg w-full max-w-[280px]"
@@ -371,7 +371,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
             </div>
           </div>
           <div className="bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10 text-white font-bold shadow-sm text-sm">
-            Table {table.number}
+            {table.name || `Table ${table.number}`}
           </div>
         </div>
       </div>
@@ -574,7 +574,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       {isPaymentModalOpen && table && (
         <PaymentModal
           orderId={table.id} // using tableId as a ref for multiple orders
-          displayId={`Table ${table.number}`}
+          displayId={table.name || `Table ${table.number}`}
           total={grandTotal}
           onClose={() => setIsPaymentModalOpen(false)}
           onConfirmPayment={handleCustomerCheckout}
