@@ -69,7 +69,7 @@ const getIconColorClass = (status: string) => {
 };
 
 export default function DashboardPage() {
-  const { tables, loading, updateTableStatus, addTable, updateTableDetails } = useTables();
+  const { tables, loading, updateTableStatus, addTable, updateTableDetails, deleteTable } = useTables();
   const { orders, loading: ordersLoading, updateOrder, updateOrderStatus, createOrder } = useOrders();
   const { settings, loading: settingsLoading } = useSettings();
   const { addOrUpdateCustomer, customers } = useCustomers();
@@ -87,6 +87,7 @@ export default function DashboardPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAddTableOpen, setIsAddTableOpen] = useState(false);
   const [draftOrders, setDraftOrders] = useState<Record<string, OrderItem[]>>({});
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
   const [newTableNum, setNewTableNum] = useState<string>('');
   const [newTableName, setNewTableName] = useState<string>('');
@@ -532,8 +533,18 @@ export default function DashboardPage() {
           </Button>
           
           <div className="flex bg-card border border-border rounded-xl p-1 shadow-sm">
-            <button className="p-2 bg-blue-50 text-secondary rounded-lg shadow-sm"><LayoutGrid className="w-4 h-4" /></button>
-            <button className="p-2 text-muted-foreground hover:text-foreground rounded-lg"><List className="w-4 h-4" /></button>
+            <button 
+              className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-blue-50 text-secondary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              onClick={() => setViewMode('grid')}
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button 
+              className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-blue-50 text-secondary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              onClick={() => setViewMode('list')}
+            >
+              <List className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>
@@ -566,7 +577,7 @@ export default function DashboardPage() {
               <div className="h-2 w-2 rounded-full bg-primary"></div>
               {section}
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5">
+            <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5" : "flex flex-col gap-3"}>
               {tables.filter(t => (t.section || 'Main Hall') === section).map((table) => {
                 const tableOrders = table.activeOrderIds 
                   ? orders.filter(o => table.activeOrderIds.includes(o.id)) 
@@ -577,9 +588,9 @@ export default function DashboardPage() {
                   <Card 
                     key={table.id} 
                     onClick={() => setSelectedTableId(table.id)}
-                    className={`cursor-pointer transition-all hover:shadow-md border-t-[3px] rounded-2xl flex flex-col justify-between ${getTopBorderClass(table.status)}`}
+                    className={`cursor-pointer transition-all hover:shadow-md border-t-[3px] rounded-2xl ${viewMode === 'list' ? 'flex flex-row items-center p-4' : 'flex flex-col justify-between'} ${getTopBorderClass(table.status)}`}
                   >
-                    <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2 pt-5">
+                    <CardHeader className={viewMode === 'list' ? "p-0 w-1/3" : "flex flex-row items-start justify-between space-y-0 pb-2 pt-5"}>
                       <div>
                         <CardTitle className="text-lg font-bold line-clamp-1 break-all pr-2" title={table.name || `Table ${table.number}`}>
                           {table.name || `Table ${table.number}`}
@@ -588,14 +599,14 @@ export default function DashboardPage() {
                           <div className="text-xs text-muted-foreground mt-1">Table {table.number}</div>
                         )}
                       </div>
-                      <Users className={`w-6 h-6 flex-shrink-0 ${getIconColorClass(table.status)}`} />
+                      {viewMode === 'grid' && <Users className={`w-6 h-6 flex-shrink-0 ${getIconColorClass(table.status)}`} />}
                     </CardHeader>
-                    <CardContent>
-                      <div className="text-sm text-muted-foreground mb-6">
+                    <CardContent className={viewMode === 'list' ? "p-0 flex-1 flex flex-row items-center justify-between" : ""}>
+                      <div className={viewMode === 'list' ? "text-sm text-muted-foreground" : "text-sm text-muted-foreground mb-6"}>
                         {table.seats} Seats
                         {tableOrders.length > 0 && <span className="ml-2 text-xs bg-muted px-2 py-0.5 rounded-full">{tableOrders.length} tickets</span>}
                       </div>
-                      <div className="flex justify-between items-end mt-2 h-8">
+                      <div className={viewMode === 'list' ? "flex items-center gap-4" : "flex justify-between items-end mt-2 h-8"}>
                         <span className={`text-[10px] md:text-xs font-semibold px-2 md:px-3 py-1.5 rounded-full ${getStatusColor(table.status)}`}>
                           {getStatusBadge(table.status)}
                         </span>
@@ -604,9 +615,11 @@ export default function DashboardPage() {
                           <span className="text-sm font-bold">₹ {tableTotal.toFixed(2)}</span>
                         )}
                       </div>
-                      <div className="mt-4" onClick={(e) => e.stopPropagation()}>
-                        <QRCodeGenerator tableId={table.id} tableNumber={table.number} />
-                      </div>
+                      {viewMode === 'grid' && (
+                        <div className="mt-4" onClick={(e) => e.stopPropagation()}>
+                          <QRCodeGenerator tableId={table.id} tableNumber={table.number} />
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 );
@@ -836,32 +849,48 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Section</label>
-                  <select
+                  <input
+                    type="text"
+                    required
                     value={newTableSection}
                     onChange={(e) => setNewTableSection(e.target.value)}
                     className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  >
-                    <option value="Inner Hall">Inner Hall</option>
-                    <option value="Shed">Shed</option>
-                    <option value="Corners">Corners</option>
-                    <option value="Patio">Patio</option>
-                    <option value="Bar">Bar</option>
-                  </select>
+                    placeholder="e.g. Inner Hall, Shed"
+                  />
                 </div>
               </div>
               
-              <div className="pt-4 flex justify-end space-x-3">
-                <Button type="button" variant="outline" onClick={() => {
-                  setIsAddTableOpen(false);
-                  setEditingTableId(null);
-                  setNewTableNum('');
-                  setNewTableName('');
-                  setNewTableSection('Inner Hall');
-                  setNewTableSeats('');
-                }}>Cancel</Button>
-                <Button type="submit" variant="primary" disabled={isSubmittingTable}>
-                  {isSubmittingTable ? (editingTableId ? 'Updating...' : 'Adding...') : (editingTableId ? 'Save Changes' : 'Add Table')}
-                </Button>
+              <div className="pt-4 flex justify-between items-center space-x-3">
+                <div>
+                  {editingTableId && (
+                    <Button type="button" variant="outline" className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600" onClick={async () => {
+                      if (window.confirm("Are you sure you want to delete this table?")) {
+                        try {
+                          await deleteTable(editingTableId);
+                          toast.success("Table deleted successfully");
+                          setIsAddTableOpen(false);
+                          setEditingTableId(null);
+                          setSelectedTableId(null);
+                        } catch (e) {
+                          toast.error("Failed to delete table");
+                        }
+                      }
+                    }}>Delete Table</Button>
+                  )}
+                </div>
+                <div className="flex space-x-3">
+                  <Button type="button" variant="outline" onClick={() => {
+                    setIsAddTableOpen(false);
+                    setEditingTableId(null);
+                    setNewTableNum('');
+                    setNewTableName('');
+                    setNewTableSection('Inner Hall');
+                    setNewTableSeats('');
+                  }}>Cancel</Button>
+                  <Button type="submit" variant="primary" disabled={isSubmittingTable}>
+                    {isSubmittingTable ? (editingTableId ? 'Updating...' : 'Adding...') : (editingTableId ? 'Save Changes' : 'Add Table')}
+                  </Button>
+                </div>
               </div>
             </form>
           </div>

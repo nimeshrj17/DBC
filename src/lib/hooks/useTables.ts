@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, query, orderBy, doc, updateDoc, setDoc, addDoc } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, doc, updateDoc, setDoc, addDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
 export interface Table {
@@ -90,5 +90,14 @@ export function useTables() {
     }
   };
 
-  return { tables, loading, updateTableStatus, addTable, updateTableDetails };
+  const deleteTable = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'tables', id));
+    } catch (error) {
+      console.error("Error deleting table:", error);
+      throw error;
+    }
+  };
+
+  return { tables, loading, updateTableStatus, addTable, updateTableDetails, deleteTable };
 }
