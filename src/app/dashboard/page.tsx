@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Users, LayoutGrid, List, X, Plus, Minus, QrCode, Banknote } from 'lucide-react';
+import { Users, LayoutGrid, Trash2, List, X, Plus, Minus, QrCode, Banknote } from 'lucide-react';
 import { useTables, Table } from '@/lib/hooks/useTables';
 import { MenuPickerModal } from '@/components/dashboard/MenuPickerModal';
 import { toast } from 'sonner';
@@ -142,6 +142,7 @@ export default function DashboardPage() {
   const [editingTableId, setEditingTableId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [clearTablePrompt, setClearTablePrompt] = useState<{tableId: string, hasUnpaid: boolean} | null>(null);
   
   const selectedTable = tables.find(t => t.id === selectedTableId) || null;
   const activeOrders = selectedTable?.activeOrderIds 
@@ -406,7 +407,7 @@ export default function DashboardPage() {
         
         // Replace checked out orders with the single consolidated master order
         const newActiveIds = currentActiveIds.filter((id: string) => !checkoutOrderIds.includes(id));
-        newActiveIds.push(masterOrderId);
+        // Do NOT add masterOrderId to newActiveIds since it's fully paid and completed.
         
         // Update customer if exists
         if (tableData.customerId) {
@@ -417,9 +418,17 @@ export default function DashboardPage() {
           });
         }
         
+        const isTableEmpty = newActiveIds.length === 0;
+        
         transaction.update(tableRef, {
           activeOrderIds: newActiveIds,
-          status: 'occupied' // Table remains occupied after payment until explicitly cleared
+          status: isTableEmpty ? 'empty' : 'occupied',
+          ...(isTableEmpty ? {
+            customerId: null,
+            customerName: null,
+            customerPhone: null,
+            currentSessionId: null
+          } : {})
         });
       });
       
@@ -431,32 +440,43 @@ export default function DashboardPage() {
     }
   };
 
-  const handleClearTable = async (targetTableId?: string) => {
+  const handleClearTable = (targetTableId?: string) => {
     const tid = typeof targetTableId === 'string' ? targetTableId : (selectedTable?.id);
     if (!tid) return;
     
-    // We only check for unpaid if we're clearing the selected table with active orders context
-    // If they click clear on a card, they just want to forcefully clear it.
-    if (tid === selectedTable?.id) {
-      const hasUnpaid = activeOrders.some(o => o.paymentStatus !== 'paid');
-      
-      if (hasUnpaid) {
-        if (!window.confirm("There are unpaid orders. Are you sure you want to clear the table?")) return;
-        await Promise.all(activeOrders.map(o => updateOrder(o.id, { status: 'cancelled' })));
-      }
-    } else {
-      if (!window.confirm("Are you sure you want to forcefully clear this table?")) return;
+    // Check if the table has unpaid orders
+    const targetTbl = tables.find(t => t.id === tid);
+    let hasUnpaid = false;
+    if (targetTbl && targetTbl.activeOrderIds) {
+      const tblOrders = orders.filter(o => targetTbl.activeOrderIds.includes(o.id));
+      hasUnpaid = tblOrders.some(o => o.paymentStatus !== 'paid');
     }
     
-    await updateTableStatus(tid, 'empty', []);
+    setClearTablePrompt({ tableId: tid, hasUnpaid });
+  };
+
+  const confirmClearTable = async (forceClear: boolean = false) => {
+    if (!clearTablePrompt) return;
+    const { tableId, hasUnpaid } = clearTablePrompt;
+    
+    if (hasUnpaid && forceClear) {
+      const targetTbl = tables.find(t => t.id === tableId);
+      if (targetTbl && targetTbl.activeOrderIds) {
+        const tblOrders = orders.filter(o => targetTbl.activeOrderIds.includes(o.id));
+        await Promise.all(tblOrders.map(o => updateOrder(o.id, { status: 'cancelled' })));
+      }
+    }
+    
+    await updateTableStatus(tableId, 'empty', []);
     setDraftOrders(prev => {
       const next = {...prev};
-      delete next[tid];
+      delete next[tableId];
       return next;
     });
-    if (selectedTableId === tid) {
+    if (selectedTableId === tableId) {
       setSelectedTableId(null);
     }
+    setClearTablePrompt(null);
   };
 
   const handleAddTableSubmit = async (e: React.FormEvent) => {
@@ -1029,6 +1049,72 @@ export default function DashboardPage() {
                 <Button variant="primary" type="submit" className="flex-1 py-6">Assign & Mark Occupied</Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Clear Table Dialog */}
+      {clearTablePrompt && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+          <div className="bg-background w-full max-w-sm rounded-3xl p-6 shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex flex-col items-center text-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
+                <Trash2 className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="text-xl font-black text-foreground">Clear Table?</h3>
+              {clearTablePrompt.hasUnpaid ? (
+                <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+                  This table still has <strong className="text-red-500">unpaid orders</strong>. Clearing it will cancel those orders. What would you like to do?
+                </p>
+              ) : (
+                <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+                  Are you sure you want to completely clear this table and make it available?
+                </p>
+              )}
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              {clearTablePrompt.hasUnpaid ? (
+                <>
+                  <Button 
+                    variant="primary" 
+                    className="w-full py-6 text-base shadow-[0_0_15px_rgba(204,255,0,0.3)]"
+                    onClick={() => {
+                      if (clearTablePrompt.tableId !== selectedTableId) {
+                        setSelectedTableId(clearTablePrompt.tableId);
+                      }
+                      setClearTablePrompt(null);
+                      setIsPaymentModalOpen(true);
+                    }}
+                  >
+                    Take Payment Now
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full py-6 text-base text-red-600 border-red-200 hover:bg-red-50"
+                    onClick={() => confirmClearTable(true)}
+                  >
+                    Force Clear (Cancel Orders)
+                  </Button>
+                </>
+              ) : (
+                <Button 
+                  variant="primary" 
+                  className="w-full py-6 text-base shadow-[0_0_15px_rgba(204,255,0,0.3)]"
+                  onClick={() => confirmClearTable(false)}
+                >
+                  Yes, Clear Table
+                </Button>
+              )}
+              
+              <Button 
+                variant="ghost" 
+                className="w-full text-muted-foreground hover:text-foreground"
+                onClick={() => setClearTablePrompt(null)}
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
         </div>
       )}
