@@ -121,22 +121,19 @@ export default function PaymentModal({ orderId, displayId, total, onClose, onCon
                   href={getUpiUri('gpay')}
                   className="bg-white border border-gray-200 text-gray-800 py-3 px-4 rounded-xl font-bold flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors text-sm"
                 >
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/c/c5/Google_Pay_Logo_%282020%29.svg" alt="GPay" className="h-4 mr-2" />
-                  GPay
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/c/c5/Google_Pay_Logo_%282020%29.svg" alt="GPay" className="h-4" />
                 </a>
                 <a 
                   href={getUpiUri('phonepe')}
                   className="bg-white border border-gray-200 text-gray-800 py-3 px-4 rounded-xl font-bold flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors text-sm"
                 >
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/7/71/PhonePe_Logo.svg" alt="PhonePe" className="h-4 mr-2" />
-                  PhonePe
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/7/71/PhonePe_Logo.svg" alt="PhonePe" className="h-4" />
                 </a>
                 <a 
                   href={getUpiUri('paytm')}
                   className="bg-white border border-gray-200 text-gray-800 py-3 px-4 rounded-xl font-bold flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors text-sm"
                 >
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Paytm_Logo_%28standalone%29.svg" alt="Paytm" className="h-3 mr-2" />
-                  Paytm
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Paytm_Logo_%28standalone%29.svg" alt="Paytm" className="h-3" />
                 </a>
                 <a 
                   href={getUpiUri('generic')}
