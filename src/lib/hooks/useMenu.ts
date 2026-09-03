@@ -15,6 +15,7 @@ export interface MenuItem {
   linkedInventoryId?: string; // Legacy: used for 1-to-1 retail linkage
   linkedInventoryAmount?: number; // Legacy
   recipe?: { inventoryId: string, amount: number }[]; // BOM/Recipe array
+  itemNumber?: string;
 }
 
 export function useMenu() {

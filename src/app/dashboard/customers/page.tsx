@@ -64,23 +64,20 @@ export default function CustomersPage() {
             <thead className="text-xs text-muted-foreground uppercase bg-muted/30 border-b border-border">
               <tr>
                 <th className="px-4 md:px-6 py-4 rounded-tl-xl font-semibold">Customer</th>
-                <th className="px-4 md:px-6 py-4 font-semibold hidden md:table-cell">Phone</th>
-                <th className="px-4 md:px-6 py-4 font-semibold hidden md:table-cell">Last Visit</th>
-                <th className="px-4 md:px-6 py-4 font-semibold text-center">Orders</th>
-                <th className="px-4 md:px-6 py-4 rounded-tr-xl font-semibold text-right">Revenue</th>
+                <th className="px-4 md:px-6 py-4 rounded-tr-xl font-semibold">Phone</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">
+                  <td colSpan={2} className="px-6 py-10 text-center text-muted-foreground">
                     <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
                     Loading customers...
                   </td>
                 </tr>
               ) : filteredCustomers.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">
+                  <td colSpan={2} className="px-6 py-10 text-center text-muted-foreground">
                     No customers found matching your search.
                   </td>
                 </tr>
@@ -91,30 +88,13 @@ export default function CustomersPage() {
                       <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold flex-shrink-0">
                         {customer.name.charAt(0).toUpperCase()}
                       </div>
-                      <div className="flex flex-col">
-                        <span>{customer.name}</span>
-                        <span className="text-[10px] text-muted-foreground md:hidden">{customer.phone}</span>
-                      </div>
+                      <span>{customer.name}</span>
                     </td>
-                    <td className="px-4 md:px-6 py-4 text-muted-foreground hidden md:table-cell whitespace-nowrap">
+                    <td className="px-4 md:px-6 py-4 text-muted-foreground whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <Phone className="w-3 h-3" />
                         {customer.phone}
                       </div>
-                    </td>
-                    <td className="px-4 md:px-6 py-4 text-muted-foreground hidden md:table-cell whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-3 h-3" />
-                        {customer.lastVisit ? format(customer.lastVisit.toDate(), 'PP p') : 'Unknown'}
-                      </div>
-                    </td>
-                    <td className="px-4 md:px-6 py-4 text-center font-semibold">
-                      <span className="bg-secondary/20 text-secondary-foreground px-2.5 py-1 rounded-full text-xs">
-                        {customer.totalOrders}
-                      </span>
-                    </td>
-                    <td className="px-4 md:px-6 py-4 text-right font-bold text-foreground whitespace-nowrap">
-                      ₹ {customer.totalRevenue.toFixed(2)}
                     </td>
                   </tr>
                 ))

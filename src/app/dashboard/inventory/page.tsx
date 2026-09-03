@@ -22,6 +22,7 @@ export default function InventoryPage() {
   
   const initialForm = {
     name: '',
+    itemNumber: '',
     type: 'raw' as 'raw' | 'retail',
     quantity: '',
     unit: '',
@@ -35,6 +36,7 @@ export default function InventoryPage() {
   };
 
   const [formData, setFormData] = useState(initialForm);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const sortInventory = (items: InventoryItem[]) => {
     return [...items].sort((a, b) => {
@@ -53,8 +55,16 @@ export default function InventoryPage() {
     });
   };
 
-  const rawMaterials = sortInventory(inventory.filter(i => i.type === 'raw'));
-  const retailProducts = sortInventory(inventory.filter(i => i.type === 'retail'));
+  const searchFilter = (items: InventoryItem[]) => {
+    if (!searchQuery) return items;
+    return items.filter(i => 
+      i.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      (i.itemNumber && i.itemNumber.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  };
+
+  const rawMaterials = sortInventory(searchFilter(inventory.filter(i => i.type === 'raw')));
+  const retailProducts = sortInventory(searchFilter(inventory.filter(i => i.type === 'retail')));
   const displayedInventory = activeTab === 'raw' ? rawMaterials : retailProducts;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -78,7 +88,8 @@ export default function InventoryPage() {
         quantity: finalQuantity,
         unit: finalUnit,
         totalCost: Number(formData.totalCost),
-        purchaseDate: Timestamp.now()
+        purchaseDate: Timestamp.now(),
+        itemNumber: formData.itemNumber
       };
       
       if (formData.type === 'retail') {
@@ -102,7 +113,8 @@ export default function InventoryPage() {
           isRetail: true,
           available: true,
           linkedInventoryId: docRef,
-          linkedInventoryAmount: 1
+          linkedInventoryAmount: 1,
+          itemNumber: formData.itemNumber
         });
       }
 
@@ -140,16 +152,25 @@ export default function InventoryPage() {
           <p className="text-sm text-muted-foreground">Track your raw materials and retail products.</p>
         </div>
         
-        <Button 
-          variant="primary" 
-          className="shadow-[0_0_15px_rgba(204,255,0,0.3)]"
-          onClick={() => {
-            setFormData(prev => ({ ...prev, type: activeTab }));
-            setIsAddModalOpen(true);
-          }}
-        >
-          <Plus className="w-4 h-4 mr-2" /> Add Stock
-        </Button>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <input
+            type="text"
+            placeholder="Search name or item #..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 sm:w-64 px-4 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+          />
+          <Button 
+            variant="primary" 
+            className="shadow-[0_0_15px_rgba(204,255,0,0.3)] whitespace-nowrap"
+            onClick={() => {
+              setFormData(prev => ({ ...prev, type: activeTab }));
+              setIsAddModalOpen(true);
+            }}
+          >
+            <Plus className="w-4 h-4 mr-2" /> Add Stock
+          </Button>
+        </div>
       </div>
 
       <div className="flex space-x-2 border-b border-border">
@@ -189,7 +210,10 @@ export default function InventoryPage() {
                       </div>
                       <div className="flex flex-col">
                         <div className="flex items-center gap-1 md:gap-2">
-                          <span className="font-bold text-xs md:text-sm truncate max-w-[100px] md:max-w-[200px]">{item.name}</span>
+                          <span className="font-bold text-xs md:text-sm truncate max-w-[100px] md:max-w-[200px]">
+                            {item.itemNumber && <span className="text-muted-foreground mr-1">#{item.itemNumber}</span>}
+                            {item.name}
+                          </span>
                           {item.quantity <= 0 && (
                             <span className="bg-red-100 text-red-600 px-1 md:px-2 py-0.5 rounded text-[8px] md:text-[10px] font-bold hidden sm:inline-block">Out</span>
                           )}
@@ -265,6 +289,17 @@ export default function InventoryPage() {
                   </select>
                 </div>
               )}
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Item Number (Optional)</label>
+                <input 
+                  type="text" 
+                  value={formData.itemNumber}
+                  onChange={(e) => setFormData({...formData, itemNumber: e.target.value})}
+                  className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  placeholder="e.g. 101, A5"
+                />
+              </div>
 
               {formData.type === 'retail' && formData.retailCategory !== 'other' && formData.retailCategory !== 'cigarettes' && (
                 <div>

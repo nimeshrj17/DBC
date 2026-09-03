@@ -32,6 +32,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const isSubmittingRef = useRef(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState('');
   const [tableOrders, setTableOrders] = useState<Order[]>([]);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
@@ -458,13 +459,34 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         </div>
       )}      {/* Menu Items */}
       <div className="px-4 mt-6 space-y-4">
-        <h2 className="font-bold text-[#2A1A14] text-lg px-1">Menu</h2>
-        {menuItems.filter(i => i.available && (activeCategory === 'All' || i.category === activeCategory)).map(item => {
+        <div className="flex flex-col gap-3">
+          <h2 className="font-bold text-[#2A1A14] text-lg px-1">Menu</h2>
+          <input
+            type="text"
+            placeholder="Search by name or item #..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-4 py-3 bg-white border border-[#EBE2DC] rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#A04010]/30 shadow-sm"
+          />
+        </div>
+        
+        {menuItems.filter(i => {
+          if (!i.available) return false;
+          if (activeCategory !== 'All' && i.category !== activeCategory) return false;
+          if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            return i.name.toLowerCase().includes(q) || (i.itemNumber && i.itemNumber.toLowerCase().includes(q));
+          }
+          return true;
+        }).map(item => {
           const cartItem = cart.find(i => i.id === item.id);
           return (
             <div key={item.id} className="bg-white p-4 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#EBE2DC]/50 flex gap-4 overflow-hidden relative">
               <div className="flex-1 flex flex-col justify-center">
-                <h3 className="font-bold text-[17px] text-[#2A1A14] leading-tight mb-1">{item.name}</h3>
+                <h3 className="font-bold text-[17px] text-[#2A1A14] leading-tight mb-1">
+                  {item.itemNumber && <span className="text-gray-400 mr-1 text-sm">#{item.itemNumber}</span>}
+                  {item.name}
+                </h3>
                 {item.description && <p className="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed pr-2">{item.description}</p>}
                 
                 <div className="flex items-center justify-between mt-auto">

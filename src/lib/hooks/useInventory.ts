@@ -12,6 +12,7 @@ export interface InventoryItem {
   purchaseDate: any; // Firestore timestamp
   company?: string;
   retailCategory?: 'cigarettes' | 'biscuits' | 'soft_drinks' | 'lighters' | 'toffees' | 'other';
+  itemNumber?: string;
 }
 
 export function useInventory() {
