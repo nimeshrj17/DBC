@@ -6,7 +6,7 @@ import { Order, createOrderTransaction } from '@/lib/hooks/useOrders';
 import { useCustomers } from '@/lib/hooks/useCustomers';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, doc, updateDoc, Timestamp, getDoc, onSnapshot, query, where, runTransaction } from 'firebase/firestore';
-import { Coffee, ShoppingBag, Plus, Minus, ChevronRight, Check, Clock, ChefHat, CheckCircle2, Banknote, QrCode } from 'lucide-react';
+import { Coffee, ShoppingBag, Plus, Minus, ChevronRight, Check, Clock, ChefHat, CheckCircle2, Info, Banknote, QrCode } from 'lucide-react';
 import { toast } from 'sonner';
 import PaymentModal from '@/components/dashboard/PaymentModal';
 
@@ -374,7 +374,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
           <Coffee className="w-64 h-64 -mt-10 -mr-10 transform rotate-12" />
         </div>
-        <div className="relative z-10 flex items-center justify-between mb-4">
+        <div className="relative z-10 flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-[#D4C1B3] rounded-full flex items-center justify-center">
               <Coffee className="text-[#2A1A14] w-6 h-6" />
@@ -387,6 +387,13 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           <div className="bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10 text-white font-bold shadow-sm text-sm">
             {table.name || `Table ${table.number}`}
           </div>
+        </div>
+        
+        <div className="relative z-10 bg-[#3D261C] border border-[#D4C1B3]/20 rounded-2xl p-3 flex gap-3 items-start shadow-sm">
+          <Info className="w-5 h-5 text-[#D4C1B3] flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-[#D4C1B3]/90 leading-relaxed font-medium">
+            Please remain at this table after placing your order to avoid confusion and ensure correct service.
+          </p>
         </div>
       </div>
 
