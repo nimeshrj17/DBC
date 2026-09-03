@@ -74,7 +74,7 @@ export default function DashboardLayout({
 
       if (newPayments.length > 0) {
         import('@/lib/audio').then(({ playNotificationSound }) => {
-          playNotificationSound('payment');
+          playNotificationSound('order');
         });
         if ('Notification' in window && Notification.permission === 'granted') {
           new Notification('Payment Pending!', {
