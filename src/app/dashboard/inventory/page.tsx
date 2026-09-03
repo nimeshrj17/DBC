@@ -195,7 +195,6 @@ export default function InventoryPage() {
               <tr className="bg-muted/50 border-b border-border">
                 <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">Item Name</th>
                 <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">Qty</th>
-                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden sm:table-cell">Total Cost</th>
                 <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden md:table-cell">Purchase Date</th>
                 <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right">Actions</th>
               </tr>
@@ -230,11 +229,7 @@ export default function InventoryPage() {
                       {item.quantity} <span className="text-[10px]">{item.unit}</span>
                     </span>
                   </td>
-                  <td className="px-4 md:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
-                    <span className="font-medium text-xs md:text-sm text-red-600">₹ {item.totalCost.toFixed(2)}</span>
-                    <div className="text-[9px] md:text-[10px] text-muted-foreground">₹ {(item.totalCost / item.quantity).toFixed(2)} / {item.unit}</div>
-                  </td>
-                  <td className="px-4 md:px-6 py-4 whitespace-nowrap text-xs md:text-sm text-muted-foreground hidden md:table-cell">
+                  <td className="px-4 md:px-6 py-4 whitespace-nowrap hidden md:table-cell text-xs md:text-sm text-muted-foreground">
                     {formatDate(item.purchaseDate)}
                   </td>
                   <td className="px-4 md:px-6 py-4 whitespace-nowrap text-right">

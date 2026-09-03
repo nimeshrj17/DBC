@@ -37,23 +37,11 @@ export default function CustomersPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <Card className="bg-gradient-to-br from-card to-card/50">
           <CardContent className="p-6">
             <div className="text-muted-foreground font-medium mb-1">Total Customers</div>
             <div className="text-4xl font-bold">{customers.length}</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-br from-card to-card/50">
-          <CardContent className="p-6">
-            <div className="text-muted-foreground font-medium mb-1">Total Orders from Customers</div>
-            <div className="text-4xl font-bold">{customers.reduce((sum, c) => sum + c.totalOrders, 0)}</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-br from-card to-card/50 border-l-4 border-l-primary">
-          <CardContent className="p-6">
-            <div className="text-muted-foreground font-medium mb-1">Customer Revenue</div>
-            <div className="text-4xl font-bold">₹ {customers.reduce((sum, c) => sum + c.totalRevenue, 0).toFixed(2)}</div>
           </CardContent>
         </Card>
       </div>
