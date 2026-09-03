@@ -6,7 +6,7 @@ import { Search, Plus, MoreHorizontal, X, Edit2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useMenu } from '@/lib/hooks/useMenu';
 import { useInventory } from '@/lib/hooks/useInventory';
-import { seedChalkboardMenu } from '@/lib/seed';
+
 
 export default function MenuPage() {
   const { menuItems, loading, addMenuItem, deleteMenuItem, updateMenuItem } = useMenu();

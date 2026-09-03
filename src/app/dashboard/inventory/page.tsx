@@ -168,7 +168,7 @@ export default function InventoryPage() {
       </div>
 
       <Card className="rounded-2xl overflow-hidden border border-border shadow-sm flex-1 flex flex-col">
-        <div className="overflow-x-auto flex-1">
+        <div className="overflow-x-auto flex-1 w-full max-w-[90vw] md:max-w-none">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-muted/50 border-b border-border">

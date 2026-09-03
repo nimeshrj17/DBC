@@ -18,7 +18,11 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const resolvedParams = use(params);
   const tableId = resolvedParams.tableId;
 
-  const { menuItems, loading: menuLoading } = useMenu();
+  const { menuItems: rawMenuItems, loading: menuLoading } = useMenu();
+  const menuItems = rawMenuItems.filter(i => !i.isRetail && i.category !== 'Retail');
+  
+  const categories = Array.from(new Set(menuItems.map(item => item.category)));
+
   const [table, setTable] = useState<Table | null>(null);
   const [tableLoading, setTableLoading] = useState(true);
   
@@ -305,7 +309,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     );
   }
 
-  const categories = Array.from(new Set(menuItems.map(i => i.category)));
+
 
   if (orderPlaced) {
     return (
