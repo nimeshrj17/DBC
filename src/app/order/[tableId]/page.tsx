@@ -60,42 +60,48 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   }, [tableOrders]);
 
   useEffect(() => {
+    let unsubscribeTable: () => void;
     let unsubscribeOrders: () => void;
     
-    const fetchTable = async () => {
+    const setupListeners = () => {
       try {
-        const tableDoc = await getDoc(doc(db, 'tables', tableId));
-        if (tableDoc.exists()) {
-          setTable({ id: tableDoc.id, ...tableDoc.data() } as Table);
-          
-          // Listen to orders for this table that aren't completed/cancelled
-          const q = query(
-            collection(db, 'orders'),
-            where('tableId', '==', tableId)
-          );
-          
-          unsubscribeOrders = onSnapshot(q, (snapshot) => {
-            const ordersData: Order[] = [];
-            snapshot.forEach((doc) => {
-              const data = doc.data() as Omit<Order, 'id'>;
-              if (data.status !== 'completed' && data.status !== 'cancelled' && data.paymentStatus !== 'paid') {
-                ordersData.push({ id: doc.id, ...data } as Order);
-              }
-            });
-            // Sort by created at
-            ordersData.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
-            setTableOrders(ordersData);
+        const tableRef = doc(db, 'tables', tableId);
+        unsubscribeTable = onSnapshot(tableRef, (docSnap) => {
+          if (docSnap.exists()) {
+            setTable({ id: docSnap.id, ...docSnap.data() } as Table);
+          } else {
+            setTable(null);
+          }
+          setTableLoading(false);
+        });
+        
+        // Listen to orders for this table that aren't completed/cancelled
+        const q = query(
+          collection(db, 'orders'),
+          where('tableId', '==', tableId)
+        );
+        
+        unsubscribeOrders = onSnapshot(q, (snapshot) => {
+          const ordersData: Order[] = [];
+          snapshot.forEach((doc) => {
+            const data = doc.data() as Omit<Order, 'id'>;
+            if (data.status !== 'completed' && data.status !== 'cancelled' && data.paymentStatus !== 'paid') {
+              ordersData.push({ id: doc.id, ...data } as Order);
+            }
           });
-        }
+          // Sort by created at
+          ordersData.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+          setTableOrders(ordersData);
+        });
       } catch (err) {
         console.error(err);
-      } finally {
         setTableLoading(false);
       }
     };
-    fetchTable();
+    setupListeners();
     
     return () => {
+      if (unsubscribeTable) unsubscribeTable();
       if (unsubscribeOrders) unsubscribeOrders();
     };
   }, [tableId]);
@@ -344,13 +350,16 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
           <CheckCircle2 className="w-10 h-10 text-green-600" />
         </div>
-        <h1 className="text-3xl font-extrabold text-[#2A1A14] mb-2 tracking-tight">Payment Confirmed!</h1>
-        <p className="text-gray-600 mb-8 text-lg">Thank you for visiting Dream Bean Café. Have a great day!</p>
+        <h1 className="text-3xl font-extrabold text-[#2A1A14] mb-2 tracking-tight">Thank you for coming!</h1>
+        <p className="text-gray-600 mb-8 text-lg">Your session has been completed. Please scan the table's QR code again to start a new session.</p>
         <button 
-          onClick={() => setJustPaid(false)}
+          onClick={() => {
+            setJustPaid(false);
+            window.location.reload();
+          }}
           className="bg-[#2A1A14] text-[#D4C1B3] px-8 py-3 rounded-full font-bold shadow-lg"
         >
-          Return to Menu
+          Start New Session
         </button>
       </div>
     );
