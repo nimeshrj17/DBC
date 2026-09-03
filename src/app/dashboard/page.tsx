@@ -68,7 +68,7 @@ const getIconColorClass = (status: string) => {
   }
 };
 
-const SafeTable = ({ table, viewMode, orders, setSelectedTableId, onClearTable }: any) => {
+const SafeTable = ({ table, viewMode, orders, setSelectedTableId, onClearTable, showSection }: any) => {
   try {
     const tableOrders = table.activeOrderIds 
       ? orders.filter((o: any) => table.activeOrderIds.includes(o.id)) 
@@ -88,6 +88,11 @@ const SafeTable = ({ table, viewMode, orders, setSelectedTableId, onClearTable }
             </CardTitle>
             {table.name && table.name !== `Table ${table.number}` && (
               <div className="text-xs text-muted-foreground mt-1">Table {table.number}</div>
+            )}
+            {showSection && table.section && (
+              <div className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded mt-1 inline-block">
+                {table.section}
+              </div>
             )}
           </div>
           {viewMode === 'grid' && <Users className={`w-6 h-6 flex-shrink-0 ${getIconColorClass(table.status)}`} />}
@@ -665,29 +670,55 @@ export default function DashboardPage() {
       )}
 
       <div className="overflow-y-auto pb-10 space-y-8">
-        {Array.from(new Set(tables.map(t => String(t.section || 'Main Hall')))).map(section => (
+        {(() => {
+          const activeTables = tables.filter(t => t.status !== 'empty').sort((a, b) => {
+            const getPriority = (status: string) => {
+              switch(status) {
+                case 'awaiting_payment': return 1;
+                case 'order_placed': return 2;
+                case 'preparing': return 3;
+                case 'served': return 4;
+                case 'occupied': return 5;
+                default: return 6;
+              }
+            };
+            return getPriority(a.status) - getPriority(b.status) || a.number - b.number;
+          });
+          
+          if (activeTables.length === 0) return null;
+          return (
+            <div key="active-tables">
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-orange-500 animate-pulse"></div>
+                Active Tables
+              </h2>
+              <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5" : "flex flex-col gap-3"}>
+                {activeTables.map((table) => (
+                  <SafeTable 
+                    key={table.id} 
+                    table={table} 
+                    viewMode={viewMode} 
+                    orders={orders} 
+                    setSelectedTableId={setSelectedTableId} 
+                    onClearTable={handleClearTable}
+                    showSection={true}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
+        {Array.from(new Set(tables.filter(t => t.status === 'empty').map(t => String(t.section || 'Main Hall')))).map(section => (
           <div key={section}>
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-primary"></div>
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-muted-foreground">
+              <div className="h-2 w-2 rounded-full bg-gray-300"></div>
               {section}
             </h2>
             <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5" : "flex flex-col gap-3"}>
               {tables
-                .filter(t => (t.section || 'Main Hall') === section)
-                .sort((a, b) => {
-                  const getPriority = (status: string) => {
-                    switch(status) {
-                      case 'awaiting_payment': return 1;
-                      case 'order_placed': return 2;
-                      case 'preparing': return 3;
-                      case 'served': return 4;
-                      case 'occupied': return 5;
-                      case 'empty': return 6;
-                      default: return 7;
-                    }
-                  };
-                  return getPriority(a.status) - getPriority(b.status) || a.number - b.number;
-                })
+                .filter(t => t.status === 'empty' && (t.section || 'Main Hall') === section)
+                .sort((a, b) => a.number - b.number)
                 .map((table) => (
                 <SafeTable 
                   key={table.id} 
@@ -696,6 +727,7 @@ export default function DashboardPage() {
                   orders={orders} 
                   setSelectedTableId={setSelectedTableId} 
                   onClearTable={handleClearTable}
+                  showSection={false}
                 />
               ))}
             </div>

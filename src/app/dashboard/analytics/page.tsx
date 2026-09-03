@@ -188,6 +188,11 @@ export default function AnalyticsPage() {
               <div>
                 <h2 className="text-xl font-bold">Order Details</h2>
                 <p className="text-sm text-muted-foreground mt-1">{viewOrder.displayId} • Table {viewOrder.tableNumber}</p>
+                {(viewOrder.customerName || viewOrder.customerPhone) && (
+                  <p className="text-sm font-medium text-orange-600 mt-1">
+                    {viewOrder.customerName} {viewOrder.customerPhone ? `(${viewOrder.customerPhone})` : ''}
+                  </p>
+                )}
               </div>
               <button onClick={() => setViewOrder(null)} className="p-2 hover:bg-muted rounded-full transition-colors">
                 <X className="w-5 h-5" />

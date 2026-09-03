@@ -1,9 +1,33 @@
+let globalAudioContext: AudioContext | null = null;
+
+export const initAudio = () => {
+  try {
+    if (!globalAudioContext) {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContext) {
+        globalAudioContext = new AudioContext();
+      }
+    }
+    if (globalAudioContext && globalAudioContext.state === 'suspended') {
+      globalAudioContext.resume();
+    }
+  } catch (e) {
+    console.error("Failed to init audio", e);
+  }
+};
+
 export const playNotificationSound = (type: 'order' | 'payment') => {
   try {
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContext) return;
+    if (!globalAudioContext) {
+      initAudio();
+    }
+    const ctx = globalAudioContext;
+    if (!ctx) return;
     
-    const ctx = new AudioContext();
+    // Ensure it's resumed just in case
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
     
     if (type === 'order') {
       // 5-Second Loud Digital Alarm (Order Placed)
@@ -34,10 +58,6 @@ export const playNotificationSound = (type: 'order' | 'payment') => {
       osc.start(now);
       osc.stop(now + 5.0);
       
-      setTimeout(() => {
-        ctx.close();
-      }, 5500);
-      
     } else {
       // 5-Second Rapid Urgent Alarm (Payment Pending)
       const osc = ctx.createOscillator();
@@ -62,10 +82,6 @@ export const playNotificationSound = (type: 'order' | 'payment') => {
       
       osc.start(now);
       osc.stop(now + 5.0);
-      
-      setTimeout(() => {
-        ctx.close();
-      }, 5500);
     }
   } catch (e) {
     console.error("Audio playback failed", e);

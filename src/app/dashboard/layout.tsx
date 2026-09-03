@@ -151,6 +151,9 @@ export default function DashboardLayout({
             <button 
               type="submit"
               disabled={pin.length < 4}
+              onClick={() => {
+                import('@/lib/audio').then(({ initAudio }) => initAudio());
+              }}
               className="w-full mt-6 bg-primary text-primary-foreground py-4 rounded-xl font-bold shadow-lg hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:hover:scale-100 transition-all text-lg"
             >
               Access Dashboard
@@ -162,7 +165,12 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden font-sans">
+    <div 
+      className="flex h-screen bg-background overflow-hidden font-sans"
+      onClick={() => {
+        import('@/lib/audio').then(({ initAudio }) => initAudio());
+      }}
+    >
       {/* Sidebar */}
       <aside className="w-64 bg-sidebar-bg text-sidebar-fg flex flex-col justify-between hidden md:flex border-r border-sidebar-bg/10">
         <div>

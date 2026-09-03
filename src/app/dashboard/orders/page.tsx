@@ -187,7 +187,13 @@ export default function OrdersPage() {
                           T{order.tableNumber}
                         </div>
                         <div className="min-w-0">
-                          <h3 className="font-bold text-sm truncate">Table {order.tableNumber}</h3>
+                          {(() => {
+                            const tbl = tables.find(t => t.id === order.tableId);
+                            const tblName = tbl?.name ? tbl.name : `Table ${order.tableNumber}`;
+                            return (
+                              <h3 className="font-bold text-sm truncate" title={tblName}>{tblName}</h3>
+                            );
+                          })()}
                           <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5 truncate">{order.displayId}</p>
                           {(order.customerName || order.customerPhone) && (
                             <p className="text-[10px] text-orange-600 font-medium truncate">
