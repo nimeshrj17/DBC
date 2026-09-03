@@ -39,6 +39,55 @@ export default function DashboardLayout({
     })
     .reduce((sum, order) => sum + order.total, 0);
 
+  const prevOrdersRef = React.useRef<typeof orders>([]);
+  
+  useEffect(() => {
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    if (prevOrdersRef.current.length > 0) {
+      // Find completely new orders (not in prevOrders)
+      const newOrders = orders.filter(o => 
+        (o.status === 'pending' || o.status === 'preparing') && 
+        !prevOrdersRef.current.some(po => po.id === o.id)
+      );
+      
+      if (newOrders.length > 0) {
+        import('@/lib/audio').then(({ playNotificationSound }) => {
+          playNotificationSound('order');
+        });
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification('New Order Received!', {
+            body: `Table ${newOrders[0].tableNumber} placed an order (${newOrders[0].displayId})`,
+            icon: '/coffee.png'
+          });
+        }
+      }
+
+      // Find orders that transitioned to awaiting_confirmation
+      const newPayments = orders.filter(o => 
+        o.paymentStatus === 'awaiting_confirmation' && 
+        prevOrdersRef.current.some(po => po.id === o.id && po.paymentStatus !== 'awaiting_confirmation')
+      );
+
+      if (newPayments.length > 0) {
+        import('@/lib/audio').then(({ playNotificationSound }) => {
+          playNotificationSound('payment');
+        });
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification('Payment Pending!', {
+            body: `Table ${newPayments[0].tableNumber} is ready to pay ${newPayments[0].paymentMethod}`,
+            icon: '/coffee.png'
+          });
+        }
+      }
+    }
+    
+    prevOrdersRef.current = orders;
+  }, [orders]);
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
   const [pin, setPin] = useState('');

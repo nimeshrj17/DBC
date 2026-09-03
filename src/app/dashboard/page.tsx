@@ -629,7 +629,23 @@ export default function DashboardPage() {
               {section}
             </h2>
             <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5" : "flex flex-col gap-3"}>
-              {tables.filter(t => (t.section || 'Main Hall') === section).map((table) => (
+              {tables
+                .filter(t => (t.section || 'Main Hall') === section)
+                .sort((a, b) => {
+                  const getPriority = (status: string) => {
+                    switch(status) {
+                      case 'awaiting_payment': return 1;
+                      case 'order_placed': return 2;
+                      case 'preparing': return 3;
+                      case 'served': return 4;
+                      case 'occupied': return 5;
+                      case 'empty': return 6;
+                      default: return 7;
+                    }
+                  };
+                  return getPriority(a.status) - getPriority(b.status) || a.number - b.number;
+                })
+                .map((table) => (
                 <SafeTable 
                   key={table.id} 
                   table={table} 
