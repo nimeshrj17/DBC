@@ -68,7 +68,7 @@ const getIconColorClass = (status: string) => {
   }
 };
 
-const SafeTable = ({ table, viewMode, orders, setSelectedTableId }: any) => {
+const SafeTable = ({ table, viewMode, orders, setSelectedTableId, onClearTable }: any) => {
   try {
     const tableOrders = table.activeOrderIds 
       ? orders.filter((o: any) => table.activeOrderIds.includes(o.id)) 
@@ -98,9 +98,22 @@ const SafeTable = ({ table, viewMode, orders, setSelectedTableId }: any) => {
             {tableOrders.length > 0 && <span className="ml-2 text-xs bg-muted px-2 py-0.5 rounded-full">{tableOrders.length} tickets</span>}
           </div>
           <div className={viewMode === 'list' ? "flex items-center gap-4" : "flex justify-between items-end mt-2 h-8"}>
-            <span className={`text-[10px] md:text-xs font-semibold px-2 md:px-3 py-1.5 rounded-full ${getStatusColor(table.status)}`}>
-              {getStatusBadge(table.status)}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className={`text-[10px] md:text-xs font-semibold px-2 md:px-3 py-1.5 rounded-full ${getStatusColor(table.status)}`}>
+                {getStatusBadge(table.status)}
+              </span>
+              {table.status !== 'empty' && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClearTable(table.id);
+                  }}
+                  className="text-[10px] font-bold text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1.5 rounded-full transition-colors border border-red-100"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
             
             {tableTotal > 0 && (
               <span className="text-sm font-bold">₹ {tableTotal.toFixed(2)}</span>
@@ -418,22 +431,32 @@ export default function DashboardPage() {
     }
   };
 
-  const handleClearTable = async () => {
-    if (!selectedTable) return;
-    const hasUnpaid = activeOrders.some(o => o.paymentStatus !== 'paid');
+  const handleClearTable = async (targetTableId?: string) => {
+    const tid = typeof targetTableId === 'string' ? targetTableId : (selectedTable?.id);
+    if (!tid) return;
     
-    if (hasUnpaid) {
-      if (!window.confirm("There are unpaid orders. Are you sure you want to clear the table?")) return;
-      await Promise.all(activeOrders.map(o => updateOrder(o.id, { status: 'cancelled' })));
+    // We only check for unpaid if we're clearing the selected table with active orders context
+    // If they click clear on a card, they just want to forcefully clear it.
+    if (tid === selectedTable?.id) {
+      const hasUnpaid = activeOrders.some(o => o.paymentStatus !== 'paid');
+      
+      if (hasUnpaid) {
+        if (!window.confirm("There are unpaid orders. Are you sure you want to clear the table?")) return;
+        await Promise.all(activeOrders.map(o => updateOrder(o.id, { status: 'cancelled' })));
+      }
+    } else {
+      if (!window.confirm("Are you sure you want to forcefully clear this table?")) return;
     }
     
-    await updateTableStatus(selectedTable.id, 'empty', []);
+    await updateTableStatus(tid, 'empty', []);
     setDraftOrders(prev => {
       const next = {...prev};
-      delete next[selectedTable.id];
+      delete next[tid];
       return next;
     });
-    setSelectedTableId(null);
+    if (selectedTableId === tid) {
+      setSelectedTableId(null);
+    }
   };
 
   const handleAddTableSubmit = async (e: React.FormEvent) => {
@@ -585,13 +608,13 @@ export default function DashboardPage() {
           
           <div className="flex bg-card border border-border rounded-xl p-1 shadow-sm">
             <button 
-              className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-blue-50 text-secondary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-muted text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
               onClick={() => setViewMode('grid')}
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
             <button 
-              className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-blue-50 text-secondary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-muted text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
               onClick={() => setViewMode('list')}
             >
               <List className="w-4 h-4" />
@@ -652,6 +675,7 @@ export default function DashboardPage() {
                   viewMode={viewMode} 
                   orders={orders} 
                   setSelectedTableId={setSelectedTableId} 
+                  onClearTable={handleClearTable}
                 />
               ))}
             </div>
@@ -807,7 +831,7 @@ export default function DashboardPage() {
               <Button 
                 variant="outline" 
                 fullWidth 
-                onClick={handleClearTable}
+                onClick={() => handleClearTable()}
                 className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
               >
                 Clear Table
