@@ -53,6 +53,18 @@ export function useInventory() {
   const updateInventoryItem = async (id: string, updates: Partial<Omit<InventoryItem, 'id'>>) => {
     try {
       await updateDoc(doc(db, 'inventory', id), updates);
+      
+      // If quantity is being updated, auto-sync menu availability for 1-to-1 linked items
+      if (updates.quantity !== undefined) {
+        const q = query(collection(db, 'menuItems'), where('linkedInventoryId', '==', id));
+        const snapshot = await getDocs(q);
+        const isAvailable = updates.quantity > 0;
+        
+        const updatePromises = snapshot.docs.map(docSnap => 
+          updateDoc(docSnap.ref, { available: isAvailable })
+        );
+        await Promise.all(updatePromises);
+      }
     } catch (error) {
       console.error("Error updating inventory item:", error);
       throw error;
