@@ -1022,25 +1022,25 @@ export default function DashboardPage() {
             
             <form onSubmit={async (e) => {
               e.preventDefault();
-              if (cName && cPhone) {
-                try {
-                  await addOrUpdateCustomer(cPhone, cName);
-                  await updateTableStatus(selectedTable.id, 'occupied', selectedTable.activeOrderIds || []);
-                  // also update customer details in table
-                  await runTransaction(db, async (t) => {
-                    t.update(doc(db, 'tables', selectedTable.id), {
-                      customerId: cPhone,
-                      customerName: cName,
-                      customerPhone: cPhone,
-                      status: 'occupied'
-                    });
+              const finalName = cName.trim() || 'Assigned by Admin';
+              const finalPhone = cPhone.trim() || '9999999999';
+              try {
+                await addOrUpdateCustomer(finalPhone, finalName);
+                await updateTableStatus(selectedTable.id, 'occupied', selectedTable.activeOrderIds || []);
+                // also update customer details in table
+                await runTransaction(db, async (t) => {
+                  t.update(doc(db, 'tables', selectedTable.id), {
+                    customerId: finalPhone,
+                    customerName: finalName,
+                    customerPhone: finalPhone,
+                    status: 'occupied'
                   });
-                  setAssignCustomerModalOpen(false);
-                  setCName('');
-                  setCPhone('');
-                } catch (err) {
-                  console.error(err);
-                }
+                });
+                setAssignCustomerModalOpen(false);
+                setCName('');
+                setCPhone('');
+              } catch (err) {
+                console.error(err);
               }
             }} className="space-y-4">
               <div>
@@ -1056,8 +1056,7 @@ export default function DashboardPage() {
                     if (found && found.phone) setCPhone(found.phone);
                   }}
                   className="w-full border-2 border-border rounded-xl px-4 py-3 bg-background focus:outline-none focus:border-primary transition-colors"
-                  placeholder="E.g. John Doe"
-                  required
+                  placeholder="E.g. John Doe (Optional)"
                 />
                 <datalist id="customer-names">
                   {customers.map(c => (
@@ -1072,8 +1071,7 @@ export default function DashboardPage() {
                   value={cPhone}
                   onChange={e => setCPhone(e.target.value)}
                   className="w-full border-2 border-border rounded-xl px-4 py-3 bg-background focus:outline-none focus:border-primary transition-colors"
-                  placeholder="10-digit mobile number"
-                  required
+                  placeholder="10-digit mobile number (Optional)"
                 />
               </div>
               <div className="flex gap-3 pt-2">
