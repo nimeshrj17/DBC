@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Package, Trash2, Plus, X, Coffee, ShoppingBag, Store } from 'lucide-react';
+import { Package, Trash2, Edit, PlusCircle, Plus, X, Coffee, ShoppingBag, Store } from 'lucide-react';
 import { useInventory, InventoryItem } from '@/lib/hooks/useInventory';
 import { useMenu } from '@/lib/hooks/useMenu';
 import { Timestamp } from 'firebase/firestore';
@@ -15,7 +15,7 @@ const formatDate = (timestamp: any) => {
 };
 
 export default function InventoryPage() {
-  const { inventory, loading, addInventoryItem, deleteInventoryItem } = useInventory();
+  const { inventory, loading, addInventoryItem, updateInventoryItem, deleteInventoryItem } = useInventory();
   const { addMenuItem } = useMenu();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'raw' | 'retail'>('raw');
@@ -37,6 +37,56 @@ export default function InventoryPage() {
 
   const [formData, setFormData] = useState(initialForm);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [isRestockModalOpen, setIsRestockModalOpen] = useState(false);
+  const [restockItem, setRestockItem] = useState<InventoryItem | null>(null);
+  const [restockQty, setRestockQty] = useState('');
+  const [restockCost, setRestockCost] = useState('');
+
+  const handleEditClick = (item: InventoryItem) => {
+    setEditingItemId(item.id);
+    setFormData({
+      ...initialForm,
+      name: item.name,
+      itemNumber: item.itemNumber || '',
+      type: item.type,
+      quantity: item.quantity.toString(),
+      unit: item.unit,
+      totalCost: item.totalCost.toString(),
+      company: item.company || '',
+      retailCategory: item.retailCategory || 'other',
+    });
+    setIsAddModalOpen(true);
+  };
+
+  const handleRestockClick = (item: InventoryItem) => {
+    setRestockItem(item);
+    setRestockQty('');
+    setRestockCost('');
+    setIsRestockModalOpen(true);
+  };
+
+  const handleRestockSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!restockItem || !restockQty) return;
+    
+    try {
+      const addedQty = Number(restockQty);
+      const addedCost = Number(restockCost) || 0;
+      await updateInventoryItem(restockItem.id, {
+        quantity: restockItem.quantity + addedQty,
+        totalCost: restockItem.totalCost + addedCost,
+        purchaseDate: Timestamp.now()
+      });
+      setIsRestockModalOpen(false);
+      setRestockItem(null);
+      toast.success("Stock added successfully");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to restock");
+    }
+  };
 
   const sortInventory = (items: InventoryItem[]) => {
     return [...items].sort((a, b) => {
@@ -97,30 +147,42 @@ export default function InventoryPage() {
         if (formData.company) itemData.company = formData.company;
       }
 
-      const docRef = await addInventoryItem(itemData);
-      
-      // The hook returns void currently! We need it to return the ID for linkage.
-      // Wait, we need to update the useInventory hook to return docRef.id!
-      // But assuming we will fix that next:
-      if (formData.type === 'retail' && formData.publishToMenu && docRef) {
-        await addMenuItem({
-          name: formData.name,
-          description: formData.company ? `Brand: ${formData.company}` : 'Retail product',
-          price: Number(formData.sellingPrice) || 0,
-          category: formData.retailCategory 
-            ? formData.retailCategory.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') 
-            : 'Retail',
-          isRetail: true,
-          available: true,
-          linkedInventoryId: docRef,
-          linkedInventoryAmount: 1,
-          itemNumber: formData.itemNumber
+      if (editingItemId) {
+        await updateInventoryItem(editingItemId, {
+          name: itemData.name,
+          type: itemData.type,
+          quantity: itemData.quantity,
+          unit: itemData.unit,
+          totalCost: itemData.totalCost,
+          itemNumber: itemData.itemNumber,
+          retailCategory: itemData.retailCategory,
+          company: itemData.company,
         });
+        toast.success("Inventory item updated successfully");
+      } else {
+        const docRef = await addInventoryItem(itemData);
+        
+        if (formData.type === 'retail' && formData.publishToMenu && docRef) {
+          await addMenuItem({
+            name: formData.name,
+            description: formData.company ? `Brand: ${formData.company}` : 'Retail product',
+            price: Number(formData.sellingPrice) || 0,
+            category: formData.retailCategory 
+              ? formData.retailCategory.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') 
+              : 'Retail',
+            isRetail: true,
+            available: true,
+            linkedInventoryId: docRef,
+            linkedInventoryAmount: 1,
+            itemNumber: formData.itemNumber
+          });
+        }
+        toast.success("Inventory item added successfully");
       }
 
       setIsAddModalOpen(false);
+      setEditingItemId(null);
       setFormData({ ...initialForm, type: activeTab });
-      toast.success("Inventory item added successfully");
     } catch (error) {
       console.error(error);
       toast.error("Failed to add inventory item.");
@@ -164,6 +226,7 @@ export default function InventoryPage() {
             variant="primary" 
             className="shadow-[0_0_15px_rgba(204,255,0,0.3)] whitespace-nowrap"
             onClick={() => {
+              setEditingItemId(null);
               setFormData(prev => ({ ...prev, type: activeTab }));
               setIsAddModalOpen(true);
             }}
@@ -259,7 +322,7 @@ export default function InventoryPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-background rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
             <div className="p-6 border-b border-border flex justify-between items-center bg-card">
-              <h2 className="text-xl font-bold">Add {formData.type === 'raw' ? 'Raw Material' : 'Retail Product'}</h2>
+              <h2 className="text-xl font-bold">{editingItemId ? 'Edit' : 'Add'} {formData.type === 'raw' ? 'Raw Material' : 'Retail Product'}</h2>
               <button onClick={() => setIsAddModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
                 <X className="w-5 h-5" />
               </button>
@@ -443,6 +506,50 @@ export default function InventoryPage() {
               <div className="pt-4 flex justify-end space-x-3 sticky bottom-0 bg-background pb-2">
                 <Button type="button" variant="outline" onClick={() => setIsAddModalOpen(false)}>Cancel</Button>
                 <Button type="submit" variant="primary">Save Stock</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {isRestockModalOpen && restockItem && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-background rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
+            <div className="p-6 border-b border-border flex justify-between items-center bg-card">
+              <h2 className="text-xl font-bold">Restock {restockItem.name}</h2>
+              <button onClick={() => setIsRestockModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleRestockSubmit} className="p-6 space-y-4 bg-background">
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Quantity to Add ({restockItem.unit}) <span className="text-red-500">*</span></label>
+                <input 
+                  type="number" 
+                  required 
+                  min="0"
+                  step="any"
+                  value={restockQty}
+                  onChange={(e) => setRestockQty(e.target.value)}
+                  className="w-full bg-card border border-border rounded-xl px-4 py-2"
+                  placeholder="e.g. 10"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Cost of New Stock (₹)</label>
+                <input 
+                  type="number" 
+                  min="0"
+                  step="0.01"
+                  value={restockCost}
+                  onChange={(e) => setRestockCost(e.target.value)}
+                  className="w-full bg-card border border-border rounded-xl px-4 py-2"
+                  placeholder="e.g. 500"
+                />
+              </div>
+              <div className="pt-4 flex justify-end space-x-3">
+                <Button type="button" variant="outline" onClick={() => setIsRestockModalOpen(false)}>Cancel</Button>
+                <Button type="submit" variant="primary">Add Stock</Button>
               </div>
             </form>
           </div>
