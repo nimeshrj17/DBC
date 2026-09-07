@@ -45,7 +45,7 @@ export default function QRCodeGenerator({ tableId, tableNumber, tableName }: QRC
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`${tableName ? tableName.replace(/\s+/g, '_') : `Table_${tableNumber}`}_QR_Menu.pdf`);
+      pdf.save(`Table_${tableNumber}_QR_Menu.pdf`);
     } catch (error) {
       console.error('Error generating PDF', error);
       printRef.current.style.display = 'none';
@@ -170,7 +170,7 @@ export default function QRCodeGenerator({ tableId, tableNumber, tableName }: QRC
           fontWeight: 800,
           letterSpacing: '-0.5px'
         }}>
-          {tableName || `Table ${tableNumber}`}
+          Table {tableNumber}
         </div>
       </div>
     </>
