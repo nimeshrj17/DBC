@@ -168,7 +168,11 @@ export default function QRCodeGenerator({ tableId, tableNumber, tableName }: QRC
           borderRadius: '9999px',
           fontSize: '24px',
           fontWeight: 800,
-          letterSpacing: '-0.5px'
+          letterSpacing: '-0.5px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center'
         }}>
           Table {tableNumber}
         </div>
