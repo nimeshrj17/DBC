@@ -126,7 +126,7 @@ const SafeTable = ({ table, viewMode, orders, setSelectedTableId, onClearTable, 
           </div>
           {viewMode === 'grid' && (
             <div className="mt-4" onClick={(e: any) => e.stopPropagation()}>
-              <QRCodeGenerator tableId={table.id} tableNumber={table.number} />
+              <QRCodeGenerator tableId={table.id} tableNumber={table.number} tableName={table.name} />
             </div>
           )}
         </CardContent>

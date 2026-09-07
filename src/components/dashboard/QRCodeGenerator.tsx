@@ -7,9 +7,10 @@ import jsPDF from 'jspdf';
 interface QRCodeGeneratorProps {
   tableId: string;
   tableNumber: number;
+  tableName?: string;
 }
 
-export default function QRCodeGenerator({ tableId, tableNumber }: QRCodeGeneratorProps) {
+export default function QRCodeGenerator({ tableId, tableNumber, tableName }: QRCodeGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -44,7 +45,7 @@ export default function QRCodeGenerator({ tableId, tableNumber }: QRCodeGenerato
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`Table_${tableNumber}_QR_Menu.pdf`);
+      pdf.save(`${tableName ? tableName.replace(/\s+/g, '_') : `Table_${tableNumber}`}_QR_Menu.pdf`);
     } catch (error) {
       console.error('Error generating PDF', error);
       printRef.current.style.display = 'none';
@@ -85,15 +86,15 @@ export default function QRCodeGenerator({ tableId, tableNumber }: QRCodeGenerato
         }}
       >
         {/* Top decorative shapes */}
-        <div style={{ position: 'relative', width: '100%', height: '120px', display: 'flex', justifyContent: 'center' }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '100px', backgroundColor: '#F5EFEA', borderBottomRightRadius: '100px' }}></div>
-          <div style={{ position: 'absolute', top: 0, right: 0, width: '40%', height: '100px', backgroundColor: '#F5EFEA', borderBottomLeftRadius: '100px' }}></div>
+        <div style={{ position: 'relative', width: '100%', height: '90px', display: 'flex', justifyContent: 'center' }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '70px', backgroundColor: '#F5EFEA', borderBottomRightRadius: '100px' }}></div>
+          <div style={{ position: 'absolute', top: 0, right: 0, width: '40%', height: '70px', backgroundColor: '#F5EFEA', borderBottomLeftRadius: '100px' }}></div>
           
           {/* Logo Circle */}
           <div style={{ 
-            marginTop: '30px', 
-            width: '60px', 
-            height: '60px', 
+            marginTop: '20px', 
+            width: '50px', 
+            height: '50px', 
             borderRadius: '50%', 
             backgroundColor: '#2A1A14',
             display: 'flex',
@@ -101,7 +102,7 @@ export default function QRCodeGenerator({ tableId, tableNumber }: QRCodeGenerato
             justifyContent: 'center',
             zIndex: 10
           }}>
-            <Coffee style={{ color: '#D4C1B3', width: '30px', height: '30px' }} />
+            <Coffee style={{ color: '#D4C1B3', width: '24px', height: '24px' }} />
           </div>
         </div>
 
@@ -112,14 +113,14 @@ export default function QRCodeGenerator({ tableId, tableNumber }: QRCodeGenerato
           color: '#000000', 
           textAlign: 'center',
           marginTop: '10px',
-          marginBottom: '20px',
+          marginBottom: '10px',
           lineHeight: '1.2'
         }}>
           Dream Bean<br />Café
         </h1>
 
         {/* Scan to Order Text */}
-        <div style={{ textAlign: 'center', marginBottom: '15px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '10px' }}>
           <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#A04010', margin: 0 }}>Scan to Order</h2>
           <p style={{ fontSize: '13px', color: '#666', margin: '4px 0 0 0' }}>No app required</p>
         </div>
@@ -127,10 +128,10 @@ export default function QRCodeGenerator({ tableId, tableNumber }: QRCodeGenerato
         {/* QR Code Container */}
         <div style={{
           position: 'relative',
-          padding: '20px',
+          padding: '12px',
           backgroundColor: '#EBE2DC',
           borderRadius: '16px',
-          marginBottom: '20px'
+          marginBottom: '15px'
         }}>
           {/* Decorative Corners */}
           <div style={{ position: 'absolute', top: '8px', left: '8px', width: '20px', height: '20px', borderTop: '4px solid #A04010', borderLeft: '4px solid #A04010', borderTopLeftRadius: '8px' }}></div>
@@ -141,7 +142,7 @@ export default function QRCodeGenerator({ tableId, tableNumber }: QRCodeGenerato
           <div style={{ backgroundColor: 'white', padding: '10px', borderRadius: '8px' }}>
             <QRCodeSVG 
               value={orderUrl}
-              size={180}
+              size={160}
               bgColor="#ffffff"
               fgColor="#2A1A14"
               level="M"
@@ -159,17 +160,17 @@ export default function QRCodeGenerator({ tableId, tableNumber }: QRCodeGenerato
 
         {/* Table Number Pill */}
         <div style={{
-          marginTop: '20px',
-          marginBottom: '30px',
+          marginTop: '15px',
+          marginBottom: '20px',
           backgroundColor: '#160B08',
           color: 'white',
-          padding: '16px 40px',
+          padding: '12px 32px',
           borderRadius: '9999px',
           fontSize: '24px',
           fontWeight: 800,
           letterSpacing: '-0.5px'
         }}>
-          Table {tableNumber}
+          {tableName || `Table ${tableNumber}`}
         </div>
       </div>
     </>
