@@ -77,9 +77,15 @@ export const createOrderTransaction = async (orderData: Omit<Order, 'id' | 'crea
       
       // 3. Verify and deduct inventory
       const inventoryKeys = Object.keys(inventoryDeductions);
-      for (const invId of inventoryKeys) {
-        const invRef = doc(db, 'inventory', invId);
-        const invSnap = await transaction.get(invRef);
+      
+      // READ PHASE: Fetch all required inventory docs FIRST (Firestore rule: all reads before any writes)
+      const invRefs = inventoryKeys.map(invId => doc(db, 'inventory', invId));
+      const invSnaps = await Promise.all(invRefs.map(ref => transaction.get(ref)));
+      
+      // WRITE PHASE
+      invSnaps.forEach((invSnap, index) => {
+        const invId = inventoryKeys[index];
+        const invRef = invRefs[index];
         if (invSnap.exists()) {
           const currentQty = invSnap.data().quantity || 0;
           const required = inventoryDeductions[invId].deduct;
@@ -111,7 +117,7 @@ export const createOrderTransaction = async (orderData: Omit<Order, 'id' | 'crea
             timestamp: serverTimestamp()
           });
         }
-      }
+      });
       
       // 4. Create the Order
       let orderRef;
