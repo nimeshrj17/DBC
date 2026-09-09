@@ -39,6 +39,7 @@ export default function InventoryPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRestockModalOpen, setIsRestockModalOpen] = useState(false);
   const [restockItem, setRestockItem] = useState<InventoryItem | null>(null);
   const [restockQty, setRestockQty] = useState('');
@@ -119,7 +120,8 @@ export default function InventoryPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.totalCost) return;
+    if (!formData.name || !formData.totalCost || isSubmitting) return;
+    setIsSubmitting(true);
     
     let finalQuantity = Number(formData.quantity);
     let finalUnit = formData.unit;

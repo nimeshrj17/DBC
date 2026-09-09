@@ -214,11 +214,11 @@ export default function KioskPage() {
                 Cancel
               </button>
               <button 
-                disabled={!tableNumber}
+                disabled={!tableNumber || isSubmitting}
                 onClick={handlePlaceOrder}
                 className="flex-1 py-4 bg-primary text-primary-foreground rounded-2xl font-bold hover:shadow-[0_0_20px_rgba(204,255,0,0.4)] transition-all disabled:opacity-50 flex justify-center items-center"
               >
-                Place Order
+                {isSubmitting ? 'Processing...' : 'Place Order'}
               </button>
             </div>
           </div>

@@ -146,6 +146,8 @@ export default function DashboardPage() {
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
   const [editingTableId, setEditingTableId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAssigning, setIsAssigning] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [clearTablePrompt, setClearTablePrompt] = useState<{tableId: string, hasUnpaid: boolean} | null>(null);
   
@@ -461,6 +463,8 @@ export default function DashboardPage() {
   };
 
   const confirmClearTable = async (forceClear: boolean = false) => {
+    setIsClearing(true);
+    try {
     if (!clearTablePrompt) return;
     const { tableId, hasUnpaid } = clearTablePrompt;
     
@@ -482,6 +486,9 @@ export default function DashboardPage() {
       setSelectedTableId(null);
     }
     setClearTablePrompt(null);
+    } finally {
+      setIsClearing(false);
+    }
   };
 
   const handleAddTableSubmit = async (e: React.FormEvent) => {
@@ -595,6 +602,7 @@ export default function DashboardPage() {
   };
 
   const handleQuickAssign = async () => {
+    setIsAssigning(true);
     if (!selectedTable) return;
     const finalName = 'Assigned by Admin';
     const finalPhone = '9999999999';
@@ -613,6 +621,8 @@ export default function DashboardPage() {
     } catch (err) {
       console.error(err);
       toast.error("Failed to assign table");
+    } finally {
+      setIsAssigning(false);
     }
   };
 
@@ -810,8 +820,8 @@ export default function DashboardPage() {
                 </div>
                 <p>Table is currently empty.</p>
                 <div className="flex flex-col gap-3 w-full max-w-[250px]">
-                  <Button variant="primary" className="w-full" onClick={handleQuickAssign}>Quick Assign (Skip Details)</Button>
-                  <Button variant="outline" className="w-full" onClick={() => setAssignCustomerModalOpen(true)}>Add Customer Details</Button>
+                  <Button variant="primary" className="w-full" disabled={isAssigning} onClick={handleQuickAssign}>{isAssigning ? 'Assigning...' : 'Quick Assign (Skip Details)'}</Button>
+                  <Button variant="outline" className="w-full" disabled={isAssigning} onClick={() => setAssignCustomerModalOpen(true)}>Add Customer Details</Button>
                 </div>
               </div>
             ) : (
@@ -881,8 +891,9 @@ export default function DashboardPage() {
                     variant="primary" 
                     className="col-span-2 shadow-[0_0_15px_rgba(204,255,0,0.3)]"
                     onClick={handleSendToKitchen}
+                    disabled={isSubmitting}
                   >
-                    Send New Ticket to Kitchen
+                    {isSubmitting ? 'Sending...' : 'Send New Ticket to Kitchen'}
                   </Button>
                 )}
 
@@ -1047,6 +1058,7 @@ export default function DashboardPage() {
             
             <form onSubmit={async (e) => {
               e.preventDefault();
+              setIsAssigning(true);
               const finalName = cName.trim() || 'Assigned by Admin';
               const finalPhone = cPhone.trim() || '9999999999';
               try {
@@ -1066,6 +1078,8 @@ export default function DashboardPage() {
                 setCPhone('');
               } catch (err) {
                 console.error(err);
+              } finally {
+                setIsAssigning(false);
               }
             }} className="space-y-4">
               <div>
@@ -1101,7 +1115,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex gap-3 pt-2">
                 <Button variant="outline" className="flex-1 py-6" onClick={() => setAssignCustomerModalOpen(false)}>Cancel</Button>
-                <Button variant="primary" type="submit" className="flex-1 py-6">Assign & Mark Occupied</Button>
+                <Button variant="primary" type="submit" disabled={isAssigning} className="flex-1 py-6">{isAssigning ? 'Assigning...' : 'Assign & Mark Occupied'}</Button>
               </div>
             </form>
           </div>
@@ -1148,8 +1162,9 @@ export default function DashboardPage() {
                     variant="outline" 
                     className="w-full py-6 text-base text-red-600 border-red-200 hover:bg-red-50"
                     onClick={() => confirmClearTable(true)}
+                    disabled={isClearing}
                   >
-                    Force Clear (Cancel Orders)
+                    {isClearing ? 'Clearing...' : 'Force Clear (Cancel Orders)'}
                   </Button>
                 </>
               ) : (
@@ -1157,8 +1172,9 @@ export default function DashboardPage() {
                   variant="primary" 
                   className="w-full py-6 text-base shadow-[0_0_15px_rgba(204,255,0,0.3)]"
                   onClick={() => confirmClearTable(false)}
+                  disabled={isClearing}
                 >
-                  Yes, Clear Table
+                  {isClearing ? 'Clearing...' : 'Yes, Clear Table'}
                 </Button>
               )}
               
@@ -1166,6 +1182,7 @@ export default function DashboardPage() {
                 variant="ghost" 
                 className="w-full text-muted-foreground hover:text-foreground"
                 onClick={() => setClearTablePrompt(null)}
+                disabled={isClearing}
               >
                 Cancel
               </Button>

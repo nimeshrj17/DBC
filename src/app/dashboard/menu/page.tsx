@@ -16,8 +16,8 @@ export default function MenuPage() {
   
   // Add/Edit Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -64,7 +64,8 @@ export default function MenuPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.price || !formData.category) return;
+    if (!formData.name || !formData.price || !formData.category || isSubmitting) return;
+    setIsSubmitting(true);
     
     setIsSubmitting(true);
     const itemData: any = {
