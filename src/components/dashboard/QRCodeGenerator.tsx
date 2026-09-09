@@ -108,7 +108,7 @@ export default function QRCodeGenerator({ tableId, tableNumber, tableName }: QRC
 
         {/* Cafe Name */}
         <h1 style={{ 
-          fontSize: '28px', 
+          fontSize: '22px', 
           fontWeight: 800, 
           color: '#000000', 
           textAlign: 'center',
@@ -116,7 +116,7 @@ export default function QRCodeGenerator({ tableId, tableNumber, tableName }: QRC
           marginBottom: '10px',
           lineHeight: '1.2'
         }}>
-          Dream Bean<br />Café
+          राखा भाई की चाय<br />and Café
         </h1>
 
         {/* Scan to Order Text */}

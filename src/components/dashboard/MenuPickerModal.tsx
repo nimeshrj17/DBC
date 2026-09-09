@@ -133,7 +133,7 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
                     
                     <div className="flex items-center space-x-2 shrink-0">
                       {qty > 0 && (
-                        <span className="text-xs font-bold bg-primary/20 text-primary px-2 py-1 rounded-full">
+                        <span className="text-xs font-bold bg-primary/20 text-black px-2 py-1 rounded-full">
                           {qty}
                         </span>
                       )}

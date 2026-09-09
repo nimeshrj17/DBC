@@ -9,8 +9,8 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Dream Bean Cafe",
-  description: "Management system for Dream Bean Cafe",
+  title: "राखा भाई की चाय and Cafe",
+  description: "Management system for राखा भाई की चाय and Cafe",
 };
 
 export default function RootLayout({

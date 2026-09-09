@@ -178,7 +178,7 @@ export default function DashboardLayout({
             <div className="w-8 h-8 rounded border-2 border-primary flex items-center justify-center">
               <Coffee className="h-5 w-5 text-primary" />
             </div>
-            <span className="text-xl font-bold tracking-tight">Dream Bean Cafe</span>
+            <span className="text-xl font-bold tracking-tight">राखा भाई की चाय and Cafe</span>
           </div>
           
           <nav className="mt-2 px-4 space-y-2">

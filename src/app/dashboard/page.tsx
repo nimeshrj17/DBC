@@ -787,7 +787,7 @@ export default function DashboardPage() {
               </div>
               <p className="text-sm text-muted-foreground">{selectedTable.seats} Seats</p>
               {selectedTable.customerName && (
-                <p className="text-xs font-bold text-primary mt-1 bg-primary/10 inline-block px-2 py-0.5 rounded-full">
+                <p className="text-xs font-bold text-black mt-1 bg-primary/10 inline-block px-2 py-0.5 rounded-full">
                   Customer: {selectedTable.customerName}
                 </p>
               )}

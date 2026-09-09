@@ -380,8 +380,8 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               <Coffee className="text-[#2A1A14] w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-black tracking-tight leading-none text-white">Dream Bean</h1>
-              <p className="text-sm font-medium opacity-80 tracking-widest uppercase mt-1">Café</p>
+              <h1 className="text-xl md:text-2xl font-black tracking-tight leading-none text-white">राखा भाई की चाय</h1>
+              <p className="text-sm font-medium opacity-80 tracking-widest uppercase mt-1">and Café</p>
             </div>
           </div>
           <div className="bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10 text-white font-bold shadow-sm text-sm">
