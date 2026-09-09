@@ -103,7 +103,7 @@ export default function DashboardLayout({
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (pin === '1234') { // Default PIN
+    if (pin === '895518') { // Default PIN
       localStorage.setItem('adminAuth', 'true');
       setIsAuthenticated(true);
       setError(false);
@@ -136,7 +136,7 @@ export default function DashboardLayout({
           <form onSubmit={handleLogin}>
             <input 
               type="password" 
-              maxLength={4}
+              maxLength={6}
               value={pin}
               onChange={(e) => {
                 setPin(e.target.value.replace(/\D/g, ''));
@@ -150,7 +150,7 @@ export default function DashboardLayout({
             
             <button 
               type="submit"
-              disabled={pin.length < 4}
+              disabled={pin.length < 6}
               onClick={() => {
                 import('@/lib/audio').then(({ initAudio }) => initAudio());
               }}
