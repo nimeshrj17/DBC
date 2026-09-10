@@ -47,7 +47,10 @@ export default function InventoryPage() {
 
   const handleEditClick = (item: InventoryItem) => {
     setEditingItemId(item.id);
-    const linkedMenu = menuItems.find(m => m.linkedInventoryId === item.id);
+    let linkedMenu = menuItems.find(m => m.linkedInventoryId === item.id);
+    if (!linkedMenu && item.type === 'retail') {
+      linkedMenu = menuItems.find(m => m.name.toLowerCase() === item.name.toLowerCase());
+    }
     setFormData({
       ...initialForm,
       name: item.name,
@@ -165,9 +168,17 @@ export default function InventoryPage() {
         
         // Sync the updated name, category, and selling price to the linked menu item if it's retail
         if (itemData.type === 'retail') {
-          const linkedMenu = menuItems.find(m => m.linkedInventoryId === editingItemId);
+          let linkedMenu = menuItems.find(m => m.linkedInventoryId === editingItemId);
+          if (!linkedMenu) {
+            const originalItem = inventory.find(i => i.id === editingItemId);
+            if (originalItem) {
+              linkedMenu = menuItems.find(m => m.name.toLowerCase() === originalItem.name.toLowerCase());
+            }
+          }
           if (linkedMenu) {
             await updateMenuItem(linkedMenu.id, {
+              linkedInventoryId: editingItemId,
+              linkedInventoryAmount: 1,
               name: itemData.name,
               price: Number(formData.sellingPrice) || 0,
               description: itemData.company ? `Brand: ${itemData.company}` : 'Retail product',
