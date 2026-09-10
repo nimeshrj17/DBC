@@ -16,7 +16,7 @@ const formatDate = (timestamp: any) => {
 
 export default function InventoryPage() {
   const { inventory, loading, addInventoryItem, updateInventoryItem, deleteInventoryItem } = useInventory();
-  const { addMenuItem } = useMenu();
+  const { menuItems, addMenuItem, updateMenuItem } = useMenu();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'raw' | 'retail'>('raw');
   
@@ -47,6 +47,7 @@ export default function InventoryPage() {
 
   const handleEditClick = (item: InventoryItem) => {
     setEditingItemId(item.id);
+    const linkedMenu = menuItems.find(m => m.linkedInventoryId === item.id);
     setFormData({
       ...initialForm,
       name: item.name,
@@ -57,6 +58,7 @@ export default function InventoryPage() {
       totalCost: item.totalCost.toString(),
       company: item.company || '',
       retailCategory: item.retailCategory || 'other',
+      sellingPrice: linkedMenu ? linkedMenu.price.toString() : ''
     });
     setIsAddModalOpen(true);
   };
@@ -160,6 +162,22 @@ export default function InventoryPage() {
           retailCategory: itemData.retailCategory,
           company: itemData.company,
         });
+        
+        // Sync the updated name, category, and selling price to the linked menu item if it's retail
+        if (itemData.type === 'retail') {
+          const linkedMenu = menuItems.find(m => m.linkedInventoryId === editingItemId);
+          if (linkedMenu) {
+            await updateMenuItem(linkedMenu.id, {
+              name: itemData.name,
+              price: Number(formData.sellingPrice) || 0,
+              description: itemData.company ? `Brand: ${itemData.company}` : 'Retail product',
+              category: itemData.retailCategory 
+                ? itemData.retailCategory.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') 
+                : 'Other'
+            });
+          }
+        }
+        
         toast.success("Inventory item updated successfully");
       } else {
         const docRef = await addInventoryItem(itemData);
