@@ -224,14 +224,16 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   );
 
   if (justPaid) return (
-    <div className="w-full max-w-md mx-auto flex-1 min-h-screen bg-[#FAF7F2] flex flex-col justify-between px-5 pt-8 pb-7">
+    <div className="w-full max-w-md mx-auto flex-1 min-h-screen bg-[#FDFBF7] flex flex-col px-5 pt-8 pb-7">
       <header className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#EFE4D8] text-[#9c4c2d] text-sm"><svg className="w-7 h-7 text-[#2e1c14] tea-steam-anim" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-<path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" strokeLinecap="round" strokeLinejoin="round" />
-<path d="M6 2v2m4-2v2m4-2v2" strokeLinecap="round" strokeLinejoin="round" />
-</svg></span>
-          <span className="text-xs tracking-wider uppercase font-bold text-gray-500">राखा भाई की चाय</span>
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#EFE4D8] text-[#9c4c2d] text-sm">
+            <svg className="w-7 h-7 text-[#2e1c14]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M6 2v2m4-2v2m4-2v2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+          <span className="text-xs tracking-wider uppercase font-bold text-stone-500">राखा भाई की चाय</span>
         </div>
         <div className="flex items-center space-x-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2.5 py-1 rounded-full text-xs font-semibold">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -240,17 +242,80 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       </header>
       <section className="flex flex-col items-center text-center mt-2 mb-5">
         <div className="relative flex items-center justify-center mb-4">
+          <div className="absolute w-20 h-20 bg-emerald-200/50 rounded-full animate-ping opacity-75"></div>
           <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center border-2 border-emerald-400 shadow-sm relative z-10">
-            <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M4.5 12.75l6 6 9-13.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path d="M4.5 12.75l6 6 9-13.5" strokeLinecap="round" strokeLinejoin="round"></path>
+            </svg>
           </div>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#2c1f17] tracking-tight leading-snug">Thank You for Visiting!</h1>
-        <p className="text-base text-[#9c4c2d] font-medium mt-0.5">राखा भाई की चाय AND CAFÉ</p>
-        <p className="text-xs sm:text-sm text-gray-500 mt-2 max-w-[280px] leading-relaxed">Payment successful. We hope you enjoyed your time at <span className="font-semibold text-[#2c1f17]">{table.name || `Table ${table.number}`}</span>.</p>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#2b1a13] tracking-tight leading-snug">Thank You for Visiting!</h1>
+        <p className="text-base text-[#9A3412] font-medium mt-0.5">राखा भाई की चाय AND CAFÉ</p>
+        <p className="text-xs sm:text-sm text-stone-500 mt-2 max-w-[280px] leading-relaxed">
+          Payment of <span className="font-bold text-[#2b1a13]">₹{grandTotal.toFixed(2)}</span> was successful. We hope you enjoyed your time at <span className="font-semibold text-[#2b1a13]">{table.name || `Table ${table.number}`}</span>.
+        </p>
       </section>
-      <div className="space-y-3">
-        <button onClick={() => window.location.reload()} className="w-full py-3.5 px-6 rounded-2xl bg-[#2c1f17] text-white font-bold text-sm tracking-wide shadow-md flex items-center justify-center gap-2 transition-all">Start New Session</button>
+      
+      <section className="bg-white rounded-2xl p-4 border border-[#EBE3DA] mb-4 relative overflow-hidden shadow-sm">
+        <div className="flex items-center justify-between pb-3 border-b border-dashed border-gray-200">
+          <div>
+            <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wide">Order Ref</span>
+            <p className="text-sm font-bold text-[#2b1a13] tracking-wide">#{table.id.substring(0,6).toUpperCase()}</p>
+          </div>
+          <div className="text-right">
+            <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wide">Timestamp</span>
+            <p className="text-xs font-semibold text-[#2b1a13]">{new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+          </div>
+        </div>
+        <div className="py-2.5 space-y-1.5 text-xs text-stone-500">
+          <div className="flex justify-between items-center">
+            <span>Total Items Ordered</span>
+            <span className="font-medium text-[#2b1a13]">{tableOrders.reduce((sum, o) => sum + o.items.reduce((s, i) => s + i.qty, 0), 0)}</span>
+          </div>
+          <div className="flex justify-between items-center pt-1 border-t border-gray-100 font-bold text-[#2b1a13] text-sm">
+            <span>Total Settled</span>
+            <span className="text-emerald-700">₹{grandTotal.toFixed(2)}</span>
+          </div>
+        </div>
+        <div className="mt-2.5 pt-2.5 border-t border-[#F0E7DD]">
+          <button className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-[#FAF7F2] hover:bg-[#F3ECE5] text-[#2b1a13] text-xs font-bold transition-colors" type="button">
+            <svg className="w-4 h-4 text-[#9A3412]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+            </svg>
+            <span>Download Invoice / PDF Receipt</span>
+          </button>
+        </div>
+      </section>
+
+      <section className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-[#EFE5DB] mb-5 text-center shadow-sm">
+        <p className="text-xs font-bold uppercase tracking-wider text-stone-500">Rate your experience</p>
+        <div className="flex items-center justify-center gap-2 mt-2">
+          {[1,2,3,4,5].map(star => (
+            <button key={star} className="p-1 text-amber-400 hover:scale-110 transition-transform text-xl focus:outline-none" type="button">★</button>
+          ))}
+        </div>
+        <p className="text-[11px] text-stone-400 mt-1">Tap a star to share your love with our kitchen crew</p>
+      </section>
+
+      <div className="space-y-3 mt-auto">
+        <button onClick={() => window.location.reload()} className="w-full py-3.5 px-6 rounded-2xl bg-[#2b1a13] hover:bg-[#1c110b] active:scale-[0.98] text-white font-bold text-sm sm:text-base tracking-wide shadow-md flex items-center justify-center gap-2 transition-all" type="button">
+          <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round"></path>
+          </svg>
+          <span>Start New Order / Scan Table</span>
+        </button>
+        <a className="w-full py-3 px-6 rounded-2xl bg-[#EBE0D3]/60 hover:bg-[#E2D5C6] active:scale-[0.99] text-[#2b1a13] font-semibold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 transition-all border border-[#DFD1C1]" href="#">
+          <svg className="w-4 h-4 text-pink-600" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.13-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.79-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path>
+          </svg>
+          <span>Follow us on Instagram / Tag Cafe Stories</span>
+        </a>
       </div>
+      <footer className="text-center pt-5 pb-1">
+        <p className="text-[11px] text-stone-400 font-medium flex items-center justify-center gap-1.5">
+          Serving warmth &amp; hospitality with every cup <svg className="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        </p>
+      </footer>
     </div>
   );
 
