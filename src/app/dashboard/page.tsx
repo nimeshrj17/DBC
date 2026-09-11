@@ -139,7 +139,7 @@ const SafeTable = ({ table, viewMode, orders, setSelectedTableId, onClearTable, 
 
 export default function DashboardPage() {
   const { tables, loading, updateTableStatus, addTable, updateTableDetails, deleteTable } = useTables();
-  const { orders, loading: ordersLoading, updateOrder, updateOrderStatus, createOrder } = useOrders();
+  const { orders, loading: ordersLoading, updateOrder, updateOrderStatus, createOrder, removeSentItemTransaction } = useOrders();
   const { settings, loading: settingsLoading } = useSettings();
   const { addOrUpdateCustomer, customers } = useCustomers();
   
@@ -148,6 +148,7 @@ export default function DashboardPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [clearTablePrompt, setClearTablePrompt] = useState<{tableId: string, hasUnpaid: boolean} | null>(null);
   
@@ -176,6 +177,28 @@ export default function DashboardPage() {
       setDraftOrders(prev => ({ ...prev, [selectedTable.id]: [] }));
     }
   }, [selectedTable, activeOrders.length, draftOrders]);
+
+  
+  const handleRemoveSentItem = async (menuItemId: string) => {
+    if (!selectedTable || isRemoving) return;
+    
+    // Find the order that has this item. Prefer newest orders first.
+    const tblOrders = orders.filter(o => selectedTable.activeOrderIds?.includes(o.id)).sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis());
+    const targetOrder = tblOrders.find(o => o.items.some(i => i.menuItemId === menuItemId));
+    
+    if (!targetOrder) return;
+    
+    setIsRemoving(true);
+    try {
+      await removeSentItemTransaction(targetOrder.id, menuItemId, settings.taxEnabled ? settings.taxPercentage : 0);
+      toast.success("Item quantity reduced");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to reduce item quantity");
+    } finally {
+      setIsRemoving(false);
+    }
+  };
 
   const currentDraftItems = selectedTable ? (draftOrders[selectedTable.id] || []) : [];
   const allOrderItems = activeOrders.flatMap(o => o.items).concat(currentDraftItems);
@@ -846,7 +869,11 @@ export default function DashboardPage() {
                           <button onClick={() => updateDraftItemQty(item.menuItemId, 1)} className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:bg-muted rounded"><Plus className="w-3 h-3" /></button>
                         </div>
                       ) : (
-                        <span className="font-medium text-sm px-3">{item.qty}</span>
+                        <div className="flex items-center space-x-3 bg-background rounded-lg p-1 border border-border shadow-sm opacity-80">
+                          <button disabled={isRemoving} onClick={() => handleRemoveSentItem(item.menuItemId)} className="w-6 h-6 flex items-center justify-center text-red-500 hover:bg-red-50 rounded disabled:opacity-50"><Minus className="w-3 h-3" /></button>
+                          <span className="font-medium text-sm w-4 text-center">{item.qty}</span>
+                          <div className="w-6 h-6"></div> {/* Empty space to keep alignment */}
+                        </div>
                       )}
                       
                       <div className="font-bold text-sm w-12 text-right">₹ {item.price * item.qty}</div>
