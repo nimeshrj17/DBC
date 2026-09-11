@@ -381,11 +381,17 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       <footer className="bg-white border-t border-stone-200/80 px-4 pt-3 pb-6 sticky bottom-0 z-20 shadow-[0_-8px_20px_rgba(0,0,0,0.03)]">
         <div className="max-w-md mx-auto space-y-2.5">
           <button onClick={() => setViewingOrders(false)} className="w-full py-3.5 px-4 rounded-xl bg-[#5a3829] hover:bg-[#382117] text-white font-bold text-sm tracking-wide shadow-md active:scale-[0.98] transition-all flex items-center justify-center space-x-2">
-            <span>Order More Items</span>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+</svg>
+<span>Order More Items</span>
           </button>
           {!isAwaitingConfirmation && (
             <button onClick={() => setIsPaymentModalOpen(true)} className="w-full py-3 px-4 rounded-xl border-2 border-[#5a3829]/30 text-[#5a3829] hover:bg-stone-50 font-bold text-sm tracking-wide active:scale-[0.98] transition-all flex items-center justify-center space-x-2">
-              <span>Pay Bill • ₹{grandTotal.toFixed(2)}</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+</svg>
+<span>Pay Bill • ₹{grandTotal.toFixed(2)}</span>
             </button>
           )}
         </div>
@@ -558,10 +564,17 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#EFE4D8] text-[#9c4c2d] border border-[#e1d2c2]">
+                    <svg className="w-3 h-3 text-[#9c4c2d]" fill="currentColor" viewBox="0 0 20 20">
+<path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"></path>
+</svg>
                     {table.name || `Table ${table.number}`}
                   </span>
                 </div>
-                <button onClick={() => setIsCartOpen(false)} className="w-7 h-7 rounded-full bg-stone-200/70 flex items-center justify-center text-stone-600">✕</button>
+                <button onClick={() => setIsCartOpen(false)} className="w-7 h-7 rounded-full bg-stone-200/70 hover:bg-stone-300/80 active:scale-95 flex items-center justify-center text-stone-600 transition-all">
+<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></path>
+</svg>
+</button>
               </div>
               <div className="flex items-baseline justify-between mt-1">
                 <h1 className="text-2xl font-extrabold tracking-tight text-[#2c1f17]">Your Cart</h1>
@@ -595,10 +608,34 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               </section>
             </div>
             <footer className="p-5 pt-3 bg-white border-t border-stone-200/80 shrink-0 space-y-2">
-              <button disabled={isSubmitting || cart.length === 0} onClick={executePlaceOrder} className="w-full bg-[#9c4c2d] hover:bg-[#853e22] text-white py-3.5 px-6 rounded-2xl font-bold text-base shadow-lg flex items-center justify-center transition-all">
-                <span>{isSubmitting ? 'Sending to Kitchen...' : 'Place Order'}</span>
+              <button disabled={isSubmitting || cart.length === 0} onClick={executePlaceOrder} className="w-full bg-[#9c4c2d] hover:bg-[#853e22] text-white py-3.5 px-6 rounded-2xl font-bold text-base shadow-lg flex items-center justify-center gap-2.5 transition-all">
+                {isSubmitting ? (
+                  <>
+                  <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
+        <span>Sending to Kitchen...</span>
+        </>
+                ) : (
+                  <>
+                  <span>Place Order to Kitchen</span>
+<svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2"></path>
+</svg>
+</>
+
+                )}
               </button>
             </footer>
+            <div className="pb-5 bg-white shrink-0">
+            <p className="text-center text-[11px] font-medium text-stone-500 flex items-center justify-center gap-1.5 pb-2">
+<svg className="w-3.5 h-3.5 text-amber-700 inline" fill="currentColor" viewBox="0 0 20 20">
+<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd"></path>
+</svg>
+        Kitchen prepares immediately upon order confirmation
+      </p>
+      </div>
           </main>
         </>
       )}
@@ -613,7 +650,11 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                 <h1 className="text-xl font-bold tracking-tight text-[#2c1f17] leading-tight">राखा भाई की चाय</h1>
                 <p className="text-xs text-gray-500">Payment for {table.name || `Table ${table.number}`}</p>
               </div>
-              <button onClick={() => setIsPaymentModalOpen(false)} className="p-2 rounded-full hover:bg-stone-200">✕</button>
+              <button onClick={() => setIsPaymentModalOpen(false)} className="p-2 rounded-full hover:bg-stone-200">
+<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></path>
+</svg>
+</button>
             </header>
             <section className="overflow-y-auto px-6 py-4 space-y-4">
               <div className="bg-white rounded-2xl p-4 border border-stone-200 shadow-sm">
@@ -641,6 +682,14 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               <button onClick={() => setIsPaymentModalOpen(false)} className="w-1/3 py-3.5 px-4 rounded-xl border border-stone-300 font-semibold text-stone-700 text-sm hover:bg-stone-50">Back</button>
               <button onClick={handleCustomerCheckout} className="w-2/3 py-3.5 px-4 bg-[#2c1f17] hover:bg-black text-white rounded-xl font-bold text-sm tracking-wide shadow-md">I Have Paid</button>
             </footer>
+            <div className="pb-5 bg-white shrink-0">
+            <p className="text-center text-[11px] font-medium text-stone-500 flex items-center justify-center gap-1.5 pb-2">
+<svg className="w-3.5 h-3.5 text-amber-700 inline" fill="currentColor" viewBox="0 0 20 20">
+<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd"></path>
+</svg>
+        Kitchen prepares immediately upon order confirmation
+      </p>
+      </div>
           </main>
         </>
       )}
