@@ -75,7 +75,8 @@ export default function InventoryPage() {
 
   const handleRestockSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!restockItem || !restockQty) return;
+    if (!restockItem || !restockQty || isSubmitting) return;
+    setIsSubmitting(true);
     
     try {
       const addedQty = Number(restockQty);
@@ -91,6 +92,10 @@ export default function InventoryPage() {
     } catch (err) {
       console.error(err);
       toast.error("Failed to restock");
+    } finally {
+      setIsSubmitting(false);
+      setRestockQty('');
+      setRestockCost('');
     }
   };
 
@@ -217,6 +222,8 @@ export default function InventoryPage() {
     } catch (error) {
       console.error(error);
       toast.error("Failed to add inventory item.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
