@@ -562,10 +562,41 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                 <span className="text-xs font-semibold text-stone-400">Table's Order</span>
                 <span className="text-sm font-bold text-stone-900 tracking-tight">{tableOrders.length === 1 ? tableOrders[0].displayId || 'Pending' : `${tableOrders.length} Orders`}</span>
               </div>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                {isAwaitingConfirmation ? 'AWAITING PAYMENT' : 'KITCHEN PREPARING'}
-              </span>
+              {(() => {
+                const hasPending = tableOrders.some(o => o.status === 'pending');
+                const hasPreparing = tableOrders.some(o => o.status === 'preparing');
+                const hasPrepared = tableOrders.some(o => o.status === 'prepared');
+                const hasServed = tableOrders.every(o => o.status === 'served');
+                
+                let text = 'ORDER RECEIVED';
+                let colorClass = 'bg-amber-50 text-amber-800 border-amber-200';
+                let dotClass = 'bg-amber-500 animate-pulse';
+                
+                if (isAwaitingConfirmation) {
+                  text = 'AWAITING PAYMENT';
+                  colorClass = 'bg-stone-50 text-stone-800 border-stone-200';
+                  dotClass = 'bg-stone-500 animate-pulse';
+                } else if (hasServed) {
+                  text = 'SERVED';
+                  colorClass = 'bg-stone-50 text-stone-600 border-stone-200';
+                  dotClass = 'bg-stone-400';
+                } else if (hasPrepared) {
+                  text = 'READY TO SERVE';
+                  colorClass = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+                  dotClass = 'bg-emerald-500 animate-pulse';
+                } else if (hasPreparing) {
+                  text = 'KITCHEN PREPARING';
+                  colorClass = 'bg-amber-50 text-amber-800 border-amber-200';
+                  dotClass = 'bg-amber-500 animate-pulse';
+                }
+                
+                return (
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${colorClass}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${dotClass}`}></span>
+                    {text}
+                  </span>
+                );
+              })()}
             </div>
             <div className="py-3 flex items-center justify-between text-sm">
               <div className="flex items-center gap-2 font-medium text-stone-700">
@@ -771,52 +802,154 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         <>
           <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity" onClick={() => setIsPaymentModalOpen(false)}></div>
           <main className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 w-full max-w-md bg-[#FAF7F2] rounded-t-[32px] shadow-2xl flex flex-col max-h-[92vh]">
-            <div className="w-full flex justify-center pt-3 pb-1"><div className="w-12 h-1.5 bg-stone-300 rounded-full" onClick={() => setIsPaymentModalOpen(false)}></div></div>
-            <header className="px-6 pt-2 pb-3 flex items-start justify-between border-b border-stone-200">
+            <div className="w-full flex justify-center pt-3 pb-1">
+              <div className="w-12 h-1.5 bg-stone-300 hover:bg-stone-400 cursor-pointer active:cursor-grabbing transition rounded-full" onClick={() => setIsPaymentModalOpen(false)} title="Drag down to close"></div>
+            </div>
+            <header className="px-6 pt-2 pb-3 flex items-start justify-between border-b border-[#e5dcd2]">
               <div>
-                <h1 className="text-xl font-bold tracking-tight text-[#2c1f17] leading-tight">राखा भाई की चाय</h1>
-                <p className="text-xs text-gray-500">Payment for {table.name || `Table ${table.number}`}</p>
+                <h1 className="text-xl font-bold tracking-tight text-[#1c110b] leading-tight">राखा भाई की चाय</h1>
+                <p className="text-xs text-stone-500 font-medium">Payment for {table.name || `Table ${table.number}`}</p>
               </div>
-              <button onClick={() => setIsPaymentModalOpen(false)} className="p-2 rounded-full hover:bg-stone-200">
-<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-<path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></path>
-</svg>
-</button>
+              <button aria-label="Close payment modal" onClick={() => setIsPaymentModalOpen(false)} className="p-2 rounded-full hover:bg-stone-200/80 active:scale-95 transition-all text-stone-600">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"></path>
+                </svg>
+              </button>
             </header>
-            <section className="overflow-y-auto px-6 py-4 space-y-4">
-              <div className="bg-white rounded-2xl p-4 border border-stone-200 shadow-sm">
+            <section className="overflow-y-auto px-6 py-4 space-y-4 no-scrollbar">
+              <div className="bg-white rounded-2xl p-4 border border-stone-200 shadow-sm relative overflow-hidden group">
+                <div className="absolute -right-4 -top-4 w-16 h-16 bg-emerald-50 rounded-full opacity-50 group-hover:scale-110 transition-transform"></div>
                 <div className="flex justify-between items-baseline mb-1">
-                  <span className="text-xs font-semibold text-stone-500 uppercase">Total Amount Due</span>
+                  <span className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Total Amount Due</span>
                 </div>
                 <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-2xl font-bold text-[#2c1f17]">₹</span>
-                  <span className="text-4xl font-extrabold text-[#2c1f17] tracking-tight">{grandTotal.toFixed(2)}</span>
+                  <span className="text-2xl font-bold text-[#2b1a13]">₹</span>
+                  <span className="text-4xl font-extrabold text-[#1c110b] tracking-tight">{grandTotal.toFixed(2)}</span>
                 </div>
+                <p className="text-[10px] text-stone-400 font-medium mt-1">Incl. of all taxes &amp; fees</p>
               </div>
               <div>
-                <h2 className="text-xs font-bold uppercase tracking-wider text-stone-500 mb-2.5">Select Payment Method</h2>
+                <h2 className="text-[11px] font-bold uppercase tracking-wider text-stone-500 mb-2.5 px-0.5">Select Payment Method</h2>
                 <div className="grid grid-cols-2 gap-2.5">
-                  <label onClick={() => setPaymentMethod('upi_qr')} className={`cursor-pointer flex flex-col items-center p-3.5 bg-white border-2 rounded-2xl text-center transition ${paymentMethod === 'upi_qr' ? 'border-[#5a3829]' : 'border-stone-200'}`}>
-                    <span className="text-xs font-bold text-[#2c1f17] mt-1">UPI / QR</span>
+                  <label onClick={() => setPaymentMethod('upi_qr')} className={`cursor-pointer relative flex flex-col items-center justify-center p-3.5 bg-white border-2 rounded-2xl text-center transition ${paymentMethod === 'upi_qr' ? 'border-[#3e261c] shadow-sm' : 'border-transparent border-stone-200 hover:border-[#2b1a13]'}`}>
+                    {paymentMethod === 'upi_qr' && (
+                      <span className="absolute top-2 right-2 flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#5a3829] opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#3e261c]"></span>
+                      </span>
+                    )}
+                    <div className="w-10 h-10 rounded-full bg-[#F3ECE5] flex items-center justify-center text-[#2b1a13] mb-1.5">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 18h4M18 14h3" strokeLinecap="round" strokeLinejoin="round"></path>
+                      </svg>
+                    </div>
+                    <span className="text-xs font-bold text-[#1c110b]">Dynamic QR</span>
+                    <span className="text-[10px] text-stone-500 mt-0.5">Scan on Table / Screen</span>
                   </label>
-                  <label onClick={() => setPaymentMethod('cash')} className={`cursor-pointer flex flex-col items-center p-3.5 bg-white border-2 rounded-2xl text-center transition ${paymentMethod === 'cash' ? 'border-[#5a3829]' : 'border-stone-200'}`}>
-                    <span className="text-xs font-bold text-[#2c1f17] mt-1">Cash Payment</span>
+                  <label onClick={() => setPaymentMethod('cash')} className={`cursor-pointer relative flex flex-col items-center justify-center p-3.5 bg-white border-2 rounded-2xl text-center transition ${paymentMethod === 'cash' ? 'border-[#3e261c] shadow-sm' : 'border-transparent border-stone-200 hover:border-[#2b1a13]'}`}>
+                    {paymentMethod === 'cash' && (
+                      <span className="absolute top-2 right-2 flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#5a3829] opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#3e261c]"></span>
+                      </span>
+                    )}
+                    <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center mb-1.5">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <rect height="12" rx="2" width="20" x="2" y="6"></rect>
+                        <circle cx="12" cy="12" r="2"></circle>
+                        <path d="M6 12h.01M18 12h.01"></path>
+                      </svg>
+                    </div>
+                    <span className="text-xs font-bold text-stone-800">Cash Payment</span>
+                    <span className="text-[10px] text-stone-500 mt-0.5">Pay at Counter / Waiter</span>
                   </label>
                 </div>
+                <div className="mt-3">
+                  <p className="text-[11px] font-medium text-stone-500 mb-2 px-0.5">Or open your installed UPI App</p>
+                  <div className="grid grid-cols-4 gap-2">
+                    <button className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition" type="button">
+                      <div className="w-7 h-7 flex items-center justify-center font-bold text-sm text-blue-600 font-display tracking-tighter">
+                        <span className="text-blue-500">G</span><span className="text-red-500">P</span><span className="text-yellow-500">a</span><span className="text-green-500">y</span>
+                      </div>
+                      <span className="text-[10px] font-semibold text-stone-700 mt-1">GPay</span>
+                    </button>
+                    <button className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition" type="button">
+                      <div className="w-7 h-7 bg-[#5f259f] rounded-full flex items-center justify-center text-white font-bold text-xs">पे</div>
+                      <span className="text-[10px] font-semibold text-stone-700 mt-1">PhonePe</span>
+                    </button>
+                    <button className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition" type="button">
+                      <div className="w-7 h-7 flex items-center justify-center font-extrabold text-[11px] text-[#00b9f5] tracking-tight">pay<span className="text-[#002e6e]">tm</span></div>
+                      <span className="text-[10px] font-semibold text-stone-700 mt-1">Paytm</span>
+                    </button>
+                    <button className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition" type="button">
+                      <div className="w-7 h-7 rounded-full bg-amber-50 text-[#3e261c] flex items-center justify-center">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                          <path d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" strokeLinecap="round" strokeLinejoin="round"></path>
+                        </svg>
+                      </div>
+                      <span className="text-[10px] font-semibold text-stone-700 mt-1">More UPI</span>
+                    </button>
+                  </div>
+                </div>
               </div>
+              {paymentMethod === 'upi_qr' && (
+                <div className="bg-white border border-[#e5dcd2] rounded-2xl p-4 text-center">
+                  <div className="inline-block p-3 bg-[#FAF7F2] rounded-xl border border-stone-200/80 mb-2">
+                    <svg className="w-36 h-36 mx-auto text-[#1c110b]" fill="currentColor" viewBox="0 0 100 100">
+                      <path d="M0,0 H30 V30 H0 Z M6,6 V24 H24 V6 Z"></path>
+                      <rect height="10" width="10" x="10" y="10"></rect>
+                      <path d="M70,0 H100 V30 H70 Z M76,6 V24 H94 V6 Z"></path>
+                      <rect height="10" width="10" x="80" y="10"></rect>
+                      <path d="M0,70 H30 V100 H0 Z M6,76 V94 H24 V76 Z"></path>
+                      <rect height="10" width="10" x="10" y="80"></rect>
+                      <rect height="6" width="6" x="36" y="8"></rect>
+                      <rect height="6" width="8" x="46" y="8"></rect>
+                      <rect height="8" width="6" x="58" y="12"></rect>
+                      <rect height="8" width="8" x="36" y="20"></rect>
+                      <rect height="6" width="6" x="50" y="22"></rect>
+                      <rect height="6" width="6" x="10" y="36"></rect>
+                      <rect height="8" width="8" x="20" y="36"></rect>
+                      <rect height="10" width="6" x="8" y="50"></rect>
+                      <rect height="6" width="8" x="20" y="52"></rect>
+                      <rect fill="#A45D35" height="28" rx="4" width="28" x="36" y="36"></rect>
+                      <path d="M44,46 h10 v8 c0,2.2 -1.8,4 -4,4 h-2 c-2.2,0 -4,-1.8 -4,-4 z" fill="#FFFFFF"></path>
+                      <path d="M54,48 h2 a1.5,1.5 0 0 1 0,3 h-2 z" fill="#FFFFFF"></path>
+                      <rect height="6" width="8" x="72" y="36"></rect>
+                      <rect height="8" width="8" x="84" y="36"></rect>
+                      <rect height="6" width="12" x="72" y="48"></rect>
+                      <rect height="10" width="6" x="88" y="50"></rect>
+                      <rect height="8" width="6" x="36" y="70"></rect>
+                      <rect height="6" width="10" x="46" y="70"></rect>
+                      <rect height="10" width="8" x="40" y="82"></rect>
+                      <rect height="8" width="8" x="52" y="80"></rect>
+                      <rect height="6" width="8" x="66" y="70"></rect>
+                      <rect height="8" width="6" x="78" y="72"></rect>
+                      <rect height="6" width="12" x="66" y="82"></rect>
+                      <rect height="10" width="12" x="82" y="84"></rect>
+                    </svg>
+                  </div>
+                  <p className="text-xs font-semibold text-stone-700">Scan using any UPI Payment App</p>
+                  <p className="text-[11px] text-stone-400 mt-0.5">UPI ID: <span className="font-mono text-stone-600 font-medium">rakhabhai@icici</span></p>
+                </div>
+              )}
             </section>
-            <footer className="p-5 bg-white border-t border-stone-200 flex gap-2.5">
-              <button onClick={() => setIsPaymentModalOpen(false)} className="w-1/3 py-3.5 px-4 rounded-xl border border-stone-300 font-semibold text-stone-700 text-sm hover:bg-stone-50">Back</button>
-              <button onClick={handleCustomerCheckout} className="w-2/3 py-3.5 px-4 bg-[#2c1f17] hover:bg-black text-white rounded-xl font-bold text-sm tracking-wide shadow-md">I Have Paid</button>
+            <footer className="p-5 bg-white border-t border-[#F3ECE5] flex flex-col gap-2.5">
+              <div className="flex items-center gap-3">
+                <button onClick={() => setIsPaymentModalOpen(false)} className="w-1/3 py-3.5 px-4 rounded-xl border border-stone-300 font-semibold text-stone-700 text-sm hover:bg-stone-50 active:bg-stone-100 transition text-center" type="button">Back</button>
+                <button onClick={handleCustomerCheckout} className="w-2/3 py-3.5 px-4 bg-[#2b1a13] hover:bg-[#1c110b] active:scale-[0.98] text-white rounded-xl font-bold text-sm tracking-wide shadow-md shadow-[#1c110b]/20 flex items-center justify-center gap-2 transition duration-150" type="button">
+                  <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
+                  </svg>
+                  <span>I Have Paid</span>
+                </button>
+              </div>
+              <div className="flex items-center justify-between text-[11px] text-stone-400 px-1 pt-1">
+                <span>Need assistance? Call Server</span>
+                <span className="flex items-center gap-1 text-emerald-600 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 256-bit Encrypted
+                </span>
+              </div>
             </footer>
-            <div className="pb-5 bg-white shrink-0">
-            <p className="text-center text-[11px] font-medium text-stone-500 flex items-center justify-center gap-1.5 pb-2">
-<svg className="w-3.5 h-3.5 text-amber-700 inline" fill="currentColor" viewBox="0 0 20 20">
-<path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd"></path>
-</svg>
-        Kitchen prepares immediately upon order confirmation
-      </p>
-      </div>
           </main>
         </>
       )}
