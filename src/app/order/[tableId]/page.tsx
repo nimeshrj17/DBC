@@ -401,31 +401,41 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 
   return (
     <div className="w-full max-w-md mx-auto bg-[#faf7f2] min-h-screen relative flex flex-col shadow-2xl overflow-x-hidden pb-24">
-      <header className="cafe-header-bg text-white pt-6 pb-7 px-5 rounded-b-[2.25rem] shadow-lg relative overflow-hidden">
-{/* Decorative background icon watermark */}
-<div className="absolute -right-6 -bottom-6 opacity-5 pointer-events-none text-white">
-<svg className="w-48 h-48" fill="currentColor" viewBox="0 0 24 24">
-<path d="M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4z" />
+      <header className="relative bg-[#26150e] text-amber-50 px-5 pt-7 pb-6 rounded-b-[2.5rem] shadow-xl overflow-hidden" data-purpose="brand-header">
+<div className="absolute -right-8 -top-8 w-44 h-44 rounded-full border-[10px] border-white/5 pointer-events-none"></div>
+<div className="absolute -right-4 top-10 w-28 h-28 rounded-2xl border-4 border-white/5 rotate-12 pointer-events-none"></div>
+<div className="flex items-center justify-between gap-2 mb-4 relative z-10">
+<div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/15 px-3 py-1.5 rounded-full text-xs font-medium tracking-wide">
+<span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+<span>{table.name || `Table ${table.number}`}</span>
+</div>
+<div className="text-[11px] text-amber-200/80 tracking-wider uppercase font-semibold">
+          Digital QR Order
+        </div>
+</div>
+<div className="flex items-center gap-3.5 mb-4 relative z-10">
+<div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-100 to-[#f5dbca] flex items-center justify-center text-[#26150e] shadow-md shadow-black/20 flex-shrink-0 border border-amber-200/50">
+<svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+<path d="M4 19h14a2 2 0 0 0 2-2v-1h1.5A3.5 3.5 0 0 0 25 12.5v-1A3.5 3.5 0 0 0 21.5 8H20V5H4v14zm16-9h1.5a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5H20v-4zM6 7h12v10H6V7z"></path>
+<path d="M7 2h2v3H7zm4-1h2v4h-2zm4 1h2v3h-2z" opacity="0.75"></path>
 </svg>
 </div>
-
-        <div className="flex items-center justify-between gap-3 relative z-10 mb-5">
-          <div className="flex items-center gap-3.5">
-            <div className="w-13 h-13 p-2.5 rounded-full bg-[#f0e4d7] text-[#26150e] flex items-center justify-center shadow-inner flex-shrink-0"><svg className="w-7 h-7 text-[#2e1c14] tea-steam-anim" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-<path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" strokeLinecap="round" strokeLinejoin="round" />
-<path d="M6 2v2m4-2v2m4-2v2" strokeLinecap="round" strokeLinejoin="round" />
-</svg></div>
-            <div>
-              <h1 className="text-xl font-bold tracking-wide leading-tight text-amber-50">राखा भाई की चाय</h1>
-              <p className="text-[10px] uppercase font-bold tracking-[0.22em] text-amber-200/80 mt-0.5">AND CAFÉ</p>
-            </div>
-          </div>
-          <div className="bg-white/10 backdrop-blur-md border border-white/15 px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="text-xs font-semibold tracking-wide text-amber-100">{table.name || `Table ${table.number}`}</span>
-          </div>
-        </div>
-      </header>
+<div>
+<h1 className="text-2xl font-extrabold tracking-tight text-white font-['Mukta'] leading-tight">राखा भाई की चाय</h1>
+<p className="text-xs uppercase tracking-[0.25em] font-bold text-amber-200/90 flex items-center gap-1.5">
+<span>And Café</span>
+<span className="inline-block w-1 h-1 rounded-full bg-amber-400"></span>
+<span className="text-[10px] text-amber-300 font-normal">Authentic Sips</span>
+</p>
+</div>
+</div>
+<div className="bg-black/25 border border-white/10 backdrop-blur-sm rounded-xl p-3 flex items-start gap-2.5 text-xs text-amber-100/90 leading-relaxed relative z-10" data-purpose="table-instructions">
+<svg className="w-4 h-4 text-amber-300 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+</svg>
+<span>Please remain seated at this designated table to ensure smooth service and avoid order mix-ups.</span>
+</div>
+</header>
 
       {tableOrders.length > 0 && !viewingOrders && (
         <section className="px-4 -mt-3 relative z-10">
