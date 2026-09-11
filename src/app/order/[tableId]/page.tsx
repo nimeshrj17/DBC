@@ -227,7 +227,10 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     <div className="w-full max-w-md mx-auto flex-1 min-h-screen bg-[#FAF7F2] flex flex-col justify-between px-5 pt-8 pb-7">
       <header className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#EFE4D8] text-[#9c4c2d] text-sm">☕</span>
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#EFE4D8] text-[#9c4c2d] text-sm"><svg className="w-7 h-7 text-[#2e1c14] tea-steam-anim" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+<path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" strokeLinecap="round" strokeLinejoin="round" />
+<path d="M6 2v2m4-2v2m4-2v2" strokeLinecap="round" strokeLinejoin="round" />
+</svg></span>
           <span className="text-xs tracking-wider uppercase font-bold text-gray-500">राखा भाई की चाय</span>
         </div>
         <div className="flex items-center space-x-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2.5 py-1 rounded-full text-xs font-semibold">
@@ -241,7 +244,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
             <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M4.5 12.75l6 6 9-13.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </div>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#2c1f17] tracking-tight leading-snug">Thank You for Visiting! 🙏</h1>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#2c1f17] tracking-tight leading-snug">Thank You for Visiting!</h1>
         <p className="text-base text-[#9c4c2d] font-medium mt-0.5">राखा भाई की चाय AND CAFÉ</p>
         <p className="text-xs sm:text-sm text-gray-500 mt-2 max-w-[280px] leading-relaxed">Payment successful. We hope you enjoyed your time at <span className="font-semibold text-[#2c1f17]">{table.name || `Table ${table.number}`}</span>.</p>
       </section>
@@ -264,7 +267,10 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       <header className="bg-[#5a3829] text-white pt-6 pb-5 px-5 rounded-b-[2rem] shadow-lg sticky top-0 z-30">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-amber-200">☕</div>
+            <div className="w-10 h-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-amber-200"><svg className="w-7 h-7 text-[#2e1c14] tea-steam-anim" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+<path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" strokeLinecap="round" strokeLinejoin="round" />
+<path d="M6 2v2m4-2v2m4-2v2" strokeLinecap="round" strokeLinejoin="round" />
+</svg></div>
             <div>
               <h1 className="text-base font-bold tracking-tight leading-snug">राखा भाई की चाय</h1>
               <p className="text-[11px] font-medium tracking-wider text-amber-200/80 uppercase">AND CAFÉ</p>
@@ -294,20 +300,57 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
             </div>
             <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/60">Est. ~8-12 mins</span>
           </div>
-          <div className="relative pl-7 space-y-6 before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-stone-200">
-            <div className="relative flex items-start">
-              <div className="absolute -left-7 top-0 w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center ring-4 ring-amber-100 shadow-sm animate-pulse">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
-              </div>
-              <div className="ml-1">
-                <div className="flex items-center space-x-2">
-                  <p className="text-sm font-bold text-amber-800">Preparing in Kitchen</p>
-                  <span className="text-[10px] bg-amber-100/70 text-amber-800 font-semibold px-2 py-0.5 rounded-full">In Progress</span>
+          {(() => {
+            const hasPending = tableOrders.some(o => o.status === 'pending');
+            const hasPreparing = tableOrders.some(o => o.status === 'preparing');
+            const hasPrepared = tableOrders.some(o => o.status === 'prepared');
+            const hasServed = tableOrders.every(o => o.status === 'served');
+            
+            let currentStep = 1;
+            if (hasServed) currentStep = 4;
+            else if (hasPrepared) currentStep = 3;
+            else if (hasPreparing) currentStep = 2;
+            else if (hasPending) currentStep = 1;
+
+            return (
+            <div className="relative pl-7 space-y-6 before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-stone-200">
+              <div className="relative flex items-start">
+                <div className={`absolute -left-7 top-0 w-6 h-6 rounded-full text-white flex items-center justify-center ring-4 shadow-sm ${currentStep >= 1 ? (currentStep === 1 ? 'bg-amber-500 ring-amber-100 animate-pulse' : 'bg-emerald-500 ring-emerald-100') : 'bg-stone-300 ring-stone-50'}`}>
+                  {currentStep > 1 ? <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" /></svg> : <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>}
                 </div>
-                <p className="text-xs text-stone-500 mt-0.5">Chef is preparing your fresh order</p>
+                <div className="ml-1">
+                  <div className="flex items-center space-x-2">
+                    <p className={`text-sm font-bold ${currentStep >= 1 ? 'text-stone-800' : 'text-stone-400'}`}>Order Received</p>
+                    {currentStep === 1 && <span className="text-[10px] bg-amber-100/70 text-amber-800 font-semibold px-2 py-0.5 rounded-full">In Progress</span>}
+                  </div>
+                </div>
+              </div>
+              <div className="relative flex items-start">
+                <div className={`absolute -left-7 top-0 w-6 h-6 rounded-full text-white flex items-center justify-center ring-4 shadow-sm ${currentStep >= 2 ? (currentStep === 2 ? 'bg-amber-500 ring-amber-100 animate-pulse' : 'bg-emerald-500 ring-emerald-100') : 'bg-stone-300 ring-stone-50'}`}>
+                  {currentStep > 2 ? <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" /></svg> : <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>}
+                </div>
+                <div className="ml-1">
+                  <div className="flex items-center space-x-2">
+                    <p className={`text-sm font-bold ${currentStep >= 2 ? 'text-amber-800' : 'text-stone-400'}`}>Preparing in Kitchen</p>
+                    {currentStep === 2 && <span className="text-[10px] bg-amber-100/70 text-amber-800 font-semibold px-2 py-0.5 rounded-full">In Progress</span>}
+                  </div>
+                  <p className="text-xs text-stone-500 mt-0.5">Chef is preparing your fresh order</p>
+                </div>
+              </div>
+              <div className="relative flex items-start">
+                <div className={`absolute -left-7 top-0 w-6 h-6 rounded-full text-white flex items-center justify-center ring-4 shadow-sm ${currentStep >= 3 ? (currentStep === 3 ? 'bg-amber-500 ring-amber-100 animate-pulse' : 'bg-emerald-500 ring-emerald-100') : 'bg-stone-300 ring-stone-50'}`}>
+                  {currentStep > 3 ? <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" /></svg> : <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>}
+                </div>
+                <div className="ml-1">
+                  <div className="flex items-center space-x-2">
+                    <p className={`text-sm font-bold ${currentStep >= 3 ? 'text-stone-800' : 'text-stone-400'}`}>Ready to Serve</p>
+                    {currentStep === 3 && <span className="text-[10px] bg-amber-100/70 text-amber-800 font-semibold px-2 py-0.5 rounded-full">In Progress</span>}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+            );
+          })()}
         </section>
         {tableOrders.map(order => (
           <section key={order.id} className="bg-white rounded-2xl p-5 shadow-sm border border-stone-200/70">
@@ -352,10 +395,20 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 
   return (
     <div className="w-full max-w-md mx-auto bg-[#faf7f2] min-h-screen relative flex flex-col shadow-2xl overflow-x-hidden pb-24">
-      <header className="bg-[#26150e] text-amber-50 pt-6 pb-7 px-5 rounded-b-[2.25rem] shadow-lg relative overflow-hidden">
+      <header className="cafe-header-bg text-white pt-6 pb-7 px-5 rounded-b-[2.25rem] shadow-lg relative overflow-hidden">
+{/* Decorative background icon watermark */}
+<div className="absolute -right-6 -bottom-6 opacity-5 pointer-events-none text-white">
+<svg className="w-48 h-48" fill="currentColor" viewBox="0 0 24 24">
+<path d="M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4z" />
+</svg>
+</div>
+
         <div className="flex items-center justify-between gap-3 relative z-10 mb-5">
           <div className="flex items-center gap-3.5">
-            <div className="w-13 h-13 p-2.5 rounded-full bg-[#f0e4d7] text-[#26150e] flex items-center justify-center shadow-inner flex-shrink-0">☕</div>
+            <div className="w-13 h-13 p-2.5 rounded-full bg-[#f0e4d7] text-[#26150e] flex items-center justify-center shadow-inner flex-shrink-0"><svg className="w-7 h-7 text-[#2e1c14] tea-steam-anim" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+<path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" strokeLinecap="round" strokeLinejoin="round" />
+<path d="M6 2v2m4-2v2m4-2v2" strokeLinecap="round" strokeLinejoin="round" />
+</svg></div>
             <div>
               <h1 className="text-xl font-bold tracking-wide leading-tight text-amber-50">राखा भाई की चाय</h1>
               <p className="text-[10px] uppercase font-bold tracking-[0.22em] text-amber-200/80 mt-0.5">AND CAFÉ</p>
