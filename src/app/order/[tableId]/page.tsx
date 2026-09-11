@@ -56,12 +56,20 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   }, []);
 
   useEffect(() => {
+    if (tableOrders.length > 0) {
+      setFinalReceiptData({
+        total: tableOrders.reduce((sum, order) => sum + order.total, 0),
+        count: tableOrders.reduce((sum, o) => sum + o.items.reduce((s, i) => s + i.qty, 0), 0),
+        ref: table?.id?.substring(0,6).toUpperCase() || ''
+      });
+    }
+    
     const isAwaiting = tableOrders.some(o => o.paymentStatus === 'awaiting_confirmation');
     if (prevAwaitingRef.current && !isAwaiting && tableOrders.length === 0) {
       setJustPaid(true);
     }
     prevAwaitingRef.current = isAwaiting;
-  }, [tableOrders]);
+  }, [tableOrders, table]);
 
   useEffect(() => {
     let unsubscribeTable: () => void;
