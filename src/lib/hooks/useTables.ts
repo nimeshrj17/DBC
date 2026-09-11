@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, query, orderBy, doc, updateDoc, setDoc, addDoc, deleteDoc } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, doc, updateDoc, setDoc, addDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { db } from '../firebase';
 
 export interface Table {
@@ -44,6 +44,50 @@ export function useTables() {
 
     return () => unsubscribe();
   }, []);
+
+    const transferTable = async (fromTableId: string, toTableId: string, activeOrderIds: string[]) => {
+    try {
+      // We will do a batch update for atomicity
+      const batch = writeBatch(db);
+      
+      const fromTableRef = doc(db, 'tables', fromTableId);
+      const toTableRef = doc(db, 'tables', toTableId);
+      
+      const fromTable = tables.find(t => t.id === fromTableId);
+      if (!fromTable) throw new Error("Source table not found");
+      
+      // Update new table
+      batch.update(toTableRef, {
+        status: fromTable.status,
+        activeOrderIds: fromTable.activeOrderIds,
+        customerName: fromTable.customerName || null,
+        customerPhone: fromTable.customerPhone || null,
+        customerId: fromTable.customerId || null,
+        currentSessionId: fromTable.currentSessionId || null,
+      });
+      
+      // Clear old table
+      batch.update(fromTableRef, {
+        status: 'empty',
+        activeOrderIds: [],
+        customerName: null,
+        customerPhone: null,
+        customerId: null,
+        currentSessionId: null
+      });
+      
+      // Update tableId in all active orders
+      activeOrderIds.forEach(orderId => {
+        const orderRef = doc(db, 'orders', orderId);
+        batch.update(orderRef, { tableId: toTableId });
+      });
+      
+      await batch.commit();
+    } catch (error) {
+      console.error("Error transferring table:", error);
+      throw error;
+    }
+  };
 
   const updateTableStatus = async (tableId: string, status: Table['status'], activeOrderIds?: string[]) => {
     try {
@@ -99,5 +143,5 @@ export function useTables() {
     }
   };
 
-  return { tables, loading, updateTableStatus, addTable, updateTableDetails, deleteTable };
+  return { tables, loading, updateTableStatus, addTable, updateTableDetails, deleteTable, transferTable };
 }
