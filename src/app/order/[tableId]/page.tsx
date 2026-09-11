@@ -34,6 +34,13 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const [tableOrders, setTableOrders] = useState<Order[]>([]);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'upi_qr' | 'cash'>('upi_qr');
+  const [rating, setRating] = useState(0);
+  const [finalReceiptData, setFinalReceiptData] = useState<{total: number, count: number, ref: string} | null>(null);
+  
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+  const [custName, setCustName] = useState('');
+  const [custPhone, setCustPhone] = useState('');
+
   const [viewingOrders, setViewingOrders] = useState(false);
   const [justPaid, setJustPaid] = useState(false);
   const prevAwaitingRef = useRef(false);
@@ -121,16 +128,24 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const grandTotal = tableOrders.reduce((sum, order) => sum + order.total, 0);
 
   const upiLink = `upi://pay?pa=rakhabhai@icici&pn=Rakha%20Bhai%20Ki%20Chai&am=${grandTotal.toFixed(2)}&cu=INR`;
-  const executePlaceOrder = async () => {
+    const executePlaceOrder = async () => {
     if (!table || cart.length === 0 || isSubmittingRef.current) return;
+    
+    // If no customer name is associated with the table, prompt them!
+    if (!table.customerName && !custName) {
+      setIsCustomerModalOpen(true);
+      return;
+    }
+
     isSubmittingRef.current = true;
     setIsSubmitting(true);
+
     try {
       const retailItems = cart.filter(i => i.isRetail || i.category === 'Retail');
       const kitchenItems = cart.filter(i => !i.isRetail && i.category !== 'Retail');
       const newOrderIds = [];
-      const finalCustomerName = table.customerName || null;
-      const finalCustomerPhone = table.customerPhone || null;
+      const finalCustomerName = table.customerName || custName || null;
+      const finalCustomerPhone = table.customerPhone || custPhone || null;
       
       if (kitchenItems.length > 0) {
         const sub = kitchenItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
@@ -167,7 +182,8 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         activeOrderIds: newActiveIds,
         status: tableStatus,
         updatedAt: Timestamp.now(),
-        ...(table.status === 'empty' ? { currentSessionId: deviceId } : {})
+        ...(table.status === 'empty' ? { currentSessionId: deviceId } : {}),
+        ...((!table.customerName && custName) ? { customerName: custName, customerPhone: custPhone } : {})
       });
       setCart([]);
       setIsCartOpen(false);
@@ -254,7 +270,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         <h1 className="text-2xl sm:text-3xl font-extrabold text-[#2b1a13] tracking-tight leading-snug">Thank You for Visiting!</h1>
         <p className="text-base text-[#9A3412] font-medium mt-0.5">राखा भाई की चाय AND CAFÉ</p>
         <p className="text-xs sm:text-sm text-stone-500 mt-2 max-w-[280px] leading-relaxed">
-          Payment of <span className="font-bold text-[#2b1a13]">₹{grandTotal.toFixed(2)}</span> was successful. We hope you enjoyed your time at <span className="font-semibold text-[#2b1a13]">{table.name || `Table ${table.number}`}</span>.
+          Payment of <span className="font-bold text-[#2b1a13]">₹{(finalReceiptData?.total || 0).toFixed(2)}</span> was successful. We hope you enjoyed your time at <span className="font-semibold text-[#2b1a13]">{table.name || `Table ${table.number}`}</span>.
         </p>
       </section>
       
@@ -262,7 +278,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         <div className="flex items-center justify-between pb-3 border-b border-dashed border-gray-200">
           <div>
             <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wide">Order Ref</span>
-            <p className="text-sm font-bold text-[#2b1a13] tracking-wide">#{table.id.substring(0,6).toUpperCase()}</p>
+            <p className="text-sm font-bold text-[#2b1a13] tracking-wide">#{finalReceiptData?.ref || table.id.substring(0,6).toUpperCase()}</p>
           </div>
           <div className="text-right">
             <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wide">Timestamp</span>
@@ -272,11 +288,11 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         <div className="py-2.5 space-y-1.5 text-xs text-stone-500">
           <div className="flex justify-between items-center">
             <span>Total Items Ordered</span>
-            <span className="font-medium text-[#2b1a13]">{tableOrders.reduce((sum, o) => sum + o.items.reduce((s, i) => s + i.qty, 0), 0)}</span>
+            <span className="font-medium text-[#2b1a13]">{finalReceiptData?.count || 0}</span>
           </div>
           <div className="flex justify-between items-center pt-1 border-t border-gray-100 font-bold text-[#2b1a13] text-sm">
             <span>Total Settled</span>
-            <span className="text-emerald-700">₹{grandTotal.toFixed(2)}</span>
+            <span className="text-emerald-700">₹{(finalReceiptData?.total || 0).toFixed(2)}</span>
           </div>
         </div>
         <div className="mt-2.5 pt-2.5 border-t border-[#F0E7DD]">
@@ -293,25 +309,18 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         <p className="text-xs font-bold uppercase tracking-wider text-stone-500">Rate your experience</p>
         <div className="flex items-center justify-center gap-2 mt-2">
           {[1,2,3,4,5].map(star => (
-            <button key={star} className="p-1 text-amber-400 hover:scale-110 transition-transform text-xl focus:outline-none" type="button">★</button>
+            <button key={star} onClick={() => setRating(star)} className={`p-1 hover:scale-110 transition-transform text-2xl focus:outline-none ${star <= rating ? 'text-amber-500' : 'text-amber-200'}`} type="button">★</button>
           ))}
         </div>
-        <p className="text-[11px] text-stone-400 mt-1">Tap a star to share your love with our kitchen crew</p>
+        {rating > 0 ? (
+          <p className="text-[11px] text-emerald-600 font-bold mt-1">Thank you for rating us {rating} stars! ❤️</p>
+        ) : (
+          <p className="text-[11px] text-stone-400 mt-1">Tap a star to share your love with our kitchen crew</p>
+        )}
       </section>
 
-      <div className="space-y-3 mt-auto">
-        <button onClick={() => window.location.reload()} className="w-full py-3.5 px-6 rounded-2xl bg-[#2b1a13] hover:bg-[#1c110b] active:scale-[0.98] text-white font-bold text-sm sm:text-base tracking-wide shadow-md flex items-center justify-center gap-2 transition-all" type="button">
-          <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round"></path>
-          </svg>
-          <span>Start New Order / Scan Table</span>
-        </button>
-        <a className="w-full py-3 px-6 rounded-2xl bg-[#EBE0D3]/60 hover:bg-[#E2D5C6] active:scale-[0.99] text-[#2b1a13] font-semibold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 transition-all border border-[#DFD1C1]" href="#">
-          <svg className="w-4 h-4 text-pink-600" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.13-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.79-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path>
-          </svg>
-          <span>Follow us on Instagram / Tag Cafe Stories</span>
-        </a>
+      <div className="mt-auto pb-4 flex flex-col items-center">
+        <p className="text-stone-500 text-sm font-semibold italic">Scan the QR to place order again</p>
       </div>
       <footer className="text-center pt-5 pb-1">
         <p className="text-[11px] text-stone-400 font-medium flex items-center justify-center gap-1.5">
@@ -585,6 +594,39 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 
   return (
     <div className="w-full max-w-md mx-auto bg-[#faf7f2] min-h-screen relative flex flex-col shadow-2xl overflow-x-hidden pb-24">
+
+      {isCustomerModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#FAF7F2] rounded-2xl w-full max-w-sm p-6 shadow-2xl relative">
+            <h2 className="text-xl font-bold text-[#2b1a13] mb-1">Your Details</h2>
+            <p className="text-xs text-stone-500 mb-5">Please enter your details to send order to kitchen.</p>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Name <span className="text-red-500">*</span></label>
+                <input type="text" value={custName} onChange={e => setCustName(e.target.value)} className="w-full bg-white border border-stone-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#9A3412]" placeholder="e.g. Rahul Sharma" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Phone Number (Optional)</label>
+                <input type="tel" value={custPhone} onChange={e => setCustPhone(e.target.value)} className="w-full bg-white border border-stone-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#9A3412]" placeholder="10-digit mobile" />
+              </div>
+            </div>
+            
+            <div className="mt-6 flex gap-3">
+              <button onClick={() => setIsCustomerModalOpen(false)} className="flex-1 py-3 bg-stone-200 hover:bg-stone-300 rounded-xl font-bold text-stone-700 text-sm">Cancel</button>
+              <button onClick={() => {
+                if (!custName.trim()) {
+                  toast.error("Please enter your name");
+                  return;
+                }
+                setIsCustomerModalOpen(false);
+                executePlaceOrder();
+              }} className="flex-1 py-3 bg-[#2b1a13] hover:bg-[#1c110b] text-white rounded-xl font-bold text-sm shadow-md">Confirm</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="relative bg-[#26150e] text-amber-50 px-5 pt-7 pb-6 rounded-b-[2.5rem] shadow-xl overflow-hidden" data-purpose="brand-header">
 <div className="absolute -right-8 -top-8 w-44 h-44 rounded-full border-[10px] border-white/5 pointer-events-none"></div>
 <div className="absolute -right-4 top-10 w-28 h-28 rounded-2xl border-4 border-white/5 rotate-12 pointer-events-none"></div>
