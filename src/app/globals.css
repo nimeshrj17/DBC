@@ -55,3 +55,39 @@ body {
     font-variant-numeric: tabular-nums;
   }
 }
+
+@theme inline {
+  --color-brand-espresso: #231815;
+  --color-brand-dark: #2e1c14;
+  --color-brand-brown: #43281c;
+  --color-brand-terracotta: #9a4726;
+  --color-brand-amber: #c86d3b;
+  --color-brand-cream: #fcf9f5;
+  --color-brand-creamDarker: #f5eee6;
+  --color-brand-accent: #d97736;
+  --color-veg: #16a34a;
+  
+  --font-hindi: "Tiro Devanagari Hindi", serif;
+  --font-plus-jakarta: "Plus Jakarta Sans", sans-serif;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .cafe-header-bg {
+    background: radial-gradient(circle at 85% 15%, #3d2419 0%, #241611 75%, #1a100c 100%);
+  }
+  .tea-steam-anim {
+    animation: steam 2.2s infinite ease-in-out alternate;
+  }
+}
+
+@keyframes steam {
+  0% { transform: translateY(0) scaleY(1); opacity: 0.6; }
+  100% { transform: translateY(-2px) scaleY(1.15); opacity: 0.9; }
+}
