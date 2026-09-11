@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect, use, useRef } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import { useMenu, MenuItem } from '@/lib/hooks/useMenu';
 import { Table } from '@/lib/hooks/useTables';
 import { Order, createOrderTransaction } from '@/lib/hooks/useOrders';
@@ -119,6 +120,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const total = subtotal;
   const grandTotal = tableOrders.reduce((sum, order) => sum + order.total, 0);
 
+  const upiLink = `upi://pay?pa=rakhabhai@icici&pn=Rakha%20Bhai%20Ki%20Chai&am=${grandTotal.toFixed(2)}&cu=INR`;
   const executePlaceOrder = async () => {
     if (!table || cart.length === 0 || isSubmittingRef.current) return;
     isSubmittingRef.current = true;
@@ -932,66 +934,35 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                 <div className="mt-3">
                   <p className="text-[11px] font-medium text-stone-500 mb-2 px-0.5">Or open your installed UPI App</p>
                   <div className="grid grid-cols-4 gap-2">
-                    <button className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition" type="button">
+                    <a href={`gpay://upi/pay?pa=rakhabhai@icici&pn=Rakha%20Bhai%20Ki%20Chai&am=${grandTotal.toFixed(2)}&cu=INR`} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition">
                       <div className="w-7 h-7 flex items-center justify-center font-bold text-sm text-blue-600 font-display tracking-tighter">
                         <span className="text-blue-500">G</span><span className="text-red-500">P</span><span className="text-yellow-500">a</span><span className="text-green-500">y</span>
                       </div>
                       <span className="text-[10px] font-semibold text-stone-700 mt-1">GPay</span>
-                    </button>
-                    <button className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition" type="button">
+                    </a>
+                    <a href={`phonepe://pay?pa=rakhabhai@icici&pn=Rakha%20Bhai%20Ki%20Chai&am=${grandTotal.toFixed(2)}&cu=INR`} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition">
                       <div className="w-7 h-7 bg-[#5f259f] rounded-full flex items-center justify-center text-white font-bold text-xs">पे</div>
                       <span className="text-[10px] font-semibold text-stone-700 mt-1">PhonePe</span>
-                    </button>
-                    <button className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition" type="button">
+                    </a>
+                    <a href={`paytmmp://pay?pa=rakhabhai@icici&pn=Rakha%20Bhai%20Ki%20Chai&am=${grandTotal.toFixed(2)}&cu=INR`} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition">
                       <div className="w-7 h-7 flex items-center justify-center font-extrabold text-[11px] text-[#00b9f5] tracking-tight">pay<span className="text-[#002e6e]">tm</span></div>
                       <span className="text-[10px] font-semibold text-stone-700 mt-1">Paytm</span>
-                    </button>
-                    <button className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition" type="button">
+                    </a>
+                    <a href={upiLink} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition">
                       <div className="w-7 h-7 rounded-full bg-amber-50 text-[#3e261c] flex items-center justify-center">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                           <path d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" strokeLinecap="round" strokeLinejoin="round"></path>
                         </svg>
                       </div>
                       <span className="text-[10px] font-semibold text-stone-700 mt-1">More UPI</span>
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>
               {paymentMethod === 'upi_qr' && (
                 <div className="bg-white border border-[#e5dcd2] rounded-2xl p-4 text-center">
                   <div className="inline-block p-3 bg-[#FAF7F2] rounded-xl border border-stone-200/80 mb-2">
-                    <svg className="w-36 h-36 mx-auto text-[#1c110b]" fill="currentColor" viewBox="0 0 100 100">
-                      <path d="M0,0 H30 V30 H0 Z M6,6 V24 H24 V6 Z"></path>
-                      <rect height="10" width="10" x="10" y="10"></rect>
-                      <path d="M70,0 H100 V30 H70 Z M76,6 V24 H94 V6 Z"></path>
-                      <rect height="10" width="10" x="80" y="10"></rect>
-                      <path d="M0,70 H30 V100 H0 Z M6,76 V94 H24 V76 Z"></path>
-                      <rect height="10" width="10" x="10" y="80"></rect>
-                      <rect height="6" width="6" x="36" y="8"></rect>
-                      <rect height="6" width="8" x="46" y="8"></rect>
-                      <rect height="8" width="6" x="58" y="12"></rect>
-                      <rect height="8" width="8" x="36" y="20"></rect>
-                      <rect height="6" width="6" x="50" y="22"></rect>
-                      <rect height="6" width="6" x="10" y="36"></rect>
-                      <rect height="8" width="8" x="20" y="36"></rect>
-                      <rect height="10" width="6" x="8" y="50"></rect>
-                      <rect height="6" width="8" x="20" y="52"></rect>
-                      <rect fill="#A45D35" height="28" rx="4" width="28" x="36" y="36"></rect>
-                      <path d="M44,46 h10 v8 c0,2.2 -1.8,4 -4,4 h-2 c-2.2,0 -4,-1.8 -4,-4 z" fill="#FFFFFF"></path>
-                      <path d="M54,48 h2 a1.5,1.5 0 0 1 0,3 h-2 z" fill="#FFFFFF"></path>
-                      <rect height="6" width="8" x="72" y="36"></rect>
-                      <rect height="8" width="8" x="84" y="36"></rect>
-                      <rect height="6" width="12" x="72" y="48"></rect>
-                      <rect height="10" width="6" x="88" y="50"></rect>
-                      <rect height="8" width="6" x="36" y="70"></rect>
-                      <rect height="6" width="10" x="46" y="70"></rect>
-                      <rect height="10" width="8" x="40" y="82"></rect>
-                      <rect height="8" width="8" x="52" y="80"></rect>
-                      <rect height="6" width="8" x="66" y="70"></rect>
-                      <rect height="8" width="6" x="78" y="72"></rect>
-                      <rect height="6" width="12" x="66" y="82"></rect>
-                      <rect height="10" width="12" x="82" y="84"></rect>
-                    </svg>
+                    <div className="flex items-center justify-center w-36 h-36 mx-auto"><QRCodeSVG value={upiLink} size={144} fgColor="#1c110b" bgColor="transparent" /></div>
                   </div>
                   <p className="text-xs font-semibold text-stone-700">Scan using any UPI Payment App</p>
                   <p className="text-[11px] text-stone-400 mt-0.5">UPI ID: <span className="font-mono text-stone-600 font-medium">rakhabhai@icici</span></p>
