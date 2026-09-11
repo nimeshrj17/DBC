@@ -255,10 +255,127 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   );
 
   if (isSubmitting) return (
-    <div className="max-w-md mx-auto relative bg-[#FAF7F2] min-h-screen shadow-2xl flex flex-col items-center justify-center">
-      <div className="w-12 h-12 border-4 border-[#2A1A14] border-t-transparent rounded-full animate-spin mb-4"></div>
-      <h2 className="text-xl font-bold text-[#2A1A14]">Saving to Firebase...</h2>
-      <p className="text-gray-500 text-sm mt-2">Please wait while we place your order.</p>
+    <div className="max-w-md mx-auto relative bg-[#FDFBF7] min-h-screen shadow-2xl flex flex-col items-center justify-center">
+      <svg height="100%" style={{ background: "transparent", overflow: "visible" }} viewBox="0 0 600 450" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="teaWarmGrad" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stopColor="#C25414"></stop>
+<stop offset="50%" stopColor="#9C3A07"></stop>
+<stop offset="100%" stopColor="#652402"></stop>
+</linearGradient>
+<linearGradient id="steamLightGrad" x1="0%" x2="0%" y1="100%" y2="0%">
+<stop offset="0%" stopColor="#C25414" stopOpacity="0.65"></stop>
+<stop offset="60%" stopColor="#D97706" stopOpacity="0.3"></stop>
+<stop offset="100%" stopColor="#D97706" stopOpacity="0"></stop>
+</linearGradient>
+<clipPath id="vaporAboveCupClip">
+<rect height="72" width="100" x="250" y="0"></rect>
+</clipPath>
+<filter height="140%" id="softInkShadow" width="140%" x="-20%" y="-20%">
+<feDropShadow dx="0" dy="2" floodColor="#7C2D12" floodOpacity="0.12" stdDeviation="3"></feDropShadow>
+</filter>
+</defs>
+<style>
+{`
+    @keyframes drawStroke {
+      0% { stroke-dashoffset: 1200; opacity: 0; }
+      15% { opacity: 1; }
+      80% { stroke-dashoffset: 0; opacity: 1; }
+      92% { stroke-dashoffset: 0; opacity: 1; }
+      100% { stroke-dashoffset: 0; opacity: 0.95; }
+    }
+
+    @keyframes scribbleFillIn {
+      0%, 45% { fill-opacity: 0; }
+      75% { fill-opacity: 0.9; }
+      100% { fill-opacity: 1; }
+    }
+
+    @keyframes steamRiseStrict {
+      0% { transform: translateY(0) scaleX(0.9); opacity: 0; }
+      25% { opacity: 0.8; }
+      70% { opacity: 0.45; transform: translateY(-24px) scaleX(1.15); }
+      100% { transform: translateY(-46px) scaleX(1.3); opacity: 0; }
+    }
+
+    @keyframes underlineScribble {
+      0%, 40% { stroke-dashoffset: 600; opacity: 0; }
+      48% { opacity: 1; }
+      80%, 100% { stroke-dashoffset: 0; opacity: 1; }
+    }
+
+    @keyframes pulseChaiCup {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+
+    @keyframes dotBounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.35; }
+      40% { transform: translateY(-5px); opacity: 1; }
+    }
+
+    .cup-elem {
+      transform-origin: 300px 92px;
+      animation: pulseChaiCup 3.2s ease-in-out infinite;
+    }
+
+    .steam-line-1 { animation: steamRiseStrict 2.4s ease-out infinite; }
+    .steam-line-2 { animation: steamRiseStrict 2.8s ease-out infinite 0.7s; }
+    .steam-line-3 { animation: steamRiseStrict 2.3s ease-out infinite 1.3s; }
+
+    .scribble-text {
+      stroke-dasharray: 1200;
+      stroke-dashoffset: 1200;
+      animation: drawStroke 3.6s cubic-bezier(0.35, 0, 0.25, 1) infinite,
+                 scribbleFillIn 3.6s ease-in-out infinite;
+    }
+
+    .scribble-sub {
+      stroke-dasharray: 600;
+      stroke-dashoffset: 600;
+      animation: drawStroke 3.6s cubic-bezier(0.35, 0, 0.25, 1) infinite 0.4s;
+    }
+
+    .scribble-underline {
+      stroke-dasharray: 600;
+      stroke-dashoffset: 600;
+      animation: underlineScribble 3.6s cubic-bezier(0.2, 0.8, 0.3, 1) infinite;
+    }
+
+    .dot-1 { animation: dotBounce 1.3s infinite 0.1s; }
+    .dot-2 { animation: dotBounce 1.3s infinite 0.25s; }
+    .dot-3 { animation: dotBounce 1.3s infinite 0.4s; }
+`}
+  </style>
+<g className="cup-elem">
+<g clipPath="url(#vaporAboveCupClip)">
+<path className="steam-line-1" d="M 286 68 Q 280 48 288 34 Q 294 20 286 8" fill="none" stroke="url(#steamLightGrad)" strokeLinecap="round" strokeWidth="3"></path>
+<path className="steam-line-2" d="M 300 68 Q 307 46 301 30 Q 295 16 303 6" fill="none" stroke="url(#steamLightGrad)" strokeLinecap="round" strokeWidth="3.5"></path>
+<path className="steam-line-3" d="M 314 68 Q 319 50 313 35 Q 308 22 316 10" fill="none" stroke="url(#steamLightGrad)" strokeLinecap="round" strokeWidth="2.6"></path>
+</g>
+<path d="M 268 70 L 332 70 L 324 108 C 322 118 312 124 300 124 C 288 124 278 118 276 108 Z" fill="#FFFBF5" stroke="#C25414" strokeLinejoin="round" strokeWidth="3.5"></path>
+<line stroke="#EA580C" strokeLinecap="round" strokeWidth="2.5" x1="265" x2="335" y1="74" y2="74"></line>
+<path d="M 275 92 Q 300 96 325 92" fill="none" stroke="#FDBA74" strokeLinecap="round" strokeWidth="2"></path>
+<path d="M 330 78 C 348 80 348 102 326 102" fill="none" stroke="#C25414" strokeLinecap="round" strokeWidth="3.5"></path>
+<ellipse cx="300" cy="129" fill="none" rx="38" ry="4.5" stroke="#9A3412" strokeLinecap="round" strokeWidth="3"></ellipse>
+</g>
+<g filter="url(#softInkShadow)" id="main-brand-text">
+<text className="scribble-text" fill="#29160B" fontFamily="'Rozha One', 'Plus Jakarta Sans', 'Noto Sans Devanagari', serif, system-ui" fontSize="44" fontWeight="800" letterSpacing="1.5" stroke="#C25414" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" textAnchor="middle" x="300" y="195">
+      राखा भाई की चाय
+    </text>
+</g>
+<path className="scribble-underline" d="M 125 218 C 160 223, 205 214, 255 219 C 300 224, 345 214, 395 218 C 430 222, 455 216, 475 220" fill="none" stroke="url(#teaWarmGrad)" strokeLinecap="round" strokeWidth="3.5"></path>
+<path className="scribble-underline" d="M 150 224 C 200 221, 260 226, 320 221 C 370 225, 420 222, 455 225" fill="none" opacity="0.85" stroke="#F97316" strokeLinecap="round" strokeWidth="1.8"></path>
+<text className="scribble-sub" fill="#7C2D12" fontFamily="'Plus Jakarta Sans', sans-serif" fontSize="15" fontWeight="700" letterSpacing="6.5" stroke="#7C2D12" strokeWidth="0.7" textAnchor="middle" x="300" y="258">
+    AND CAFÉ • AUTHENTIC SIPS
+  </text>
+<g transform="translate(258, 296)">
+<text fill="#9A3412" fontFamily="'Plus Jakarta Sans', sans-serif" fontSize="12" fontWeight="700" letterSpacing="2.5" x="0" y="0">BREWING</text>
+<circle className="dot-1" cx="72" cy="-4" fill="#EA580C" r="3.2"></circle>
+<circle className="dot-2" cx="83" cy="-4" fill="#EA580C" r="3.2"></circle>
+<circle className="dot-3" cx="94" cy="-4" fill="#EA580C" r="3.2"></circle>
+</g>
+</svg>
     </div>
   );
 
