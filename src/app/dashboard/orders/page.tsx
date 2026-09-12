@@ -43,6 +43,7 @@ export default function OrdersPage() {
   const { orders, loading, updateOrderStatus, updateOrder } = useOrders();
   const { tables, updateTableStatus } = useTables();
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [orderToPay, setOrderToPay] = useState<Order | null>(null);
 
   const handleStatusChange = async (order: Order, newStatus: Order['status']) => {
@@ -123,11 +124,20 @@ export default function OrdersPage() {
 
   const filteredOrders = activeOrders.filter(order => {
     if (order.status === 'completed' || order.status === 'cancelled') return false;
+    if (statusFilter !== 'all' && order.status !== statusFilter) return false;
     
     const searchLower = searchQuery.toLowerCase();
     return (order.displayId || '').toLowerCase().includes(searchLower) || 
+           (tables.find(t => t.id === order.tableId)?.name || '').toLowerCase().includes(searchLower) ||
            `Table ${order.tableNumber}`.toLowerCase().includes(searchLower);
   });
+  
+  const pendingCount = activeOrders.filter(o => o.status === 'pending').length;
+  const prepCount = activeOrders.filter(o => o.status === 'preparing').length;
+  const readyCount = activeOrders.filter(o => o.status === 'prepared').length;
+  const servedCount = activeOrders.filter(o => o.status === 'served').length;
+  const billedCount = activeOrders.filter(o => o.status === 'billed').length;
+
 
   return (
     <div className="flex flex-col w-full h-full pb-6">
@@ -143,15 +153,18 @@ export default function OrdersPage() {
           </span>
           
           {/* Order Stage Filter Tabs (Desktop) */}
-          <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-xl ml-4 border border-slate-200/80 text-xs font-semibold">
-            <button className="px-3 py-1.5 rounded-lg bg-white text-slate-900 shadow-sm">All ({activeOrders.length})</button>
-            <button className="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900">Pending</button>
-            <button className="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900">Preparing</button>
+          <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-xl ml-4 border border-slate-200/80 text-xs font-semibold overflow-x-auto hide-scrollbar">
+            <button onClick={() => setStatusFilter('all')} className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${statusFilter === 'all' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>All ({activeOrders.filter(o => o.status !== 'completed' && o.status !== 'cancelled').length})</button>
+            <button onClick={() => setStatusFilter('pending')} className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${statusFilter === 'pending' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>Waiting ({pendingCount})</button>
+            <button onClick={() => setStatusFilter('preparing')} className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${statusFilter === 'preparing' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>Preparing ({prepCount})</button>
+            <button onClick={() => setStatusFilter('prepared')} className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${statusFilter === 'prepared' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>Prepared ({readyCount})</button>
+            <button onClick={() => setStatusFilter('served')} className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${statusFilter === 'served' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>Served ({servedCount})</button>
+            <button onClick={() => setStatusFilter('billed')} className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${statusFilter === 'billed' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>Billed ({billedCount})</button>
           </div>
         </div>
         
         {/* Controls: Search, Zone, New Order */}
-        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap w-full lg:w-auto">
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap w-full lg:w-auto mt-2 lg:mt-0">
           {/* Search Input */}
           <div className="relative flex-1 min-w-[200px] md:min-w-[240px]">
             <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -166,10 +179,13 @@ export default function OrdersPage() {
             />
           </div>
           {/* Filter Dropdown (Mobile) */}
-          <select className="sm:hidden py-1.5 md:py-2 pl-3 pr-8 text-xs font-semibold bg-white border border-slate-200 md:border-slate-300 rounded-xl text-slate-700 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 shadow-2xs md:shadow-none">
-            <option value="all">All</option>
-            <option value="pending">Pending</option>
-            <option value="preparing">Prep</option>
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="sm:hidden py-1.5 md:py-2 pl-3 pr-8 text-xs font-semibold bg-white border border-slate-200 md:border-slate-300 rounded-xl text-slate-700 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 shadow-2xs md:shadow-none">
+            <option value="all">All Statuses</option>
+            <option value="pending">Waiting ({pendingCount})</option>
+            <option value="preparing">Preparing ({prepCount})</option>
+            <option value="prepared">Prepared ({readyCount})</option>
+            <option value="served">Served ({servedCount})</option>
+            <option value="billed">Billed ({billedCount})</option>
           </select>
         </div>
       </div>
@@ -229,104 +245,107 @@ export default function OrdersPage() {
               return (
                 <article 
                   key={order.id} 
-                  className="bg-white rounded-2xl border border-slate-200/90 shadow-sm flex flex-col justify-between hover:border-slate-300 transition-colors overflow-hidden h-full"
+                  className="bg-white rounded-2xl border border-slate-200/90 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow overflow-hidden h-full"
                 >
                   <div className="flex flex-col h-full">
-                    {/* Card Header */}
-                    <div className="p-3.5 md:p-4 border-b border-slate-100 flex items-start justify-between gap-2 flex-wrap bg-white">
+                    {/* Card Header EXACTLY like desktop.html */}
+                    <div className="p-4 border-b border-slate-100 flex items-start justify-between gap-2 flex-wrap">
                       <div className="flex items-center gap-3 flex-1">
-                        <div className={`w-11 md:w-10 h-11 md:h-10 rounded-xl ${statusBg} border ${statusBorder} flex flex-col md:flex-row items-center justify-center font-extrabold ${statusText} shrink-0`}>
-                          <span className="text-[9px] md:hidden leading-none mb-0.5 uppercase tracking-wide opacity-80">TBL</span>
-                          <span className="text-sm md:text-sm leading-none md:font-extrabold">{order.tableNumber}</span>
+                        <div className={`w-10 h-10 rounded-xl ${statusBg} border ${statusBorder} flex flex-col md:flex-row items-center justify-center font-extrabold ${statusText} text-sm shrink-0`}>
+                          <span className="text-[10px] md:hidden leading-none mb-0.5 uppercase tracking-wide opacity-80 block">TBL</span>
+                          <span className="md:block">{order.tableNumber}</span>
                         </div>
                         <div>
-                          <div className="flex items-center gap-1.5 md:gap-2">
-                            <h3 className="font-bold text-slate-900 text-[15px] md:text-sm leading-tight truncate max-w-[100px] md:max-w-[120px]">{(tables.find(t => t.id === order.tableId)?.name || `Table ${order.tableNumber}`)}</h3>
-                            <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200">#{order.displayId}</span>
+                          <div className="flex items-center gap-1.5">
+                            <h3 className="font-bold text-slate-900 text-sm leading-tight truncate max-w-[120px]">
+                              {(tables.find(t => t.id === order.tableId)?.name || `Table ${order.tableNumber}`)}
+                            </h3>
+                            <span className="text-xs text-slate-400 font-medium truncate max-w-[80px]">
+                              #{order.displayId}
+                            </span>
                           </div>
-                          <div className="flex items-center gap-1.5 mt-1 text-xs font-medium text-slate-500">
-                            <svg className="w-3.5 h-3.5 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" strokeLinecap="round" strokeLinejoin="round"></path></svg>
-                            <span className="truncate max-w-[120px]">{order.customerName || 'Walk-in'} {order.customerPhone && `(${order.customerPhone})`}</span>
-                          </div>
+                          <p className="text-[11px] text-slate-500 font-medium truncate max-w-[140px]">
+                            {order.customerName || 'Walk-in'} {order.customerPhone && `(${order.customerPhone})`}
+                          </p>
                         </div>
                       </div>
-                      <div className="text-right flex flex-col items-end gap-1 md:gap-1.5 shrink-0">
-                        <span className={`inline-flex items-center gap-1 md:gap-1.5 px-2 md:px-2.5 py-0.5 md:py-1 rounded-md md:rounded-full text-[10px] md:text-[11px] font-bold uppercase md:normal-case tracking-wider md:tracking-normal ${statusBg} ${statusText} border ${statusBorder}`}>
-                          <Icon className="w-3 md:w-3.5 h-3 md:h-3.5" strokeWidth={2.5} />
+                      <div className="text-right shrink-0">
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${statusBg} ${statusText} border ${statusBorder}`}>
+                          <Icon className="w-3 h-3" strokeWidth={2.5} />
                           {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                         </span>
-                        <span className="text-[10px] font-medium md:font-semibold text-slate-400 mt-0.5 md:mt-0">{time}</span>
+                        <span className="block text-[11px] text-slate-400 font-medium mt-1">{time}</span>
                       </div>
                     </div>
 
-                    {/* Order Items List */}
-                    <div className="p-3.5 md:p-4 bg-slate-50/50 flex-1 flex flex-col min-h-[140px]">
-                      <div className="flex items-center justify-between text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5 px-1">
-                        <span>Items ({order.items.length})</span>
-                        <span>Amount</span>
+                    {/* Items Table List EXACTLY like desktop.html */}
+                    <div className="p-4 flex-1 flex flex-col min-h-[160px]">
+                      <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-wider text-slate-400 pb-2 border-b border-slate-100">
+                        <span className="">Ordered Item</span>
+                        <div className="flex gap-4">
+                          <span className="w-6 text-center">Qty</span>
+                          <span className="w-14 text-right">Price</span>
+                        </div>
                       </div>
-                      <div className="space-y-2.5 mb-4 overflow-y-auto max-h-[160px] custom-scroll pr-1 flex-1">
+                      <div className="max-h-48 overflow-y-auto custom-scroll divide-y divide-slate-100 text-xs flex-1">
                         {order.items.map((item, idx) => (
-                          <div key={idx} className="flex items-start justify-between gap-3 text-[13px] md:text-sm">
-                            <div className="flex items-start gap-2 min-w-0">
-                              <span className="font-bold text-slate-900 bg-white border border-slate-200 w-5 h-5 md:w-6 md:h-6 rounded flex items-center justify-center text-[10px] md:text-xs shrink-0 shadow-xs">
-                                {item.qty}
-                              </span>
-                              <span className="font-semibold text-slate-700 leading-tight pt-0.5 truncate">{item.name}</span>
+                          <div key={idx} className="py-2 flex items-center justify-between font-medium">
+                            <span className="text-slate-800 truncate pr-2">{item.name}</span>
+                            <div className="flex items-center gap-4 shrink-0">
+                              <span className="w-6 text-center text-slate-500 bg-slate-100 rounded text-[11px] font-semibold">{item.qty}</span>
+                              <span className="w-14 text-right tabular-nums text-slate-900 font-semibold">₹{(item.price * item.qty).toFixed(0)}</span>
                             </div>
-                            <span className="font-bold text-slate-900 tabular-nums pt-0.5 shrink-0">₹{(item.price * item.qty).toFixed(0)}</span>
                           </div>
                         ))}
                       </div>
                       
-                      {/* Kitchen Notes Alert */}
+                      {/* Kitchen Notes */}
                       {order.kitchenNotes && (
-                        <div className="mt-auto mb-3 bg-amber-50 border border-amber-100 rounded-lg p-2.5 flex items-start gap-2">
+                        <div className="mt-3 bg-amber-50 border border-amber-100 rounded-lg p-2.5 flex items-start gap-2">
                           <svg className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"></path></svg>
                           <p className="text-xs font-semibold text-amber-800 leading-snug">{order.kitchenNotes}</p>
                         </div>
                       )}
                     </div>
 
-                    {/* Footer / Actions */}
-                    <div className="p-3.5 md:p-4 border-t border-slate-100 bg-white shrink-0">
-                      <div className="flex items-center justify-between mb-3.5 px-1">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Value</span>
-                        <span className="text-base md:text-lg font-black text-slate-900 tabular-nums">₹{order.total.toFixed(0)}</span>
+                    {/* Card Footer with Total & CTA EXACTLY like desktop.html */}
+                    <div className="p-4 bg-slate-50/70 border-t border-slate-100 rounded-b-2xl mt-auto shrink-0">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-semibold text-slate-500">Total Billable</span>
+                        <span className="text-base font-extrabold text-slate-900 tabular-nums">₹ {order.total.toFixed(0)}</span>
                       </div>
                       
-                      {/* Action Buttons */}
-                      <div className="grid grid-cols-2 gap-2 mt-auto">
+                      {/* Action Buttons (Restored to correct classes based on state) */}
+                      <div className="grid grid-cols-1 gap-2">
                         {order.status === 'pending' && (
-                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'preparing') }} className="col-span-2 py-2.5 bg-brand-lime hover:bg-[#cbf128] text-slate-950 text-[13px] md:text-sm font-bold rounded-xl transition shadow-sm active:scale-[0.98]">
+                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'preparing') }} className="w-full py-2.5 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95">
                             Accept & Start Prep
                           </button>
                         )}
                         {order.status === 'preparing' && (
-                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'prepared') }} className="col-span-2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-[13px] md:text-sm font-bold rounded-xl transition shadow-sm shadow-blue-200 active:scale-[0.98]">
+                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'prepared') }} className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95">
                             Mark Prepared
                           </button>
                         )}
                         {order.status === 'prepared' && (
-                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'served') }} className="col-span-2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] md:text-sm font-bold rounded-xl transition shadow-sm shadow-emerald-200 active:scale-[0.98]">
+                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'served') }} className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95">
                             Mark Served
                           </button>
                         )}
                         {order.status === 'served' && (
-                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'billed') }} className="col-span-2 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-[13px] md:text-sm font-bold rounded-xl transition shadow-sm shadow-purple-200 active:scale-[0.98]">
+                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'billed') }} className="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95">
                             Generate Bill
                           </button>
                         )}
                         {order.status === 'billed' && (
-                          <button onClick={(e) => { e.stopPropagation(); setOrderToPay(order) }} className="col-span-2 py-2.5 bg-slate-900 hover:bg-slate-800 text-brand-lime text-[13px] md:text-sm font-bold rounded-xl transition shadow-sm shadow-slate-300 active:scale-[0.98] flex items-center justify-center gap-2">
+                          <button onClick={(e) => { e.stopPropagation(); setOrderToPay(order) }} className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95">
                             <Banknote className="w-4 h-4" />
-                            Settle Payment
+                            Pay Bill / Settle
                           </button>
                         )}
-                        
                         {(order.status === 'pending' || order.status === 'preparing') && (
-                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'cancelled') }} className="col-span-2 py-2 bg-white hover:bg-red-50 text-red-600 border border-slate-200 hover:border-red-200 text-xs font-bold rounded-xl transition active:scale-[0.98]">
-                            Cancel Order
+                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'cancelled') }} className="w-full py-1.5 px-4 bg-transparent text-slate-400 hover:text-red-500 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition active:scale-95">
+                            Cancel
                           </button>
                         )}
                       </div>
