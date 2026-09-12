@@ -1,0 +1,582 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>Inventory Management - राखा भाई की चाय and Cafe</title>
+<!-- Plus Jakarta Sans Font -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS v3 with Forms & Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              lime: '#B7F800',
+              limeHover: '#A3DE00',
+              limeLight: '#F3FDCD',
+              dark: '#111827',
+              graySub: '#6B7280',
+              surface: '#F8FAFC',
+              card: '#FFFFFF',
+              border: '#E2E8F0',
+            }
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-scroll-and-touch">
+    /* Hide scrollbars on pill rows for smooth native iOS touch experience */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* iOS Tap highlight removal */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+  </style>
+</head>
+<body class="bg-[#F8FAFC] text-gray-900 font-sans antialiased selection:bg-brand-lime selection:text-black pb-28">
+<!-- BEGIN: AppContainer -->
+<div class="max-w-md mx-auto min-h-screen bg-[#F8FAFC] flex flex-col relative border-x border-slate-100 shadow-sm">
+<!-- BEGIN: TopBarHeader -->
+<header class="bg-white px-4 pt-3 pb-3 sticky top-0 z-30 border-b border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+<div class="flex items-center justify-between">
+<!-- Cafe Branding & Status -->
+<div class="flex items-center gap-2.5">
+<div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-brand-lime shadow-sm shrink-0">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+<path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<h1 class="font-extrabold text-[15px] leading-tight text-gray-900 tracking-tight">राखा भाई की चाय</h1>
+</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Inventory Live
+              </span>
+</div>
+</div>
+</div>
+<!-- Action Badges (Notification + Profile Avatar) -->
+<div class="flex items-center gap-2">
+<button aria-label="Notifications" class="relative w-9 h-9 rounded-full bg-slate-100/80 hover:bg-slate-200 flex items-center justify-center text-gray-600 transition">
+<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+<path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6.002 6.002 0 0 0-4-5.659V5a2 2 0 1 0-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 border-2 border-white"></span>
+</button>
+<div class="w-9 h-9 rounded-full bg-brand-lime text-black font-extrabold flex items-center justify-center text-sm shadow-inner border border-lime-400">
+            B
+          </div>
+</div>
+</div>
+</header>
+<!-- END: TopBarHeader -->
+<!-- BEGIN: MainContent -->
+<main class="flex-1 px-4 pt-3 pb-8 flex flex-col gap-4">
+<!-- Shift KPI Cards -->
+<section class="grid grid-cols-2 gap-3" data-purpose="kpi-metrics">
+<!-- Low Stock Card -->
+<div class="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="text-xs font-semibold text-gray-500">Low Stock Alert</span>
+<div class="w-6 h-6 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+<path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<div class="mt-2 flex items-baseline gap-1.5">
+<span class="text-2xl font-black text-gray-900">5</span>
+<span class="text-xs font-bold text-amber-600 bg-amber-100/70 px-1.5 py-0.5 rounded">Critical</span>
+</div>
+<p class="text-[11px] text-gray-400 font-medium mt-0.5">Requires reorder</p>
+</div>
+<!-- Stock Valuation Card -->
+<div class="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="text-xs font-semibold text-gray-500">Stock Valuation</span>
+<div class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+<path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<div class="mt-2 flex items-baseline gap-0.5">
+<span class="text-2xl font-black text-gray-900">₹20,007</span>
+</div>
+<p class="text-[11px] text-emerald-600 font-semibold mt-0.5 flex items-center gap-0.5">
+<span class="">●</span> In Cafe Storage
+          </p>
+</div>
+</section>
+<!-- Section Title & Add Stock Action -->
+<section class="flex flex-col gap-3" data-purpose="title-and-actions">
+<div class="flex items-start justify-between">
+<div>
+<h2 class="text-xl font-black text-gray-900 tracking-tight">Inventory Management</h2>
+<p class="text-xs text-gray-500 font-medium">Track raw materials &amp; retail products.</p>
+</div>
+<!-- Primary CTA Button -->
+<button class="bg-brand-lime hover:bg-brand-limeHover active:scale-95 transition-all text-black font-extrabold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm border border-lime-400">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.8" viewBox="0 0 24 24">
+<path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="">Add Stock</span>
+</button>
+</div>
+<!-- Search Input -->
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<input class="w-full bg-white border border-slate-200 text-xs font-semibold rounded-xl py-2.5 pl-10 pr-4 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-lime focus:border-transparent transition" placeholder="Search item name, code #..." type="text">
+</div>
+</section>
+<!-- Segmented Category Tabs -->
+<section class="border-b border-slate-200 pb-1" data-purpose="tab-navigation">
+<div class="flex items-center gap-6 text-sm font-bold">
+<!-- Active Tab: Raw Materials -->
+<button class="flex items-center gap-2 pb-2 border-b-2 border-brand-lime text-gray-900 transition font-extrabold">
+<svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+<path d="M3 6h18M5 10h14M7 14h10M9 18h6" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="">Raw Materials</span>
+<span class="bg-gray-100 text-gray-700 text-[11px] font-extrabold px-1.5 py-0.5 rounded-full">14</span>
+</button>
+<!-- Inactive Tab: Retail Products -->
+<button class="flex items-center gap-2 pb-2 border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition font-medium">
+<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+<path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="">Retail Products</span>
+<span class="bg-gray-100 text-gray-400 text-[11px] font-bold px-1.5 py-0.5 rounded-full">8</span>
+</button>
+</div>
+</section>
+<!-- Filter Pills (Horizontally Scrollable) -->
+<section class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 -mx-4 px-4" data-purpose="filter-pills">
+<button class="whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-brand-lime text-black border border-lime-300 shadow-xs">
+          All (22)
+        </button>
+<button class="whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+          Low Stock (5)
+        </button>
+<button class="whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-gray-600 border border-slate-200 hover:bg-slate-50">
+          Bakery &amp; Buns
+        </button>
+<button class="whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-gray-600 border border-slate-200 hover:bg-slate-50">
+          Dairy &amp; Tea
+        </button>
+<button class="whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-gray-600 border border-slate-200 hover:bg-slate-50">
+          Beverages
+        </button>
+</section>
+<!-- Inventory Items List -->
+<section class="flex flex-col gap-2.5" data-purpose="inventory-item-list"><!-- Item Card 1: Aloo patties -->
+<article class="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col gap-3">
+  <div class="flex items-start justify-between gap-2">
+    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+      <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center shrink-0 border border-orange-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs font-extrabold text-gray-400">#Ap</span>
+          <h3 class="font-bold text-sm text-gray-900 leading-snug truncate">Aloo patties</h3>
+        </div>
+        <p class="text-[11px] text-gray-400 font-medium mt-0.5">Purchased: 8 Sept 2026</p>
+      </div>
+    </div>
+    <div class="flex flex-col items-end shrink-0">
+      <div class="flex items-center gap-1.5">
+        <span class="bg-orange-50 text-orange-600 text-[10px] font-extrabold px-1.5 py-0.5 rounded uppercase border border-orange-100">Low</span>
+        <span class="text-sm font-black text-rose-600">7 <span class="text-[11px] font-semibold text-rose-500">pcs</span></span>
+      </div>
+      <span class="text-[10px] text-gray-400 mt-0.5">Min 15</span>
+    </div>
+  </div>
+  <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+    <span class="text-[11px] font-medium text-gray-500">Reorder needed</span>
+    <div class="flex items-center gap-2">
+      <button aria-label="Restock 5 units" class="h-8 px-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 active:scale-95 text-emerald-700 flex items-center gap-1 transition border border-emerald-200/70 font-bold text-xs">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+        <span class="">Restock</span>
+      </button>
+      <button aria-label="Edit item" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 text-blue-600 flex items-center justify-center transition border border-slate-200/60">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <button aria-label="Delete item" class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 flex items-center justify-center transition border border-rose-100">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</article>
+
+<!-- Item Card 2: Burger Bun -->
+<article class="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col gap-3">
+  <div class="flex items-start justify-between gap-2">
+    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+      <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center shrink-0 border border-orange-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs font-extrabold text-gray-400">#B1</span>
+          <h3 class="font-bold text-sm text-gray-900 leading-snug truncate">Burger Bun</h3>
+        </div>
+        <p class="text-[11px] text-gray-400 font-medium mt-0.5">Purchased: 5 Sept 2026</p>
+      </div>
+    </div>
+    <div class="flex flex-col items-end shrink-0">
+      <div class="flex items-center gap-1.5">
+        <span class="bg-orange-50 text-orange-600 text-[10px] font-extrabold px-1.5 py-0.5 rounded uppercase border border-orange-100">Low</span>
+        <span class="text-sm font-black text-rose-600">10 <span class="text-[11px] font-semibold text-rose-500">pcs</span></span>
+      </div>
+      <span class="text-[10px] text-gray-400 mt-0.5">Min 20</span>
+    </div>
+  </div>
+  <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+    <span class="text-[11px] font-medium text-gray-500">Reorder needed</span>
+    <div class="flex items-center gap-2">
+      <button aria-label="Restock" class="h-8 px-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 active:scale-95 text-emerald-700 flex items-center gap-1 transition border border-emerald-200/70 font-bold text-xs">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+        <span class="">Restock</span>
+      </button>
+      <button aria-label="Edit" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 text-blue-600 flex items-center justify-center transition border border-slate-200/60">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <button aria-label="Delete" class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 flex items-center justify-center transition border border-rose-100">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</article>
+
+<!-- Item Card 3: Maska Bun -->
+<article class="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col gap-3">
+  <div class="flex items-start justify-between gap-2">
+    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+      <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center shrink-0 border border-orange-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs font-extrabold text-gray-400">#MBN</span>
+          <h3 class="font-bold text-sm text-gray-900 leading-snug truncate">Maska Bun</h3>
+        </div>
+        <p class="text-[11px] text-gray-400 font-medium mt-0.5">Purchased: 5 Sept 2026</p>
+      </div>
+    </div>
+    <div class="flex flex-col items-end shrink-0">
+      <div class="flex items-center gap-1.5">
+        <span class="bg-orange-50 text-orange-600 text-[10px] font-extrabold px-1.5 py-0.5 rounded uppercase border border-orange-100">Low</span>
+        <span class="text-sm font-black text-rose-600">10 <span class="text-[11px] font-semibold text-rose-500">pcs</span></span>
+      </div>
+      <span class="text-[10px] text-gray-400 mt-0.5">Min 25</span>
+    </div>
+  </div>
+  <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+    <span class="text-[11px] font-medium text-gray-500">Reorder needed</span>
+    <div class="flex items-center gap-2">
+      <button aria-label="Restock" class="h-8 px-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 active:scale-95 text-emerald-700 flex items-center gap-1 transition border border-emerald-200/70 font-bold text-xs">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+        <span class="">Restock</span>
+      </button>
+      <button aria-label="Edit" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 text-blue-600 flex items-center justify-center transition border border-slate-200/60">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <button aria-label="Delete" class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 flex items-center justify-center transition border border-rose-100">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</article>
+
+<!-- Item Card 4: Paneer patties -->
+<article class="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col gap-3">
+  <div class="flex items-start justify-between gap-2">
+    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+      <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center shrink-0 border border-orange-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs font-extrabold text-gray-400">#PP</span>
+          <h3 class="font-bold text-sm text-gray-900 leading-snug truncate">Paneer patties</h3>
+        </div>
+        <p class="text-[11px] text-gray-400 font-medium mt-0.5">Purchased: 5 Sept 2026</p>
+      </div>
+    </div>
+    <div class="flex flex-col items-end shrink-0">
+      <div class="flex items-center gap-1.5">
+        <span class="bg-orange-50 text-orange-600 text-[10px] font-extrabold px-1.5 py-0.5 rounded uppercase border border-orange-100">Low</span>
+        <span class="text-sm font-black text-rose-600">9 <span class="text-[11px] font-semibold text-rose-500">pcs</span></span>
+      </div>
+      <span class="text-[10px] text-gray-400 mt-0.5">Min 15</span>
+    </div>
+  </div>
+  <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+    <span class="text-[11px] font-medium text-gray-500">Reorder needed</span>
+    <div class="flex items-center gap-2">
+      <button aria-label="Restock" class="h-8 px-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 active:scale-95 text-emerald-700 flex items-center gap-1 transition border border-emerald-200/70 font-bold text-xs">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+        <span class="">Restock</span>
+      </button>
+      <button aria-label="Edit" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 text-blue-600 flex items-center justify-center transition border border-slate-200/60">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <button aria-label="Delete" class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 flex items-center justify-center transition border border-rose-100">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</article>
+
+<!-- Item Card 5: Pizza Base -->
+<article class="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col gap-3">
+  <div class="flex items-start justify-between gap-2">
+    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+      <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 border border-rose-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs font-extrabold text-gray-400">#PB</span>
+          <h3 class="font-bold text-sm text-gray-900 leading-snug truncate">Pizza Base</h3>
+        </div>
+        <p class="text-[11px] text-gray-400 font-medium mt-0.5">Purchased: 8 Sept 2026</p>
+      </div>
+    </div>
+    <div class="flex flex-col items-end shrink-0">
+      <div class="flex items-center gap-1.5">
+        <span class="bg-red-50 text-red-600 text-[10px] font-black px-1.5 py-0.5 rounded uppercase border border-red-100 animate-pulse">Critical</span>
+        <span class="text-sm font-black text-red-600">4 <span class="text-[11px] font-semibold text-red-500">pcs</span></span>
+      </div>
+      <span class="text-[10px] text-gray-400 mt-0.5">Min 12</span>
+    </div>
+  </div>
+  <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+    <span class="text-[11px] font-medium text-rose-600 font-semibold">Urgent Restock</span>
+    <div class="flex items-center gap-2">
+      <button aria-label="Restock" class="h-8 px-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 active:scale-95 text-emerald-700 flex items-center gap-1 transition border border-emerald-200/70 font-bold text-xs">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+        <span class="">Restock</span>
+      </button>
+      <button aria-label="Edit" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 text-blue-600 flex items-center justify-center transition border border-slate-200/60">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <button aria-label="Delete" class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 flex items-center justify-center transition border border-rose-100">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</article>
+
+<!-- Item Card 6: Armour Energy -->
+<article class="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col gap-3">
+  <div class="flex items-start justify-between gap-2">
+    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+      <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0 border border-amber-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs font-extrabold text-gray-400">#AE</span>
+          <h3 class="font-bold text-sm text-gray-900 leading-snug truncate">Armour Energy</h3>
+        </div>
+        <p class="text-[11px] text-gray-400 font-medium mt-0.5">Purchased: 5 Sept 2026</p>
+      </div>
+    </div>
+    <div class="flex flex-col items-end shrink-0">
+      <div class="flex items-center gap-1.5">
+        <span class="bg-orange-50 text-orange-600 text-[10px] font-extrabold px-1.5 py-0.5 rounded uppercase border border-orange-100">Low</span>
+        <span class="text-sm font-black text-rose-600">10 <span class="text-[11px] font-semibold text-rose-500">pcs</span></span>
+      </div>
+      <span class="text-[10px] text-gray-400 mt-0.5">Retail Can</span>
+    </div>
+  </div>
+  <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+    <span class="text-[11px] font-medium text-gray-500">Reorder needed</span>
+    <div class="flex items-center gap-2">
+      <button aria-label="Restock" class="h-8 px-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 active:scale-95 text-emerald-700 flex items-center gap-1 transition border border-emerald-200/70 font-bold text-xs">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+        <span class="">Restock</span>
+      </button>
+      <button aria-label="Edit" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 text-blue-600 flex items-center justify-center transition border border-slate-200/60">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <button aria-label="Delete" class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 flex items-center justify-center transition border border-rose-100">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</article>
+
+<!-- Item Card 7: Campa Energy -->
+<article class="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col gap-3">
+  <div class="flex items-start justify-between gap-2">
+    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+      <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center shrink-0 border border-orange-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs font-extrabold text-gray-400">#CE</span>
+          <h3 class="font-bold text-sm text-gray-900 leading-snug truncate">Campa Energy</h3>
+        </div>
+        <p class="text-[11px] text-gray-400 font-medium mt-0.5">Purchased: 5 Sept 2026</p>
+      </div>
+    </div>
+    <div class="flex flex-col items-end shrink-0">
+      <div class="flex items-center gap-1.5">
+        <span class="bg-orange-50 text-orange-600 text-[10px] font-extrabold px-1.5 py-0.5 rounded uppercase border border-orange-100">Low</span>
+        <span class="text-sm font-black text-rose-600">9 <span class="text-[11px] font-semibold text-rose-500">pcs</span></span>
+      </div>
+      <span class="text-[10px] text-gray-400 mt-0.5">Gold Boost</span>
+    </div>
+  </div>
+  <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+    <span class="text-[11px] font-medium text-gray-500">Reorder needed</span>
+    <div class="flex items-center gap-2">
+      <button aria-label="Restock" class="h-8 px-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 active:scale-95 text-emerald-700 flex items-center gap-1 transition border border-emerald-200/70 font-bold text-xs">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+        <span class="">Restock</span>
+      </button>
+      <button aria-label="Edit" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 text-blue-600 flex items-center justify-center transition border border-slate-200/60">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <button aria-label="Delete" class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 flex items-center justify-center transition border border-rose-100">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</article></section>
+</main>
+<!-- END: MainContent -->
+<!-- BEGIN: BottomNavigationBar -->
+<nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-slate-200 px-3 py-2 z-40 shadow-[0_-2px_10px_rgba(0,0,0,0.04)]">
+<div class="grid grid-cols-5 items-center">
+<!-- Tables Tab -->
+<a class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-700 transition" href="#">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+<rect height="7" rx="1.5" width="7" x="3" y="3"></rect>
+<rect height="7" rx="1.5" width="7" x="14" y="3"></rect>
+<rect height="7" rx="1.5" width="7" x="14" y="14"></rect>
+<rect height="7" rx="1.5" width="7" x="3" y="14"></rect>
+</svg>
+<span class="text-[10px] font-bold">Tables</span>
+</a>
+<!-- Orders Tab -->
+<a class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-700 transition relative" href="#">
+<div class="relative">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+<path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="absolute -top-0.5 -right-1 w-2 h-2 bg-rose-500 rounded-full"></span>
+</div>
+<span class="text-[10px] font-bold">Orders</span>
+</a>
+<!-- Menu Tab -->
+<a class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-700 transition" href="#">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-bold">Menu</span>
+</a>
+<!-- Inventory Tab (ACTIVE) -->
+<a class="flex flex-col items-center gap-1 transition" href="#">
+<div class="px-3 py-1 rounded-full bg-brand-lime text-black flex items-center justify-center shadow-xs">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+<path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<span class="text-[10px] font-black text-gray-900">Inventory</span>
+</a>
+<!-- Revenue / Sales Tab -->
+<a class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-700 transition" href="#">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+<path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-bold">Revenue</span>
+</a>
+</div>
+</nav>
+<!-- END: BottomNavigationBar -->
+</div>
+<!-- END: AppContainer -->
+
+
+</body></html>

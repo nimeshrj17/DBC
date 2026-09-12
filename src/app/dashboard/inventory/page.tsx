@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Package, Trash2, Edit, PlusCircle, Plus, X, Coffee, ShoppingBag, Store } from 'lucide-react';
+import { Package, Search, Trash2, Edit, PlusCircle, Plus, X, Coffee, ShoppingBag, Store } from 'lucide-react';
 import { useInventory, InventoryItem } from '@/lib/hooks/useInventory';
 import { useMenu } from '@/lib/hooks/useMenu';
 import { Timestamp } from 'firebase/firestore';
@@ -245,365 +245,530 @@ export default function InventoryPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10 h-full flex flex-col">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold mb-1">Inventory Management</h1>
-          <p className="text-sm text-muted-foreground">Track your raw materials and retail products.</p>
+    <div className="flex-1 w-full max-w-7xl mx-auto md:px-8 md:py-7 flex flex-col min-w-0 bg-slate-50 md:bg-transparent h-full">
+      {/* Mobile-Only Shift KPI Cards */}
+      <section className="md:hidden grid grid-cols-2 gap-3 px-4 pt-4 pb-2">
+        <div className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-sm flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-gray-500">Low Stock</span>
+            <div className="w-6 h-6 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+            </div>
+          </div>
+          <div className="mt-2 flex items-baseline gap-1.5">
+            <span className="text-2xl font-black text-gray-900">{inventory.filter(i => i.quantity <= 10 && i.quantity > 0).length}</span>
+            <span className="text-xs font-bold text-amber-600 bg-amber-100/70 px-1.5 py-0.5 rounded">Items</span>
+          </div>
         </div>
-        
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <input
-            type="text"
-            placeholder="Search name or item #..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 sm:w-64 px-4 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-          />
-          <Button 
-            variant="primary" 
-            className="shadow-[0_0_15px_rgba(204,255,0,0.3)] whitespace-nowrap"
+        <div className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-sm flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-gray-500">Valuation</span>
+            <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+            </div>
+          </div>
+          <div className="mt-2 flex items-baseline gap-0.5">
+            <span className="text-2xl font-black text-gray-900">₹{inventory.reduce((sum, item) => sum + (item.totalCost || 0), 0).toFixed(0)}</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Title & Global Actions (Desktop + Mobile Unified) */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 md:px-0 py-2 md:pb-6 shrink-0">
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">Inventory Management</h2>
+            <p className="text-xs md:text-sm text-slate-500 font-medium mt-0.5">Track raw materials & retail products.</p>
+          </div>
+          <button 
             onClick={() => {
               setEditingItemId(null);
               setFormData(prev => ({ ...prev, type: activeTab }));
               setIsAddModalOpen(true);
             }}
+            className="md:hidden bg-brand-lime hover:bg-[#b5de10] active:scale-95 transition-all text-black font-extrabold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm border border-lime-400"
           >
-            <Plus className="w-4 h-4 mr-2" /> Add Stock
-          </Button>
+            <Plus className="w-4 h-4" strokeWidth={2.8} />
+            <span>Add Stock</span>
+          </button>
+        </div>
+        
+        <div className="flex items-center gap-3 flex-wrap md:flex-nowrap w-full md:w-auto">
+          {/* Search */}
+          <div className="relative flex-1 min-w-[260px]">
+            <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <Search className="w-4 h-4 md:w-4 md:h-4" strokeWidth={2.2} />
+            </span>
+            <input 
+              type="text" 
+              placeholder="Search item name, code #..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white border border-slate-200 text-xs md:text-sm font-semibold md:font-normal rounded-xl py-2.5 md:py-2 pl-10 pr-4 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-lime focus:border-brand-lime shadow-sm transition"
+            />
+          </div>
+          
+          <button className="hidden md:inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 shadow-sm transition">
+            <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+            <span>Filter</span>
+          </button>
+          
+          <button 
+            onClick={() => {
+              setEditingItemId(null);
+              setFormData(prev => ({ ...prev, type: activeTab }));
+              setIsAddModalOpen(true);
+            }}
+            className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-lime hover:bg-[#b5de10] text-slate-950 text-sm font-bold shadow-sm transition transform active:scale-95 whitespace-nowrap"
+          >
+            <Plus className="w-4 h-4" strokeWidth={2.5} />
+            <span>Add Stock</span>
+          </button>
         </div>
       </div>
 
-      <div className="flex space-x-2 border-b border-border">
-        <button 
-          onClick={() => setActiveTab('raw')}
-          className={`flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'raw' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'}`}
-        >
-          <Coffee className="w-4 h-4 mr-2" /> Raw Materials
-        </button>
-        <button 
-          onClick={() => setActiveTab('retail')}
-          className={`flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'retail' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'}`}
-        >
-          <ShoppingBag className="w-4 h-4 mr-2" /> Retail Products
-        </button>
+      {/* Tabs */}
+      <div className="border-b border-slate-200 flex items-center justify-between px-4 md:px-0 shrink-0">
+        <div className="flex items-center gap-6 md:gap-8 -mb-px text-sm font-bold">
+          <button 
+            onClick={() => setActiveTab('raw')}
+            className={`flex items-center gap-2 md:gap-2.5 pb-2 md:pb-3 border-b-2 transition-all ${activeTab === 'raw' ? 'border-brand-lime md:border-slate-950 text-slate-900 md:text-slate-950 font-extrabold' : 'border-transparent text-slate-400 hover:text-slate-600 font-medium'}`}
+          >
+            <Coffee className={`w-4 h-4 ${activeTab === 'raw' ? 'text-slate-700 md:text-slate-900' : 'text-slate-400'}`} strokeWidth={2} />
+            <span>Raw Materials</span>
+            <span className={`${activeTab === 'raw' ? 'bg-slate-100 md:bg-brand-lime text-slate-700 md:text-slate-950' : 'bg-slate-100 text-slate-400'} text-[11px] font-extrabold px-1.5 md:px-2 py-0.5 rounded-full`}>
+              {rawMaterials.length}
+            </span>
+          </button>
+          <button 
+            onClick={() => setActiveTab('retail')}
+            className={`flex items-center gap-2 md:gap-2.5 pb-2 md:pb-3 border-b-2 transition-all ${activeTab === 'retail' ? 'border-brand-lime md:border-slate-950 text-slate-900 md:text-slate-950 font-extrabold' : 'border-transparent text-slate-400 hover:text-slate-600 font-medium'}`}
+          >
+            <ShoppingBag className={`w-4 h-4 ${activeTab === 'retail' ? 'text-slate-700 md:text-slate-900' : 'text-slate-400'}`} strokeWidth={2} />
+            <span>Retail Products</span>
+            <span className={`${activeTab === 'retail' ? 'bg-slate-100 md:bg-brand-lime text-slate-700 md:text-slate-950' : 'bg-slate-100 text-slate-400'} text-[11px] font-extrabold px-1.5 md:px-2 py-0.5 rounded-full`}>
+              {retailProducts.length}
+            </span>
+          </button>
+        </div>
       </div>
 
-      <Card className="rounded-2xl overflow-hidden border border-border shadow-sm flex-1 flex flex-col">
-        <div className="overflow-x-auto flex-1 w-full max-w-[90vw] md:max-w-none">
+      {/* Filter Pills (Mobile Only) */}
+      <section className="md:hidden flex items-center gap-1.5 overflow-x-auto no-scrollbar py-2 shrink-0 px-4">
+        <button className="whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-brand-lime text-black border border-lime-300 shadow-xs">
+          All ({displayedInventory.length})
+        </button>
+        <button className="whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+          Low Stock ({displayedInventory.filter(i => i.quantity <= 10).length})
+        </button>
+      </section>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block flex-1 mt-6 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto w-full h-full">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-muted/50 border-b border-border">
-                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">Item Name</th>
-                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">Qty</th>
-                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden md:table-cell">Purchase Date</th>
-                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right">Actions</th>
+              <tr className="bg-slate-50/70 border-b border-slate-200/80 text-[11px] uppercase tracking-wider font-bold text-slate-400">
+                <th className="py-3.5 px-6" scope="col">Item Name & Details</th>
+                <th className="py-3.5 px-6" scope="col">Category / Code</th>
+                <th className="py-3.5 px-6" scope="col">Stock / Qty</th>
+                <th className="py-3.5 px-6" scope="col">Status</th>
+                <th className="py-3.5 px-6" scope="col">Unit Price</th>
+                <th className="py-3.5 px-6" scope="col">Purchase Date</th>
+                <th className="py-3.5 px-6 text-right" scope="col">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
-              {displayedInventory.map((item) => (
-                <tr key={item.id} className="hover:bg-muted/30 transition-colors group">
-                  <td className="px-4 md:px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className={`w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center mr-2 md:mr-3 flex-shrink-0 ${item.quantity <= 0 ? 'bg-red-100 text-red-600' : item.quantity <= 10 ? 'bg-orange-100 text-orange-600' : 'bg-primary/20 text-primary-foreground'}`}>
-                        <Package className={`w-3 h-3 md:w-4 md:h-4 ${item.quantity <= 0 ? 'text-red-600' : item.quantity <= 10 ? 'text-orange-600' : 'text-primary'}`} />
-                      </div>
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-1 md:gap-2">
-                          <span className="font-bold text-xs md:text-sm truncate max-w-[100px] md:max-w-[200px]">
-                            {item.itemNumber && <span className="text-muted-foreground mr-1">#{item.itemNumber}</span>}
-                            {item.name}
-                          </span>
-                          {item.quantity <= 0 && (
-                            <span className="bg-red-100 text-red-600 px-1 md:px-2 py-0.5 rounded text-[8px] md:text-[10px] font-bold hidden sm:inline-block">Out</span>
-                          )}
-                          {item.quantity > 0 && item.quantity <= 10 && (
-                            <span className="bg-orange-100 text-orange-600 px-1 md:px-2 py-0.5 rounded text-[8px] md:text-[10px] font-bold hidden sm:inline-block">Low</span>
-                          )}
+            <tbody className="divide-y divide-slate-100 text-sm">
+              {displayedInventory.map((item) => {
+                const isLow = item.quantity > 0 && item.quantity <= 10;
+                const isOut = item.quantity <= 0;
+                
+                return (
+                  <tr key={item.id} className="hover:bg-slate-50/60 transition-colors group">
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border ${
+                          isOut ? 'bg-red-50 text-red-500 border-red-100' : 
+                          isLow ? 'bg-orange-50 text-orange-500 border-orange-100' : 
+                          'bg-slate-50 text-slate-500 border-slate-100'
+                        }`}>
+                          <Package className="w-5 h-5" strokeWidth={2} />
                         </div>
-                        {item.company && <span className="text-[9px] md:text-[10px] text-muted-foreground">{item.company}</span>}
+                        <div>
+                          <div className="flex items-center gap-2">
+                            {item.itemNumber && <span className="text-xs font-semibold text-slate-400">#{item.itemNumber}</span>}
+                            <span className="font-bold text-slate-900">{item.name}</span>
+                          </div>
+                          <span className="text-xs text-slate-400">{item.company || (item.type === 'raw' ? 'In-house kitchen raw' : 'Retail Item')}</span>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-4 md:px-6 py-4 whitespace-nowrap">
-                    <span className={`font-medium text-xs md:text-sm ${item.quantity <= 0 ? 'text-red-600' : item.quantity <= 10 ? 'text-orange-600' : ''}`}>
-                      {item.quantity} <span className="text-[10px]">{item.unit}</span>
-                    </span>
-                  </td>
-                  <td className="px-4 md:px-6 py-4 whitespace-nowrap hidden md:table-cell text-xs md:text-sm text-muted-foreground">
-                    {formatDate(item.purchaseDate)}
-                  </td>
-                  <td className="px-4 md:px-6 py-4 whitespace-nowrap text-right space-x-1">
-                    <button 
-                      onClick={() => handleRestockClick(item)}
-                      className="text-green-600 hover:text-green-800 p-1 md:p-2 rounded-full hover:bg-green-50 transition-colors"
-                      title="Add Stock (Restock)"
-                    >
-                      <PlusCircle className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={() => handleEditClick(item)}
-                      className="text-blue-500 hover:text-blue-700 p-1 md:p-2 rounded-full hover:bg-blue-50 transition-colors"
-                      title="Edit Item Details"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(item.id, item.name)}
-                      className="text-red-500 hover:text-red-700 p-1 md:p-2 rounded-full hover:bg-red-50 transition-colors"
-                      title="Delete entry"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {displayedInventory.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground">
-                    No {activeTab === 'raw' ? 'raw materials' : 'retail products'} found.
-                  </td>
-                </tr>
-              )}
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">
+                        {item.type === 'raw' ? 'Raw Material' : (item.retailCategory || 'Retail Product').replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 font-semibold">
+                      <span className={`font-bold text-base ${isOut ? 'text-red-600' : isLow ? 'text-orange-600' : 'text-slate-900'}`}>{item.quantity}</span> 
+                      <span className={`text-xs font-semibold ml-1 ${isOut ? 'text-red-500' : isLow ? 'text-orange-500' : 'text-slate-500'}`}>{item.unit}</span>
+                    </td>
+                    <td className="py-4 px-6">
+                      {isOut ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-red-100/70 text-red-800 border border-red-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                          Out of Stock
+                        </span>
+                      ) : isLow ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-amber-100/70 text-amber-800 border border-amber-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                          Low Stock
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          In Stock
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-4 px-6 font-semibold text-slate-700">₹ {(item.totalCost / (item.quantity || 1)).toFixed(2)}</td>
+                    <td className="py-4 px-6 text-slate-500 text-xs font-medium">{formatDate(item.purchaseDate).date || 'N/A'}</td>
+                    <td className="py-4 px-6 text-right">
+                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => handleRestockClick(item)} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition" title="Quick Add Stock">
+                          <PlusCircle className="w-5 h-5" strokeWidth={2} />
+                        </button>
+                        <button onClick={() => handleEditClick(item)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Edit Item">
+                          <Edit className="w-5 h-5" strokeWidth={2} />
+                        </button>
+                        <button onClick={() => deleteInventoryItem(item.id)} className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition" title="Delete Item">
+                          <Trash2 className="w-5 h-5" strokeWidth={2} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
-      </Card>
+      </div>
 
+      {/* Mobile Card View */}
+      <section className="md:hidden flex-1 overflow-y-auto px-4 pb-8 flex flex-col gap-2.5 pt-2 custom-scroll">
+        {displayedInventory.map((item) => {
+          const isLow = item.quantity > 0 && item.quantity <= 10;
+          const isOut = item.quantity <= 0;
+          
+          return (
+            <article key={item.id} className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col gap-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
+                    isOut ? 'bg-red-50 text-red-500 border-red-100' : 
+                    isLow ? 'bg-orange-50 text-orange-500 border-orange-100' : 
+                    'bg-slate-50 text-slate-500 border-slate-100'
+                  }`}>
+                    <Package className="w-5 h-5" strokeWidth={2} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      {item.itemNumber && <span className="text-xs font-extrabold text-gray-400">#{item.itemNumber}</span>}
+                      <h3 className="font-bold text-sm text-gray-900 leading-snug truncate">{item.name}</h3>
+                    </div>
+                    <p className="text-[11px] text-gray-400 font-medium mt-0.5">Purchased: {formatDate(item.purchaseDate).date || 'N/A'}</p>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end shrink-0">
+                  <div className="flex items-center gap-1.5">
+                    {isOut && <span className="bg-red-50 text-red-600 text-[10px] font-extrabold px-1.5 py-0.5 rounded uppercase border border-red-100">Out</span>}
+                    {isLow && <span className="bg-orange-50 text-orange-600 text-[10px] font-extrabold px-1.5 py-0.5 rounded uppercase border border-orange-100">Low</span>}
+                    <span className={`text-sm font-black ${isOut ? 'text-red-600' : isLow ? 'text-orange-600' : 'text-slate-900'}`}>{item.quantity} <span className="text-[11px] font-semibold opacity-80">{item.unit}</span></span>
+                  </div>
+                  <span className="text-[10px] text-gray-400 mt-0.5">Min 10</span>
+                </div>
+              </div>
+              <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span className={`text-[11px] font-medium ${isOut || isLow ? 'text-rose-500' : 'text-gray-500'}`}>
+                  {isOut ? 'Reorder immediately' : isLow ? 'Reorder needed' : 'Stock level OK'}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => handleRestockClick(item)}
+                    aria-label="Restock" 
+                    className="h-8 px-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 active:scale-95 text-emerald-700 flex items-center gap-1 transition border border-emerald-200/70 font-bold text-xs"
+                  >
+                    <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
+                    <span>Restock</span>
+                  </button>
+                  <button onClick={() => handleEditClick(item)} aria-label="Edit item" className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 text-blue-600 flex items-center justify-center transition border border-slate-200/60">
+                    <Edit className="w-3.5 h-3.5" strokeWidth={2} />
+                  </button>
+                  <button onClick={() => deleteInventoryItem(item.id)} aria-label="Delete item" className="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 flex items-center justify-center transition border border-rose-100">
+                    <Trash2 className="w-3.5 h-3.5" strokeWidth={2} />
+                  </button>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </section>
+
+      {/* Add Stock Modal - Replace standard Card modal with simple modal or side sheet */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-background rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-            <div className="p-6 border-b border-border flex justify-between items-center bg-card">
-              <h2 className="text-xl font-bold">{editingItemId ? 'Edit' : 'Add'} {formData.type === 'raw' ? 'Raw Material' : 'Retail Product'}</h2>
-              <button onClick={() => setIsAddModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
-                <X className="w-5 h-5" />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center z-[100] md:p-4">
+          <div className="bg-white w-full md:max-w-2xl md:rounded-3xl rounded-t-3xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col animate-in slide-in-from-bottom-10 md:zoom-in-95 duration-200">
+            <div className="p-4 md:p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900">{editingItemId ? 'Edit Inventory Item' : 'Add New Item'}</h3>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">{editingItemId ? 'Update stock details' : 'Register raw material or retail product'}</p>
+              </div>
+              <button 
+                onClick={() => setIsAddModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition"
+              >
+                <X className="w-4 h-4" strokeWidth={2.5} />
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-6 space-y-4 bg-background max-h-[80vh] overflow-y-auto">
-              
-              {formData.type === 'retail' && (
-                <div>
-                  <label className="block text-sm font-medium mb-1">Retail Category</label>
-                  <select 
-                    value={formData.retailCategory}
-                    onChange={(e) => setFormData({...formData, retailCategory: e.target.value as any})}
-                    className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  >
-                    <option value="cigarettes">Cigarettes</option>
-                    <option value="biscuits">Biscuits</option>
-                    <option value="soft_drinks">Soft Drinks</option>
-                    <option value="lighters">Lighters</option>
-                    <option value="toffees">Toffees</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Item Number (Optional)</label>
-                <input 
-                  type="text" 
-                  value={formData.itemNumber}
-                  onChange={(e) => setFormData({...formData, itemNumber: e.target.value})}
-                  className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  placeholder="e.g. 101, A5"
-                />
-              </div>
-
-              {formData.type === 'retail' && formData.retailCategory !== 'other' && formData.retailCategory !== 'cigarettes' && (
-                <div>
-                  <label className="block text-sm font-medium mb-1">Company / Brand</label>
-                  <input 
-                    type="text" 
-                    value={formData.company}
-                    onChange={(e) => setFormData({...formData, company: e.target.value})}
-                    className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    placeholder="e.g. Britannia, Coca Cola"
-                  />
-                </div>
-              )}
-
-              {formData.type === 'retail' && formData.retailCategory === 'cigarettes' && (
-                <div>
-                  <label className="block text-sm font-medium mb-1">Brand Name</label>
-                  <input 
-                    type="text" 
-                    required
-                    value={formData.company}
-                    onChange={(e) => setFormData({...formData, company: e.target.value, name: `${e.target.value} (Stick)`})}
-                    className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    placeholder="e.g. Marlboro Lights"
-                  />
-                </div>
-              )}
-
-              {!(formData.type === 'retail' && formData.retailCategory === 'cigarettes') && (
-                <div>
-                  <label className="block text-sm font-medium mb-1">Item Name</label>
-                  <input 
-                    type="text" 
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    placeholder={formData.type === 'raw' ? "e.g. Coffee Beans (Arabica)" : "e.g. Oreo 100g"}
-                  />
-                </div>
-              )}
-              
-              {formData.type === 'retail' && formData.retailCategory === 'cigarettes' ? (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Number of Boxes</label>
+            <div className="p-4 md:p-6">
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[13px] font-bold text-slate-700">Item Name *</label>
                     <input 
-                      type="number"
-                      required
-                      value={formData.boxes}
-                      onChange={(e) => setFormData({...formData, boxes: e.target.value})}
-                      className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                      placeholder="e.g. 5"
+                      type="text" required value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-lime focus:border-brand-lime"
+                      placeholder="e.g. Milk, Parle-G"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Sticks per Box</label>
+                  <div className="space-y-1.5">
+                    <label className="text-[13px] font-bold text-slate-700">Item Code / Number</label>
                     <input 
-                      type="number"
-                      required
-                      value={formData.sticksPerBox}
-                      onChange={(e) => setFormData({...formData, sticksPerBox: e.target.value})}
-                      className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                      placeholder="e.g. 20"
+                      type="text" value={formData.itemNumber}
+                      onChange={(e) => setFormData({...formData, itemNumber: e.target.value})}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-lime focus:border-brand-lime"
+                      placeholder="e.g. MK-01"
                     />
                   </div>
                 </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Quantity</label>
-                    <input 
-                      type="number"
-                      step="0.01" 
-                      required
-                      value={formData.quantity}
-                      onChange={(e) => setFormData({...formData, quantity: e.target.value})}
-                      className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                      placeholder="e.g. 10"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Unit</label>
-                    <input 
-                      type="text" 
-                      required
-                      value={formData.unit}
-                      onChange={(e) => setFormData({...formData, unit: e.target.value})}
-                      className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                      placeholder="e.g. kg, pcs"
-                    />
+
+                <div className="space-y-1.5">
+                  <label className="text-[13px] font-bold text-slate-700">Type *</label>
+                  <div className="flex bg-slate-100 p-1 rounded-xl">
+                    <button 
+                      type="button" 
+                      onClick={() => setFormData({...formData, type: 'raw'})}
+                      className={`flex-1 py-2 text-sm font-bold rounded-lg transition ${formData.type === 'raw' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'}`}
+                    >
+                      Raw Material
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => setFormData({...formData, type: 'retail'})}
+                      className={`flex-1 py-2 text-sm font-bold rounded-lg transition ${formData.type === 'retail' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'}`}
+                    >
+                      Retail Product
+                    </button>
                   </div>
                 </div>
-              )}
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Total Cost Paid (₹)</label>
-                <input 
-                  type="number" 
-                  step="0.01"
-                  required
-                  value={formData.totalCost}
-                  onChange={(e) => setFormData({...formData, totalCost: e.target.value})}
-                  className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  placeholder="Total amount paid"
-                />
-              </div>
+                {formData.type === 'retail' && (
+                  <div className="space-y-1.5">
+                    <label className="text-[13px] font-bold text-slate-700">Category *</label>
+                    <select 
+                      value={formData.retailCategory}
+                      onChange={(e) => setFormData({...formData, retailCategory: e.target.value as any})}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-lime focus:border-brand-lime"
+                    >
+                      <option value="cigarettes">Cigarettes</option>
+                      <option value="biscuits">Biscuits & Cookies</option>
+                      <option value="soft_drinks">Cold Drinks / Beverages</option>
+                      <option value="lighters">Lighters / Matches</option>
+                      <option value="toffees">Toffees & Candies</option>
+                      <option value="other">Other Retail</option>
+                    </select>
+                  </div>
+                )}
 
-              {formData.type === 'retail' && (
-                <div className="p-4 border border-primary/20 bg-primary/5 rounded-xl space-y-3 mt-2">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-semibold text-sm">Publish to Menu</h4>
-                      <p className="text-xs text-muted-foreground mt-0.5">Auto-create a linked menu item for this stock.</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                {formData.type === 'retail' && formData.retailCategory === 'cigarettes' ? (
+                  <div className="grid grid-cols-2 gap-4 bg-orange-50/50 p-4 rounded-xl border border-orange-100">
+                    <div className="space-y-1.5">
+                      <label className="text-[13px] font-bold text-slate-700">Total Boxes</label>
                       <input 
-                        type="checkbox" 
-                        className="sr-only peer" 
-                        checked={formData.publishToMenu}
-                        onChange={(e) => setFormData({...formData, publishToMenu: e.target.checked})}
+                        type="number" required value={formData.boxes}
+                        onChange={(e) => setFormData({...formData, boxes: e.target.value})}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-lime focus:border-brand-lime"
+                        placeholder="e.g. 5"
                       />
-                      <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-                    </label>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[13px] font-bold text-slate-700">Sticks per Box</label>
+                      <input 
+                        type="number" required value={formData.sticksPerBox}
+                        onChange={(e) => setFormData({...formData, sticksPerBox: e.target.value})}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-lime focus:border-brand-lime"
+                        placeholder="e.g. 20"
+                      />
+                    </div>
                   </div>
-                  
-                  {formData.publishToMenu && (
-                    <div className="pt-2 border-t border-primary/10">
-                      <label className="block text-sm font-medium mb-1">
-                        Selling Price {formData.retailCategory === 'cigarettes' ? '(per stick)' : '(per unit)'} (₹)
+                ) : (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[13px] font-bold text-slate-700">Quantity *</label>
+                      <input 
+                        type="number" step="0.01" required value={formData.quantity}
+                        onChange={(e) => setFormData({...formData, quantity: e.target.value})}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-lime focus:border-brand-lime"
+                        placeholder="e.g. 10"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[13px] font-bold text-slate-700">Unit *</label>
+                      <input 
+                        type="text" required value={formData.unit}
+                        onChange={(e) => setFormData({...formData, unit: e.target.value})}
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-lime focus:border-brand-lime"
+                        placeholder="e.g. kg, pcs"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-1.5">
+                  <label className="text-[13px] font-bold text-slate-700">Total Purchase Cost (₹) *</label>
+                  <input 
+                    type="number" step="0.01" required value={formData.totalCost}
+                    onChange={(e) => setFormData({...formData, totalCost: e.target.value})}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-lime focus:border-brand-lime"
+                    placeholder="Total amount paid to supplier"
+                  />
+                </div>
+
+                {formData.type === 'retail' && (
+                  <div className="p-4 border border-blue-100 bg-blue-50/50 rounded-xl space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-bold text-sm text-slate-900">Publish to Point-of-Sale Menu</h4>
+                        <p className="text-xs text-slate-500 font-medium mt-0.5">Allow ordering from table and billing.</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input 
+                          type="checkbox" className="sr-only peer"
+                          checked={formData.publishToMenu}
+                          onChange={(e) => setFormData({...formData, publishToMenu: e.target.checked})}
+                        />
+                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-lime"></div>
                       </label>
-                      <input 
-                        type="number" 
-                        required
-                        step="0.01"
-                        value={formData.sellingPrice}
-                        onChange={(e) => setFormData({...formData, sellingPrice: e.target.value})}
-                        className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                        placeholder="e.g. 15"
-                      />
                     </div>
-                  )}
+                    {formData.publishToMenu && (
+                      <div className="pt-2">
+                        <label className="text-[13px] font-bold text-slate-700">Customer Selling Price (₹) *</label>
+                        <input 
+                          type="number" required value={formData.sellingPrice}
+                          onChange={(e) => setFormData({...formData, sellingPrice: e.target.value})}
+                          className="w-full mt-1.5 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-lime focus:border-brand-lime"
+                          placeholder="Selling price to customers"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                <div className="pt-4 flex gap-3">
+                  <button 
+                    type="button" onClick={() => setIsAddModalOpen(false)}
+                    className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" disabled={isSubmitting}
+                    className="flex-1 py-3 bg-brand-lime hover:bg-[#b5de10] text-slate-950 font-bold rounded-xl transition shadow-sm disabled:opacity-50 flex justify-center items-center gap-2"
+                  >
+                    {isSubmitting ? (
+                      <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <>
+                        <Plus className="w-5 h-5" strokeWidth={2.5} />
+                        Save Item
+                      </>
+                    )}
+                  </button>
                 </div>
-              )}
-              
-              <div className="pt-4 flex justify-end space-x-3 sticky bottom-0 bg-background pb-2">
-                <Button type="button" variant="outline" onClick={() => setIsAddModalOpen(false)}>Cancel</Button>
-                <Button type="submit" variant="primary">Save Stock</Button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       )}
+
+      {/* Restock Modal */}
       {isRestockModalOpen && restockItem && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-background rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
-            <div className="p-6 border-b border-border flex justify-between items-center bg-card">
-              <h2 className="text-xl font-bold">Restock {restockItem.name}</h2>
-              <button onClick={() => setIsRestockModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
-                <X className="w-5 h-5" />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center z-[100] md:p-4">
+          <div className="bg-white w-full md:max-w-md md:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col animate-in slide-in-from-bottom-10 md:zoom-in-95 duration-200">
+            <div className="p-4 md:p-6 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900">Restock Item</h3>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">{restockItem.name}</p>
+              </div>
+              <button 
+                onClick={() => setIsRestockModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition"
+              >
+                <X className="w-4 h-4" strokeWidth={2.5} />
               </button>
             </div>
             
-            <form onSubmit={handleRestockSubmit} className="p-6 space-y-4 bg-background">
-              <div>
-                <label className="block text-sm font-medium mb-1.5">Quantity to Add ({restockItem.unit}) <span className="text-red-500">*</span></label>
-                <input 
-                  type="number" 
-                  required 
-                  min="0"
-                  step="any"
-                  value={restockQty}
-                  onChange={(e) => setRestockQty(e.target.value)}
-                  className="w-full bg-card border border-border rounded-xl px-4 py-2"
-                  placeholder="e.g. 10"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1.5">Cost of New Stock (₹)</label>
-                <input 
-                  type="number" 
-                  min="0"
-                  step="0.01"
-                  value={restockCost}
-                  onChange={(e) => setRestockCost(e.target.value)}
-                  className="w-full bg-card border border-border rounded-xl px-4 py-2"
-                  placeholder="e.g. 500"
-                />
-              </div>
-              <div className="pt-4 flex justify-end space-x-3">
-                <Button type="button" variant="outline" onClick={() => setIsRestockModalOpen(false)}>Cancel</Button>
-                <Button type="submit" variant="primary">Add Stock</Button>
-              </div>
-            </form>
+            <div className="p-4 md:p-6">
+              <form onSubmit={handleRestockSubmit} className="space-y-4">
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold text-slate-500">Current Stock</span>
+                  <span className="text-lg font-black text-slate-900">{restockItem.quantity} <span className="text-xs font-semibold text-slate-500">{restockItem.unit}</span></span>
+                </div>
+                
+                <div className="space-y-1.5">
+                  <label className="text-[13px] font-bold text-slate-700">Add Quantity *</label>
+                  <input 
+                    type="number" step="0.01" required value={restockQty}
+                    onChange={(e) => setRestockQty(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-lime focus:border-brand-lime"
+                    placeholder={`e.g. 50 ${restockItem.unit}`}
+                  />
+                </div>
+                
+                <div className="space-y-1.5">
+                  <label className="text-[13px] font-bold text-slate-700">Cost Paid (₹) *</label>
+                  <input 
+                    type="number" step="0.01" required value={restockCost}
+                    onChange={(e) => setRestockCost(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-lime focus:border-brand-lime"
+                    placeholder="Total amount paid for this stock"
+                  />
+                </div>
+                
+                <div className="pt-4 flex gap-3">
+                  <button 
+                    type="button" onClick={() => setIsRestockModalOpen(false)}
+                    className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" disabled={isSubmitting}
+                    className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl transition shadow-sm disabled:opacity-50 flex justify-center items-center gap-2"
+                  >
+                    {isSubmitting ? (
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <>
+                        <Plus className="w-5 h-5" strokeWidth={2.5} />
+                        Restock
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
