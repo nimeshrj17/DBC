@@ -6,7 +6,7 @@ import { Users, LayoutGrid, Trash2, List, X, Plus, Minus, QrCode, Banknote } fro
 import { useTables, Table } from '@/lib/hooks/useTables';
 import { MenuPickerModal } from '@/components/dashboard/MenuPickerModal';
 import { toast } from 'sonner';
-import { MenuItem } from '@/lib/hooks/useMenu';
+import { useMenu, MenuItem } from '@/lib/hooks/useMenu';
 import { useOrders, OrderItem, Order } from '@/lib/hooks/useOrders';
 import { useInventory } from '@/lib/hooks/useInventory';
 import { useSettings } from '@/lib/hooks/useSettings';
@@ -211,6 +211,7 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
   );
 };
 export default function DashboardPage() {
+  const { menuItems } = useMenu();
   const { tables, loading, updateTableStatus, addTable, updateTableDetails, deleteTable, transferTable } = useTables();
   const { orders, loading: ordersLoading, updateOrder, updateOrderStatus, createOrder, removeSentItemTransaction } = useOrders();
   const { settings, loading: settingsLoading } = useSettings();
@@ -220,6 +221,7 @@ export default function DashboardPage() {
   const [editingTableId, setEditingTableId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
+  const [ticketNote, setTicketNote] = useState('');
   const [isClearing, setIsClearing] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
@@ -409,7 +411,8 @@ export default function DashboardPage() {
           total: sub + t,
           status: 'preparing',
           paymentMethod: null,
-          paymentStatus: 'unpaid'
+          paymentStatus: 'unpaid',
+          kitchenNotes: ticketNote || undefined
         });
         newOrderIds.push(orderId);
       }
@@ -428,7 +431,8 @@ export default function DashboardPage() {
           total: sub + t,
           status: 'served',
           paymentMethod: null,
-          paymentStatus: 'unpaid'
+          paymentStatus: 'unpaid',
+          kitchenNotes: ticketNote || undefined
         });
         newOrderIds.push(orderId);
       }
@@ -979,6 +983,14 @@ export default function DashboardPage() {
                   </button>
                 </div>
                 <p className="text-xs font-medium text-slate-500 mt-0.5">{selectedTable.seats} Seats • Zone {selectedTable.section || 'Main Hall'}</p>
+                {selectedTable.status !== 'empty' && selectedTable.customerName && (
+                  <div className="mt-3.5 flex items-center gap-2">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200/60 text-amber-900 text-xs font-medium">
+                      <svg className="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                      <span>Customer: <strong className="font-bold">{selectedTable.customerName}</strong></span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -1062,116 +1074,182 @@ export default function DashboardPage() {
                 </div>
               </div>
             ) : (
-              <div className="space-y-6">
-                <div className="space-y-3">
-                  <h3 className="font-semibold mb-4">Current Order</h3>
-                  
-                  {displayItems.map((item) => (
-                    <div key={item.menuItemId} className={`flex items-center justify-between p-3 bg-card border rounded-xl ${item.isDraft ? 'border-primary/50 bg-primary/5' : 'border-border'}`}>
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <p className="font-medium text-sm">{item.name}</p>
-                          {item.isDraft && <span className="text-[10px] bg-primary/20 text-primary-foreground font-bold px-1.5 rounded text-green-700">NEW</span>}
-                        </div>
-                        <p className="text-xs text-muted-foreground">₹ {item.price}</p>
-                      </div>
-                      
-                      {item.isDraft ? (
-                        <div className="flex items-center space-x-3 bg-background rounded-lg p-1 border border-border shadow-sm">
-                          <button onClick={() => updateDraftItemQty(item.menuItemId, -1)} className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:bg-muted rounded"><Minus className="w-3 h-3" /></button>
-                          <span className="font-medium text-sm w-4 text-center">{item.qty}</span>
-                          <button onClick={() => updateDraftItemQty(item.menuItemId, 1)} className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:bg-muted rounded"><Plus className="w-3 h-3" /></button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center space-x-3 bg-background rounded-lg p-1 border border-border shadow-sm opacity-80">
-                          <button disabled={isRemoving} onClick={() => handleRemoveSentItem(item.menuItemId)} className="w-6 h-6 flex items-center justify-center text-red-500 hover:bg-red-50 rounded disabled:opacity-50"><Minus className="w-3 h-3" /></button>
-                          <span className="font-medium text-sm w-4 text-center">{item.qty}</span>
-                          <div className="w-6 h-6"></div> {/* Empty space to keep alignment */}
-                        </div>
-                      )}
-                      
-                      <div className="font-bold text-sm w-12 text-right">₹ {item.price * item.qty}</div>
-                    </div>
-                  ))}
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                {/* Current Order Header */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-bold text-slate-900 tracking-wide uppercase">Current Order</h4>
+                    <span className="text-xs text-slate-400">Order ID: #{selectedTable.activeOrderIds?.[0]?.slice(-6) || 'New'}</span>
+                  </div>
 
-                  {displayItems.length === 0 && (
-                    <div className="text-center py-6 text-sm text-muted-foreground border border-dashed border-border rounded-xl">
-                      No items added yet.
+                  {displayItems.length === 0 ? (
+                    <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center bg-slate-50/50 flex flex-col items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-white shadow-xs border border-slate-200 flex items-center justify-center text-slate-400 mb-3">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" strokeLinecap="round" strokeLinejoin="round"></path>
+                        </svg>
+                      </div>
+                      <p className="text-sm font-medium text-slate-500">No items added yet.</p>
+                      <p className="text-xs text-slate-400 mt-1 max-w-[220px]">Select chai, snacks, or bakery specials to begin this order.</p>
                     </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {displayItems.map((item) => (
+                        <div key={item.menuItemId} className={`flex items-center justify-between p-3 bg-white border rounded-xl shadow-xs transition-colors ${item.isDraft ? 'border-blue-200 bg-blue-50/30' : 'border-slate-200'}`}>
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2">
+                              <p className="font-semibold text-sm text-slate-800">{item.name}</p>
+                              {item.isDraft && <span className="text-[9px] bg-blue-100 text-blue-700 font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider">NEW</span>}
+                            </div>
+                            <p className="text-xs text-slate-500 mt-0.5">₹ {item.price}</p>
+                          </div>
+                          
+                          <div className="flex items-center gap-4">
+                            {item.isDraft ? (
+                              <div className="flex items-center space-x-2 bg-slate-50 rounded-lg p-1 border border-slate-200">
+                                <button onClick={() => updateDraftItemQty(item.menuItemId, -1)} className="w-6 h-6 flex items-center justify-center text-slate-600 hover:bg-slate-200 rounded-md transition-colors"><Minus className="w-3 h-3" strokeWidth={3} /></button>
+                                <span className="font-bold text-sm w-4 text-center text-slate-800">{item.qty}</span>
+                                <button onClick={() => updateDraftItemQty(item.menuItemId, 1)} className="w-6 h-6 flex items-center justify-center text-slate-600 hover:bg-slate-200 rounded-md transition-colors"><Plus className="w-3 h-3" strokeWidth={3} /></button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center space-x-2 bg-slate-50/50 rounded-lg p-1 border border-slate-200/60 opacity-90">
+                                <button disabled={isRemoving} onClick={() => handleRemoveSentItem(item.menuItemId)} className="w-6 h-6 flex items-center justify-center text-rose-500 hover:bg-rose-100 rounded-md transition-colors disabled:opacity-50"><Minus className="w-3 h-3" strokeWidth={3} /></button>
+                                <span className="font-bold text-sm w-4 text-center text-slate-700">{item.qty}</span>
+                                <div className="w-6 h-6"></div>
+                              </div>
+                            )}
+                            
+                            <div className="font-bold text-sm w-12 text-right text-slate-900">₹ {item.price * item.qty}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {selectedTable.status !== 'awaiting_payment' && (
+                    <button onClick={() => setIsMenuOpen(true)} className="w-full mt-4 py-3.5 px-4 rounded-xl border border-blue-200 bg-blue-50/60 hover:bg-blue-100/70 text-blue-600 font-semibold text-sm transition-all duration-150 flex items-center justify-center gap-2 group shadow-xs">
+                      <svg className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"></path>
+                      </svg>
+                      Add items from menu
+                    </button>
                   )}
                 </div>
 
+                {/* Quick Suggestions block */}
                 {selectedTable.status !== 'awaiting_payment' && (
-                  <Button variant="outline" fullWidth className="border-dashed py-6 flex flex-col items-center gap-2" onClick={() => setIsMenuOpen(true)}>
-                    <Plus className="w-5 h-5 text-secondary" />
-                    <span className="text-secondary font-medium">Add items from menu</span>
-                  </Button>
+                  <div className="border-t border-slate-100 pt-5">
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Quick Suggestions</p>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      {menuItems.filter((i: MenuItem) => i.available !== false).slice(0, 4).map((suggested: MenuItem) => (
+                        <button key={suggested.id} onClick={() => handleAddItem(suggested)} className="p-2.5 rounded-xl border border-slate-200/80 bg-white hover:border-blue-300 hover:bg-blue-50/30 text-left transition flex items-center justify-between group shadow-sm">
+                          <div>
+                            <p className="text-xs font-semibold text-slate-800 line-clamp-1">{suggested.name}</p>
+                            <p className="text-[11px] text-slate-500 font-medium">₹ {suggested.price}</p>
+                          </div>
+                          <span className="text-sm text-blue-600 font-black group-hover:scale-125 transition-transform">+</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Notes / Instructions Pill */}
+                {currentDraftItems.length > 0 && (
+                  <div className="bg-slate-50 border border-slate-200/70 rounded-xl p-3 flex items-center justify-between text-xs mt-2">
+                    <div className="flex flex-col gap-1 w-full">
+                      <div className="flex justify-between items-center w-full">
+                        <span className="text-slate-500 font-medium flex items-center gap-1.5">
+                          <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                          </svg>
+                          Kitchen Notes
+                        </span>
+                        <button onClick={() => {
+                          const note = window.prompt("Add a note for the kitchen (e.g. Less spicy):", ticketNote);
+                          if (note !== null) setTicketNote(note);
+                        }} className="text-blue-600 font-semibold hover:underline">
+                          {ticketNote ? 'Edit Note' : 'Add Note'}
+                        </button>
+                      </div>
+                      {ticketNote && (
+                        <p className="text-slate-700 italic font-medium mt-1 ml-5">"{ticketNote}"</p>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
             )}
           </div>
           
           {selectedTable.status !== 'empty' && (
-            <div className="p-4 md:p-6 border-t border-border bg-card shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
-              <div className="flex justify-between items-center mb-1 md:mb-2 text-sm text-muted-foreground">
-                <span>Subtotal</span>
-                <span>₹ {totalSubtotal.toFixed(2)}</span>
-              </div>
-                <div className="flex justify-between text-sm text-muted-foreground mb-2 md:mb-3 font-medium">
-                  <span>Tax {settings.taxEnabled ? `(${settings.taxPercentage}%)` : '(Disabled)'}</span>
-                  <span>₹ {totalTax.toFixed(2)}</span>
+            <div className="p-6 border-t border-slate-100 bg-white flex-shrink-0 space-y-4">
+              {/* Subtotal & Tax Breakdown */}
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between text-slate-500 font-medium">
+                  <span>Subtotal</span>
+                  <span className="text-slate-800 font-semibold">₹ {totalSubtotal.toFixed(2)}</span>
                 </div>
-              <div className="flex justify-between items-center mb-4 md:mb-6">
-                <span className="font-bold">Total Tab</span>
-                <span className="font-bold text-lg md:text-xl">₹ {grandTotal.toFixed(2)}</span>
+                <div className="flex justify-between text-slate-500 font-medium">
+                  <span className="flex items-center gap-1.5">
+                    Tax {settings.taxEnabled ? `(${settings.taxPercentage}%)` : '(Disabled)'}
+                  </span>
+                  <span className="text-slate-800 font-semibold">₹ {totalTax.toFixed(2)}</span>
+                </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-3 mb-3">
+              <div className="border-t border-slate-100 pt-3">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-base font-bold text-slate-900">Total Tab</span>
+                  <span className="text-2xl font-black text-slate-900 tracking-tight">₹ {grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
+
+              {/* Action Buttons Row */}
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button onClick={() => setIsTransferModalOpen(true)} className="py-3 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs tracking-wide transition flex items-center justify-center gap-2 shadow-xs">
+                  <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                  Transfer Table
+                </button>
+                <button onClick={() => handleClearTable()} className="py-3 px-4 rounded-xl border border-rose-200 bg-white hover:bg-rose-50 text-rose-600 font-semibold text-xs tracking-wide transition flex items-center justify-center gap-1.5 shadow-xs">
+                  <svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  Clear Table
+                </button>
+              </div>
+
+              {/* Settle Tab / KOT Order Flow CTA */}
+              <div className="pt-1">
                 {currentDraftItems.length > 0 && (
-                  <Button 
-                    variant="primary" 
-                    className="col-span-2 shadow-[0_0_15px_rgba(204,255,0,0.3)]"
+                  <button 
                     onClick={handleSendToKitchen}
                     disabled={isSubmitting}
+                    className="w-full py-3.5 px-4 rounded-xl bg-slate-900 hover:bg-black text-white font-bold text-xs tracking-wider uppercase transition shadow-md flex items-center justify-center gap-2 disabled:opacity-70"
                   >
-                    {isSubmitting ? 'Sending...' : 'Send New Ticket to Kitchen'}
-                  </Button>
+                    <svg className="w-4 h-4 text-[#D9F927]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    {isSubmitting ? 'Sending...' : 'Send Ticket to Kitchen'}
+                  </button>
                 )}
 
                 {currentDraftItems.length === 0 && selectedTable.status === 'preparing' && (
-                  <Button variant="primary" className="col-span-2" onClick={handleMarkServed}>
+                  <button onClick={handleMarkServed} className="w-full py-3.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs tracking-wider uppercase transition shadow-md flex items-center justify-center gap-2">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path></svg>
                     Mark All as Served
-                  </Button>
+                  </button>
                 )}
 
                 {currentDraftItems.length === 0 && selectedTable.status === 'served' && (
-                  <Button variant="primary" className="col-span-2" onClick={handleMarkAwaitingPayment}>
+                  <button onClick={handleMarkAwaitingPayment} className="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs tracking-wider uppercase transition shadow-md flex items-center justify-center gap-2">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                     Print Final Bill
-                  </Button>
+                  </button>
                 )}
 
                 {currentDraftItems.length === 0 && selectedTable.status === 'awaiting_payment' && (
-                  <Button variant="primary" className="col-span-2 text-base h-12 flex items-center justify-center font-bold" onClick={() => setIsPaymentModalOpen(true)}>
-                    <Banknote className="w-5 h-5 mr-2" /> Pay Bill
-                  </Button>
+                  <button onClick={() => setIsPaymentModalOpen(true)} className="w-full py-3.5 px-4 rounded-xl bg-slate-900 hover:bg-black text-white font-bold text-xs tracking-wider uppercase transition shadow-md flex items-center justify-center gap-2">
+                    <Banknote className="w-4 h-4 text-[#D9F927]" />
+                    Settle Bill / Payment
+                  </button>
                 )}
-              </div>
-              
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  className="flex-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
-                  onClick={() => setIsTransferModalOpen(true)}
-                >
-                  Transfer Table
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-                  onClick={() => handleClearTable()}
-                >
-                  Clear Table
-                </Button>
               </div>
             </div>
           )}

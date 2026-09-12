@@ -29,6 +29,7 @@ export interface Order {
   createdAt: any;
   updatedAt: any;
   customerId?: string; // To track who made the order
+  kitchenNotes?: string;
 }
 export const createOrderTransaction = async (orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt' | 'displayId'> & { displayIdPrefix?: string, idempotencyKey?: string }) => {
   try {
