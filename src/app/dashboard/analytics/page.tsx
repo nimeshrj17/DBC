@@ -44,209 +44,281 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10 h-full flex flex-col">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold mb-1">Revenue & Analytics</h1>
-          <p className="text-sm text-muted-foreground">Track completed bills, inventory expenses, and net profit.</p>
-        </div>
-      </div>
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="rounded-2xl border-border shadow-sm">
-          <CardContent className="p-6 flex flex-col h-full justify-between">
-            <div className="flex justify-between items-start mb-4">
-              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-green-700">
-                <BarChart3 className="w-6 h-6" />
-              </div>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground mb-1">Gross Revenue</p>
-              <h2 className="text-2xl font-bold text-foreground">₹ {totalRevenue.toFixed(2)}</h2>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-2xl border-border shadow-sm">
-          <CardContent className="p-6 flex flex-col h-full justify-between">
-            <div className="flex justify-between items-start mb-4">
-              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-                <Package className="w-6 h-6" />
-              </div>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground mb-1">Total Expenses (Inventory)</p>
-              <h2 className="text-2xl font-bold text-red-600">₹ {totalExpenses.toFixed(2)}</h2>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-2xl border-primary/20 bg-primary/5 shadow-[0_0_15px_rgba(204,255,0,0.1)]">
-          <CardContent className="p-6 flex flex-col h-full justify-between">
-            <div className="flex justify-between items-start mb-4">
-              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-                <DollarSign className="w-6 h-6" />
-              </div>
-              <span className={`flex items-center text-xs font-bold px-2 py-1 rounded-full ${netProfit >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                {netProfit >= 0 ? '+' : ''}{profitMargin.toFixed(1)}% Margin
-              </span>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground mb-1">Net Profit</p>
-              <h2 className={`text-2xl font-bold ${netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                ₹ {netProfit.toFixed(2)}
-              </h2>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-2xl border-border shadow-sm">
-          <CardContent className="p-6 flex flex-col h-full justify-between">
-            <div className="flex justify-between items-start mb-4">
-              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                <Receipt className="w-6 h-6" />
-              </div>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground mb-1">Completed Orders</p>
-              <h2 className="text-2xl font-bold">{completedOrders.length}</h2>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Completed Orders Table */}
-      <Card className="rounded-2xl border border-border shadow-sm mt-6 mb-12">
-        <div className="p-6 border-b border-border bg-muted/20">
-          <h3 className="font-bold text-lg">Completed Bills Ledger</h3>
-          <p className="text-sm text-muted-foreground">A detailed list of all paid orders contributing to gross revenue.</p>
-        </div>
-        <div className="w-full overflow-x-auto hide-scrollbar">
-          <table className="w-full text-left border-collapse relative">
-            <thead className="sticky top-0 bg-muted/95 backdrop-blur z-10 shadow-sm">
-              <tr className="border-b border-border">
-                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">Order ID</th>
-                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">Date & Time</th>
-                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden md:table-cell">Method</th>
-                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden md:table-cell">Subtotal</th>
-                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden md:table-cell">Tax</th>
-                <th className="px-4 md:px-6 py-4 text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Paid</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {completedOrders.map((order) => {
-                const { time, date } = formatDate(order.createdAt);
-                
-                return (
-                  <tr 
-                    key={order.id} 
-                    className="hover:bg-muted/30 transition-colors cursor-pointer"
-                    onClick={() => setViewOrder(order)}
-                  >
-                    <td className="px-4 md:px-6 py-4 whitespace-nowrap">
-                      <span className="font-bold text-xs md:text-sm">{order.displayId}</span>
-                    </td>
-                    <td className="px-4 md:px-6 py-4 whitespace-nowrap">
-                      <div className="text-xs md:text-sm font-medium">{time}</div>
-                      <div className="text-[10px] md:text-xs text-muted-foreground">{date}</div>
-                    </td>
-                    <td className="px-4 md:px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] md:text-xs font-semibold bg-green-100 text-green-700 uppercase">
-                        {order.paymentMethod || 'Paid'}
-                      </span>
-                    </td>
-                    <td className="px-4 md:px-6 py-4 whitespace-nowrap text-muted-foreground text-xs md:text-sm hidden md:table-cell">
-                      ₹ {order.subtotal?.toFixed(2) || '0.00'}
-                    </td>
-                    <td className="px-4 md:px-6 py-4 whitespace-nowrap text-muted-foreground text-xs md:text-sm hidden md:table-cell">
-                      ₹ {order.tax?.toFixed(2) || '0.00'}
-                    </td>
-                    <td className="px-4 md:px-6 py-4 whitespace-nowrap">
-                      <span className="font-bold text-sm text-green-700">₹ {order.total.toFixed(2)}</span>
-                    </td>
-                  </tr>
-                );
-              })}
-              {completedOrders.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
-                    No completed bills yet.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-
-      {/* Order Details Modal */}
-      {viewOrder && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={() => setViewOrder(null)}>
-          <div className="bg-background rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden border border-border" onClick={e => e.stopPropagation()}>
-            <div className="p-6 border-b border-border flex justify-between items-center bg-muted/30">
-              <div>
-                <h2 className="text-xl font-bold">Order Details</h2>
-                <p className="text-sm text-muted-foreground mt-1">{viewOrder.displayId} • Table {viewOrder.tableNumber}</p>
-                {(viewOrder.customerName || viewOrder.customerPhone) && (
-                  <p className="text-sm font-medium text-orange-600 mt-1">
-                    {viewOrder.customerName} {viewOrder.customerPhone ? `(${viewOrder.customerPhone})` : ''}
-                  </p>
-                )}
-              </div>
-              <button onClick={() => setViewOrder(null)} className="p-2 hover:bg-muted rounded-full transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <div className="text-sm text-muted-foreground">Status</div>
-                  <div className="mt-1">
-                    <span className="flex items-center w-fit px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                      <CheckCircle2 className="w-3 h-3 mr-1" />Completed
-                    </span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm text-muted-foreground">Order Time</div>
-                  <div className="mt-1 font-medium">{formatDate(viewOrder.createdAt).time} - {formatDate(viewOrder.createdAt).date}</div>
-                </div>
-              </div>
-              
-              <div className="bg-card border border-border rounded-xl overflow-hidden">
-                <div className="px-4 py-3 bg-muted/30 border-b border-border font-medium text-sm">Order Items</div>
-                <ul className="divide-y divide-border">
-                  {viewOrder.items.map((item, idx) => (
-                    <li key={idx} className="p-4 flex justify-between items-center">
-                      <div className="flex items-center space-x-3">
-                        <span className="w-6 h-6 rounded-md bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">{item.qty}x</span>
-                        <span className="font-medium text-sm">{item.name}</span>
-                      </div>
-                      <span className="text-sm font-medium">₹ {(item.price * item.qty).toFixed(2)}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="p-4 bg-muted/10 border-t border-border">
-                  <div className="flex justify-between text-sm text-muted-foreground mb-2">
-                    <span>Subtotal</span>
-                    <span>₹ {viewOrder.subtotal.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm text-muted-foreground mb-3">
-                    <span>Tax</span>
-                    <span>₹ {viewOrder.tax.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between font-bold text-lg pt-3 border-t border-border">
-                    <span>Total</span>
-                    <span>₹ {viewOrder.total.toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
+    <div className="flex-1 w-full max-w-7xl mx-auto md:p-8 flex flex-col min-w-0 bg-slate-50 md:bg-transparent h-full pb-10 md:space-y-8">
+      
+      {/* --- DESKTOP HEADER & KPI --- */}
+      <div className="hidden md:block space-y-8">
+        <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-black tracking-tight text-slate-900">Revenue & Analytics</h1>
+            <p className="text-sm font-normal text-slate-500 mt-1">Track completed bills, inventory expenses, and cafe net profit.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="inline-flex rounded-lg p-1 bg-slate-200/70 border border-slate-200 text-xs font-semibold text-slate-600">
+              <button className="px-3 py-1.5 rounded-md bg-white text-slate-900 shadow-sm font-bold">Today</button>
+              <button className="px-3 py-1.5 rounded-md hover:text-slate-900 transition-colors">Yesterday</button>
+              <button className="px-3 py-1.5 rounded-md hover:text-slate-900 transition-colors">This Week</button>
+              <button className="px-3 py-1.5 rounded-md hover:text-slate-900 transition-colors">This Month</button>
             </div>
           </div>
-        </div>
-      )}
+        </section>
+
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {/* Gross Revenue */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
+            <div className="flex items-start justify-between">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Gross Revenue</span>
+                <div className="text-2xl font-black text-slate-900 mt-2 tracking-tight">₹ {totalRevenue.toFixed(2)}</div>
+              </div>
+              <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center ring-1 ring-emerald-100 group-hover:scale-105 transition-transform">
+                <BarChart3 className="w-6 h-6" strokeWidth={2} />
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <span className="flex items-center gap-1 font-medium text-emerald-600">
+                <TrendingUp className="w-3.5 h-3.5" strokeWidth={2} /> Today
+              </span>
+              <span className="text-[11px] text-slate-400">Real-time</span>
+            </div>
+          </div>
+
+          {/* Expenses */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
+            <div className="flex items-start justify-between">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Expenses</span>
+                <div className="text-2xl font-black text-rose-600 mt-2 tracking-tight">₹ {totalExpenses.toFixed(2)}</div>
+              </div>
+              <div className="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center ring-1 ring-rose-100 group-hover:scale-105 transition-transform">
+                <Package className="w-6 h-6" strokeWidth={2} />
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <span className="text-slate-600 font-medium truncate">Inventory & Restock</span>
+              <span className="text-[11px] text-rose-600 font-semibold bg-rose-50 px-1.5 py-0.5 rounded">Cost</span>
+            </div>
+          </div>
+
+          {/* Net Profit */}
+          <div className="bg-white rounded-2xl p-5 border-2 border-lime-400/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group bg-gradient-to-b from-white to-lime-50/20">
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-600">Net Profit</span>
+                  <span className="text-[10px] font-extrabold bg-lime-200 text-lime-900 px-2 py-0.5 rounded-full ring-1 ring-lime-400/40">
+                    {netProfit >= 0 ? '+' : ''}{profitMargin.toFixed(1)}% Margin
+                  </span>
+                </div>
+                <div className={`text-2xl font-black mt-2 tracking-tight ${netProfit >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                  ₹ {netProfit.toFixed(2)}
+                </div>
+              </div>
+              <div className="w-11 h-11 rounded-xl bg-lime-300 text-slate-900 font-bold flex items-center justify-center ring-1 ring-lime-400 group-hover:scale-105 transition-transform">
+                <span className="text-lg font-black">₹</span>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <span className={`${netProfit >= 0 ? 'text-emerald-700' : 'text-rose-700'} font-bold flex items-center gap-1`}>
+                <CheckCircle2 className={`w-3.5 h-3.5 ${netProfit >= 0 ? 'text-emerald-600' : 'text-rose-600'}`} />
+                {netProfit >= 0 ? 'Healthy Returns' : 'Loss'}
+              </span>
+              <span className="text-[11px] text-slate-400">Post deductions</span>
+            </div>
+          </div>
+
+          {/* Completed Orders */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
+            <div className="flex items-start justify-between">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Completed Orders</span>
+                <div className="text-2xl font-black text-blue-700 mt-2 tracking-tight">{completedOrders.length}</div>
+              </div>
+              <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center ring-1 ring-blue-100 group-hover:scale-105 transition-transform">
+                <Receipt className="w-6 h-6" strokeWidth={2} />
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <span className="text-slate-600 font-medium">Successfully settled</span>
+              <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">Paid</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Desktop Table */}
+        <section className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col">
+          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <h3 className="text-lg font-black text-slate-900 tracking-tight">Settled Bills Ledger</h3>
+          </div>
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left border-collapse min-w-[800px]">
+              <thead>
+                <tr className="border-b border-slate-200/80 bg-slate-50/75 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <th className="py-3.5 px-6" scope="col">Order ID</th>
+                  <th className="py-3.5 px-6" scope="col">Date & Time</th>
+                  <th className="py-3.5 px-6" scope="col">Table / Source</th>
+                  <th className="py-3.5 px-6" scope="col">Method</th>
+                  <th className="py-3.5 px-6 text-right" scope="col">Total Paid</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-sm">
+                {completedOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-slate-500">No completed orders found.</td>
+                  </tr>
+                ) : (
+                  completedOrders.map((order) => (
+                    <tr key={order.id} className="hover:bg-slate-50/80 transition-colors group">
+                      <td className="py-4 px-6 font-bold text-slate-900">
+                        <span className="group-hover:text-indigo-600 transition-colors">#{order.displayId || order.id.slice(0, 8)}</span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="font-bold text-slate-800 text-xs">{formatDate(order.createdAt).time}</div>
+                        <div className="text-[11px] text-slate-400 font-medium">{formatDate(order.createdAt).date}</div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {(order as any).tableName || `Table ${order.tableNumber}`}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-extrabold tracking-wider ${
+                          order.paymentMethod === 'cash' ? 'bg-amber-50 text-amber-700 border border-amber-200/60' : 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
+                        }`}>
+                          {(order.paymentMethod || 'UPI').toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <span className="font-extrabold text-emerald-600 text-base">₹ {order.total.toFixed(2)}</span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+
+      {/* --- MOBILE VIEW --- */}
+      <div className="md:hidden flex-1 px-4 pt-3 pb-8 flex flex-col gap-4">
+        
+        {/* Mobile Header / Filters */}
+        <section className="flex flex-col gap-2">
+          <h1 className="text-xl font-black text-slate-900 tracking-tight">Analytics</h1>
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+            <button className="px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-brand-lime text-black border border-lime-300 shadow-sm whitespace-nowrap">Today</button>
+            <button className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200 whitespace-nowrap">Yesterday</button>
+            <button className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200 whitespace-nowrap">This Week</button>
+          </div>
+        </section>
+
+        {/* Mobile KPI Grid */}
+        <section>
+          <div className="flex items-center justify-between mb-2.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Revenue & Margin Stats</h3>
+            <span className="text-[11px] font-semibold text-slate-500">{new Date().toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {/* Gross Revenue */}
+            <article className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-sm flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <BarChart3 className="w-4 h-4" strokeWidth={2.5} />
+                </div>
+              </div>
+              <div className="mt-2.5">
+                <span className="text-[11px] font-semibold text-slate-500 block">Gross Revenue</span>
+                <p className="text-base font-extrabold text-slate-900 tracking-tight mt-0.5">₹ {totalRevenue.toFixed(0)}<span className="text-xs font-medium text-slate-400">.{(totalRevenue % 1).toFixed(2).slice(2)}</span></p>
+              </div>
+            </article>
+
+            {/* Net Profit */}
+            <article className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-sm flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 rounded-xl bg-lime-100 text-lime-900 flex items-center justify-center font-bold text-sm">₹</div>
+                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 rounded-md">
+                  {netProfit >= 0 ? '+' : ''}{profitMargin.toFixed(1)}%
+                </span>
+              </div>
+              <div className="mt-2.5">
+                <span className="text-[11px] font-semibold text-slate-500 block">Net Profit</span>
+                <p className="text-base font-extrabold text-emerald-600 tracking-tight mt-0.5">₹ {netProfit.toFixed(0)}<span className="text-xs font-medium text-emerald-500">.{(Math.abs(netProfit) % 1).toFixed(2).slice(2)}</span></p>
+              </div>
+            </article>
+
+            {/* Expenses */}
+            <article className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-sm flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center">
+                  <Package className="w-4 h-4" strokeWidth={2.5} />
+                </div>
+                <span className="text-[10px] font-medium text-slate-400">Inventory</span>
+              </div>
+              <div className="mt-2.5">
+                <span className="text-[11px] font-semibold text-slate-500 block">Expenses</span>
+                <p className="text-base font-extrabold text-rose-600 tracking-tight mt-0.5">₹ {totalExpenses.toFixed(0)}<span className="text-xs font-medium text-rose-400">.{(totalExpenses % 1).toFixed(2).slice(2)}</span></p>
+              </div>
+            </article>
+
+            {/* Settled Orders */}
+            <article className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-sm flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <Receipt className="w-4 h-4" strokeWidth={2.5} />
+                </div>
+                <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded-md">Paid</span>
+              </div>
+              <div className="mt-2.5">
+                <span className="text-[11px] font-semibold text-slate-500 block">Settled Bills</span>
+                <p className="text-base font-extrabold text-slate-900 tracking-tight mt-0.5">{completedOrders.length} <span className="text-xs font-semibold text-slate-400">orders</span></p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        {/* Mobile Ledger List */}
+        <section className="space-y-2.5 mt-2">
+          <div className="flex items-center justify-between pt-1">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 tracking-tight">Completed Bills Ledger</h3>
+              <p className="text-[11px] text-slate-500">Real-time settled revenue list</p>
+            </div>
+          </div>
+          
+          <div className="space-y-2.5">
+            {completedOrders.length === 0 ? (
+              <p className="text-sm text-center text-slate-500 py-4 bg-white rounded-xl border border-slate-100">No completed orders</p>
+            ) : (
+              completedOrders.map(order => (
+                <article key={order.id} className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-sm active:scale-[0.99] transition">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-extrabold text-xs text-slate-900">#{order.displayId || order.id.slice(0,8)}</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                        order.paymentMethod === 'cash' ? 'bg-amber-50 text-amber-700 border-amber-200/50' : 'bg-emerald-50 text-emerald-700 border-emerald-200/50'
+                      }`}>
+                        {(order.paymentMethod || 'UPI').toUpperCase()}
+                      </span>
+                      <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                        {(order as any).tableName || `Table ${order.tableNumber}`}
+                      </span>
+                    </div>
+                    <span className="text-sm font-black text-emerald-600 tracking-tight">₹ {order.total.toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-50 mt-2">
+                    <div className="flex items-center gap-2">
+                      <span>{formatDate(order.createdAt).time} • {formatDate(order.createdAt).date}</span>
+                    </div>
+                  </div>
+                </article>
+              ))
+            )}
+          </div>
+        </section>
+
+      </div>
     </div>
   );
 }
