@@ -1,0 +1,26 @@
+{
+  "screenshot": {
+    "name": "projects/3846637882532944422/files/5833747689530646666",
+    "downloadUrl": "https://lh3.googleusercontent.com/aida/AEtjO1UiqiB-LBY7J2SPPkramAS0ctfXS08oHPkguOlJTLwnm7saUzsdifpOnN5C6s5PC6MLHwhwuntUjx0FZqOR3PGzp-kb3mHpkXaMEBpDrCjPOB_0IucRUtCLyQ25ifLDmLx8RNGS3_ZFQDPYZfap_7l8m6F0MxqrtcHar3tCJ0kGw76mEmPoKiIRjWSmHx30lffzeN31q7SENKjXpzQSelRCxFqWWx0ryS1JHSrGovZC-0riGoIE9XGVL8I"
+  },
+  "htmlCode": {
+    "name": "projects/3846637882532944422/files/9073219930422839637",
+    "downloadUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzAwMDY1YjNhZjM0NDY0Y2EwN2M0ZDgwZjYwMGIyMmVlEgsSBxD299eErhYYAZIBIwoKcHJvamVjdF9pZBIVQhMzODQ2NjM3ODgyNTMyOTQ0NDIy&filename=&opi=89354086",
+    "mimeType": "text/html"
+  },
+  "id": "7221b711b99245c9bf4a96e28ec64a90",
+  "generatedBy": "HatterAgent",
+  "width": "780",
+  "height": "2800",
+  "title": "Orders Management Redesign",
+  "prompt": "Redesign of Orders Management screen for Bella Cafe mobile POS app.\nFix all layout fixtures and optimize UX:\n1. Top summary banner: Persistent greeting and quick KPI banner (Today's Revenue: ₹14,850, Live Orders: 6 Active).\n2. Header: 'Orders' with subtext 'Live kitchen orders and billing status'.\n3. Search & Filter Bar: Modern search input with magnifying glass icon ('Search by ID, table, or phone...'), paired with an intuitive Filter dropdown ('All Statuses', 'Waiting', 'Served', 'Billed').\n4. Order Cards with clear status badges, itemized receipt breakdown, and prominent context-aware CTAs:\n   - Order Card 1: Header shows Table badge 'T10 - Left Section', KOT #5838, Customer 'Adi (9999999999)', Time '09:15 PM', and status pill 'Billed' (emerald soft pill).\n     Item list with clear columns [Item Name | Qty | Price]:\n     - Adrak Chai x6 — ₹150.00\n     - Paneer patties x1 — ₹50.00\n     - Water bottle x1 — ₹20.00\n     - Aloo patties x2 — ₹70.00\n     - Appy Fizz x1 — ₹20.00\n     Subtotal & Total breakdown: Total: ₹325.00 bold and prominent.\n     Action Button: Full-width modern primary button 'Pay Bill' (or 'Print Receipt' & 'Settle').\n   - Order Card 2: Header shows Table badge 'T14 - Room Section', KOT #3503, Staff 'Assigned by Admin', Time '07:30 PM', and status badge 'Waiting' (amber clock icon).\n     Item list:\n     - Adrak Chai x2 — ₹50.00\n     Total: ₹50.00.\n     Action Button: High-visibility tactile primary button 'Mark as Served' (vibrant indigo/blue).\n   - Order Card 3: Header shows Table badge 'T11 - Right Section', KOT #1446, Customer 'Hamza', Time '10:17 PM', status badge 'Served' (slate blue checkmark pill). Total: ₹210.00.\n5. Persistent Bottom Navigation Bar: Customers, Dashboard, Orders (Active tab), Inventory, Revenue.\nClean spacing, polished typography, perfect card borders and zero clipped labels.",
+  "name": "projects/3846637882532944422/screens/7221b711b99245c9bf4a96e28ec64a90",
+  "theme": {},
+  "deviceType": "MOBILE",
+  "screenType": "DESIGN",
+  "screenMetadata": {
+    "agentType": "PRO_AGENT",
+    "status": "COMPLETE",
+    "displayMode": "HTML"
+  }
+}

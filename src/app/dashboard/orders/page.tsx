@@ -131,152 +131,214 @@ export default function OrdersPage() {
 
   return (
     <div className="flex flex-col w-full h-full pb-6">
-      {/* Order Grid */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-bold">Orders</h1>
+      {/* Orders Filter & Operations Control Bar */}
+      <div className="px-5 md:px-8 pt-4 md:pt-5 pb-3 shrink-0 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-slate-200/80 bg-white/70 backdrop-blur-sm z-10 sticky top-0">
+        <div className="flex items-center justify-between lg:justify-start gap-3 w-full lg:w-auto">
+          <div>
+            <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Orders</h2>
+            <p className="text-xs text-slate-500 font-medium md:hidden">Live kitchen orders & billing</p>
           </div>
+          <span className="px-2.5 py-0.5 rounded-full text-[10px] md:text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 whitespace-nowrap">
+            {filteredOrders.length} Visible
+          </span>
           
-          <div className="flex items-center space-x-3 w-full sm:w-auto">
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <input 
-                type="text" 
-                placeholder="Search by ID or table..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-            </div>
-            <select className="bg-card border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
-              <option>All</option>
-              <option>Pending</option>
-              <option>Preparing</option>
-            </select>
+          {/* Order Stage Filter Tabs (Desktop) */}
+          <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-xl ml-4 border border-slate-200/80 text-xs font-semibold">
+            <button className="px-3 py-1.5 rounded-lg bg-white text-slate-900 shadow-sm">All ({activeOrders.length})</button>
+            <button className="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900">Pending</button>
+            <button className="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900">Preparing</button>
           </div>
         </div>
-
-        {/* Scrollable Grid */}
-        <div className="flex-1 overflow-y-auto pr-2">
-          {filteredOrders.length === 0 ? (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-muted-foreground">No orders found.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 pb-10">
-              {filteredOrders.map((order) => {
-                const { time, date } = formatDate(order.createdAt);
-                
-                let isStale = false;
-                if (order.status === 'prepared' && order.updatedAt) {
-                  const updatedTime = typeof order.updatedAt?.toMillis === 'function' 
-                    ? order.updatedAt.toMillis() 
-                    : (order.updatedAt as any).seconds * 1000;
-                  if (Date.now() - updatedTime > 10 * 60 * 1000) isStale = true;
-                }
-
-                return (
-                  <Card 
-                    key={order.id} 
-                    className="p-3 md:p-4 rounded-2xl border border-border transition-all flex flex-col"
-                  >
-                    <div className="flex justify-between items-start mb-4 gap-2">
-                      <div className="flex gap-2 items-center overflow-hidden">
-                        <div className="min-w-10 w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm">
-                          T{order.tableNumber}
-                        </div>
-                        <div className="min-w-0">
-                          {(() => {
-                            const tbl = tables.find(t => t.id === order.tableId);
-                            const tblName = tbl?.name ? tbl.name : `Table ${order.tableNumber}`;
-                            return (
-                              <h3 className="font-bold text-sm truncate" title={tblName}>{tblName}</h3>
-                            );
-                          })()}
-                          <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5 truncate">{order.displayId}</p>
-                          {(order.customerName || order.customerPhone) && (
-                            <p className="text-[10px] text-orange-600 font-medium truncate">
-                              {order.customerName ? order.customerName : ''} {order.customerPhone ? `(${order.customerPhone})` : ''}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                        {getStatusBadge(order.status)}
-                        {isStale && (
-                          <span className="flex items-center text-[10px] text-red-500 font-bold bg-red-50 px-2 py-0.5 rounded-full">
-                            <Clock className="w-3 h-3 mr-1" />
-                            Waiting
-                          </span>
-                        )}
-                        <span className="text-[10px] text-muted-foreground font-medium mt-1">{time}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="text-xs text-muted-foreground mb-3">{date}</div>
-                    
-                    <div className="border-t border-border pt-3 mb-3 flex-1 flex flex-col">
-                      <div className="grid grid-cols-[1fr_auto_auto] gap-2 mb-2 text-xs font-semibold text-muted-foreground">
-                        <span>Items</span>
-                        <span className="px-2">Qty</span>
-                        <span>Price</span>
-                      </div>
-                      <div className="space-y-2 overflow-y-auto max-h-[150px] pr-1">
-                        {order.items.map((item, idx) => (
-                          <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-2 text-sm items-center">
-                            <span className="truncate pr-2 font-medium">{item.name}</span>
-                            <span className="px-2 text-muted-foreground">{item.qty}</span>
-                            <span className="font-medium">₹{(item.price * item.qty).toFixed(2)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between pt-3 border-t border-border mb-4 mt-auto">
-                      <span className="font-bold text-sm">Total</span>
-                      <span className="font-bold text-base">₹{order.total.toFixed(2)}</span>
-                    </div>
-                    
-                    <div>
-                      {order.status === 'pending' && (
-                        <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'preparing') }} className="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold rounded-xl transition-colors shadow-sm">
-                          Start Prep
-                        </button>
-                      )}
-                      {order.status === 'preparing' && (
-                        <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'prepared') }} className="w-full py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-bold rounded-xl transition-colors shadow-sm">
-                          Mark Prepared
-                        </button>
-                      )}
-                      {order.status === 'prepared' && (
-                        <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'served') }} className="w-full py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-xl transition-colors shadow-sm">
-                          Serve
-                        </button>
-                      )}
-                      {(order.status === 'served' || order.status === 'billed') && (
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); setOrderToPay(order) }} 
-                          className="w-full py-2.5 bg-green-500 hover:bg-green-600 text-white text-sm font-bold rounded-xl transition-colors shadow-sm"
-                        >
-                          Pay Bill
-                        </button>
-                      )}
-                      {order.status === 'cancelled' && (
-                        <button disabled className="w-full py-2.5 bg-gray-200 text-gray-500 text-sm font-bold rounded-xl cursor-not-allowed">
-                          Voided
-                        </button>
-                      )}
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
+        
+        {/* Controls: Search, Zone, New Order */}
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap w-full lg:w-auto">
+          {/* Search Input */}
+          <div className="relative flex-1 min-w-[200px] md:min-w-[240px]">
+            <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              <Search className="w-4 h-4" />
+            </span>
+            <input 
+              type="text" 
+              placeholder="Search by ID, table..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-1.5 md:py-2 text-xs bg-white border border-slate-200 md:border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-slate-800 placeholder-slate-400 font-medium shadow-2xs md:shadow-none" 
+            />
+          </div>
+          {/* Filter Dropdown (Mobile) */}
+          <select className="sm:hidden py-1.5 md:py-2 pl-3 pr-8 text-xs font-semibold bg-white border border-slate-200 md:border-slate-300 rounded-xl text-slate-700 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 shadow-2xs md:shadow-none">
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="preparing">Prep</option>
+          </select>
         </div>
       </div>
 
-      {/* Payment Selection Modal */}
+      {/* Scrollable Grid */}
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 pt-4 pb-12 bg-slate-50 custom-scroll">
+        {filteredOrders.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-slate-500 font-medium">No orders found.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
+            {filteredOrders.map((order) => {
+              const { time, date } = formatDate(order.createdAt);
+              
+              let isStale = false;
+              if (order.status === 'pending' && order.createdAt) {
+                const createdTime = typeof order.createdAt?.toMillis === 'function' 
+                  ? order.createdAt.toMillis() 
+                  : (order.createdAt as any).seconds * 1000;
+                if (Date.now() - createdTime > 10 * 60 * 1000) isStale = true;
+              }
+
+              // Card Status Styling mappings
+              let statusBg = 'bg-slate-50';
+              let statusText = 'text-slate-700';
+              let statusBorder = 'border-slate-200';
+              let Icon = Clock;
+              
+              if (order.status === 'pending') {
+                statusBg = isStale ? 'bg-red-50' : 'bg-orange-50';
+                statusText = isStale ? 'text-red-700' : 'text-amber-700';
+                statusBorder = isStale ? 'border-red-200' : 'border-amber-200';
+                Icon = Clock;
+              } else if (order.status === 'preparing') {
+                statusBg = 'bg-blue-50';
+                statusText = 'text-blue-700';
+                statusBorder = 'border-blue-200';
+                Icon = ChefHat;
+              } else if (order.status === 'prepared') {
+                statusBg = 'bg-emerald-50';
+                statusText = 'text-emerald-700';
+                statusBorder = 'border-emerald-200';
+                Icon = CheckCircle2;
+              } else if (order.status === 'served') {
+                statusBg = 'bg-emerald-50';
+                statusText = 'text-emerald-700';
+                statusBorder = 'border-emerald-100';
+                Icon = Check;
+              } else if (order.status === 'billed') {
+                statusBg = 'bg-purple-50';
+                statusText = 'text-purple-700';
+                statusBorder = 'border-purple-200';
+                Icon = Banknote;
+              }
+
+              return (
+                <article 
+                  key={order.id} 
+                  className="bg-white rounded-2xl border border-slate-200/90 shadow-sm flex flex-col justify-between hover:border-slate-300 transition-colors overflow-hidden h-full"
+                >
+                  <div className="flex flex-col h-full">
+                    {/* Card Header */}
+                    <div className="p-3.5 md:p-4 border-b border-slate-100 flex items-start justify-between gap-2 flex-wrap bg-white">
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className={`w-11 md:w-10 h-11 md:h-10 rounded-xl ${statusBg} border ${statusBorder} flex flex-col md:flex-row items-center justify-center font-extrabold ${statusText} shrink-0`}>
+                          <span className="text-[9px] md:hidden leading-none mb-0.5 uppercase tracking-wide opacity-80">TBL</span>
+                          <span className="text-sm md:text-sm leading-none md:font-extrabold">{order.tableNumber}</span>
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5 md:gap-2">
+                            <h3 className="font-bold text-slate-900 text-[15px] md:text-sm leading-tight truncate max-w-[100px] md:max-w-[120px]">{(tables.find(t => t.id === order.tableId)?.name || `Table ${order.tableNumber}`)}</h3>
+                            <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200">#{order.displayId}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 mt-1 text-xs font-medium text-slate-500">
+                            <svg className="w-3.5 h-3.5 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                            <span className="truncate max-w-[120px]">{order.customerName || 'Walk-in'} {order.customerPhone && `(${order.customerPhone})`}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right flex flex-col items-end gap-1 md:gap-1.5 shrink-0">
+                        <span className={`inline-flex items-center gap-1 md:gap-1.5 px-2 md:px-2.5 py-0.5 md:py-1 rounded-md md:rounded-full text-[10px] md:text-[11px] font-bold uppercase md:normal-case tracking-wider md:tracking-normal ${statusBg} ${statusText} border ${statusBorder}`}>
+                          <Icon className="w-3 md:w-3.5 h-3 md:h-3.5" strokeWidth={2.5} />
+                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        </span>
+                        <span className="text-[10px] font-medium md:font-semibold text-slate-400 mt-0.5 md:mt-0">{time}</span>
+                      </div>
+                    </div>
+
+                    {/* Order Items List */}
+                    <div className="p-3.5 md:p-4 bg-slate-50/50 flex-1 flex flex-col min-h-[140px]">
+                      <div className="flex items-center justify-between text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5 px-1">
+                        <span>Items ({order.items.length})</span>
+                        <span>Amount</span>
+                      </div>
+                      <div className="space-y-2.5 mb-4 overflow-y-auto max-h-[160px] custom-scroll pr-1 flex-1">
+                        {order.items.map((item, idx) => (
+                          <div key={idx} className="flex items-start justify-between gap-3 text-[13px] md:text-sm">
+                            <div className="flex items-start gap-2 min-w-0">
+                              <span className="font-bold text-slate-900 bg-white border border-slate-200 w-5 h-5 md:w-6 md:h-6 rounded flex items-center justify-center text-[10px] md:text-xs shrink-0 shadow-xs">
+                                {item.qty}
+                              </span>
+                              <span className="font-semibold text-slate-700 leading-tight pt-0.5 truncate">{item.name}</span>
+                            </div>
+                            <span className="font-bold text-slate-900 tabular-nums pt-0.5 shrink-0">₹{(item.price * item.qty).toFixed(0)}</span>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Kitchen Notes Alert */}
+                      {order.kitchenNotes && (
+                        <div className="mt-auto mb-3 bg-amber-50 border border-amber-100 rounded-lg p-2.5 flex items-start gap-2">
+                          <svg className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                          <p className="text-xs font-semibold text-amber-800 leading-snug">{order.kitchenNotes}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Footer / Actions */}
+                    <div className="p-3.5 md:p-4 border-t border-slate-100 bg-white shrink-0">
+                      <div className="flex items-center justify-between mb-3.5 px-1">
+                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Value</span>
+                        <span className="text-base md:text-lg font-black text-slate-900 tabular-nums">₹{order.total.toFixed(0)}</span>
+                      </div>
+                      
+                      {/* Action Buttons */}
+                      <div className="grid grid-cols-2 gap-2 mt-auto">
+                        {order.status === 'pending' && (
+                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'preparing') }} className="col-span-2 py-2.5 bg-brand-lime hover:bg-[#cbf128] text-slate-950 text-[13px] md:text-sm font-bold rounded-xl transition shadow-sm active:scale-[0.98]">
+                            Accept & Start Prep
+                          </button>
+                        )}
+                        {order.status === 'preparing' && (
+                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'prepared') }} className="col-span-2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-[13px] md:text-sm font-bold rounded-xl transition shadow-sm shadow-blue-200 active:scale-[0.98]">
+                            Mark Prepared
+                          </button>
+                        )}
+                        {order.status === 'prepared' && (
+                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'served') }} className="col-span-2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] md:text-sm font-bold rounded-xl transition shadow-sm shadow-emerald-200 active:scale-[0.98]">
+                            Mark Served
+                          </button>
+                        )}
+                        {order.status === 'served' && (
+                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'billed') }} className="col-span-2 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-[13px] md:text-sm font-bold rounded-xl transition shadow-sm shadow-purple-200 active:scale-[0.98]">
+                            Generate Bill
+                          </button>
+                        )}
+                        {order.status === 'billed' && (
+                          <button onClick={(e) => { e.stopPropagation(); setOrderToPay(order) }} className="col-span-2 py-2.5 bg-slate-900 hover:bg-slate-800 text-brand-lime text-[13px] md:text-sm font-bold rounded-xl transition shadow-sm shadow-slate-300 active:scale-[0.98] flex items-center justify-center gap-2">
+                            <Banknote className="w-4 h-4" />
+                            Settle Payment
+                          </button>
+                        )}
+                        
+                        {(order.status === 'pending' || order.status === 'preparing') && (
+                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'cancelled') }} className="col-span-2 py-2 bg-white hover:bg-red-50 text-red-600 border border-slate-200 hover:border-red-200 text-xs font-bold rounded-xl transition active:scale-[0.98]">
+                            Cancel Order
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
       {orderToPay && (
         <PaymentModal 
           orderId={orderToPay.id}
