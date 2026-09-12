@@ -5,6 +5,7 @@ import { useOrders } from '@/lib/hooks/useOrders';
 import { useInventory } from '@/lib/hooks/useInventory';
 import { BarChart3, TrendingUp, CheckCircle2, Receipt, Package, DollarSign, X } from 'lucide-react';
 import { Order } from '@/lib/hooks/useOrders';
+import { toast } from 'sonner';
 
 const formatDate = (timestamp: any) => {
   if (!timestamp) return { time: '', date: '' };
@@ -193,7 +194,7 @@ export default function AnalyticsPage() {
                         <span className="font-extrabold text-emerald-600 text-base">₹ {order.total.toFixed(2)}</span>
                       </td>
                       <td className="py-4 px-6 text-center">
-                        <button onClick={(e) => { e.stopPropagation(); setViewOrder(order); }} className="px-2.5 py-1 rounded-lg text-xs font-bold text-indigo-600 hover:bg-indigo-50 transition-colors">
+                        <button onClick={(e) => { e.stopPropagation(); setViewOrder(order); toast.success('Loading details...'); }} className="px-2.5 py-1 rounded-lg text-xs font-bold text-indigo-600 hover:bg-indigo-50 transition-colors">
                           Details
                         </button>
                       </td>
@@ -317,7 +318,7 @@ export default function AnalyticsPage() {
                     <div className="flex items-center gap-2">
                       <span>{formatDate(order.createdAt).time} • {formatDate(order.createdAt).date}</span>
                     </div>
-                    <button onClick={(e) => { e.stopPropagation(); setViewOrder(order); }} className="text-slate-400 hover:text-slate-700 flex items-center gap-0.5 font-medium" type="button">
+                    <button onClick={(e) => { e.stopPropagation(); setViewOrder(order); toast.success('Loading details...'); }} className="text-slate-400 hover:text-slate-700 flex items-center gap-0.5 font-medium" type="button">
                       Receipt
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path d="m8.25 4.5 7.5 7.5-7.5 7.5" strokeLinecap="round" strokeLinejoin="round"></path></svg>
                     </button>
@@ -331,12 +332,12 @@ export default function AnalyticsPage() {
 
       {/* Order Details Modal */}
       {viewOrder && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-sm" onClick={() => setViewOrder(null)}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[99999] p-4 backdrop-blur-sm" onClick={() => setViewOrder(null)}>
           <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden border border-slate-200" onClick={e => e.stopPropagation()}>
             <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <div>
                 <h2 className="text-xl font-black text-slate-900">Order Details</h2>
-                <p className="text-sm font-medium text-slate-500 mt-1">#{viewOrder.displayId || viewOrder.id.slice(0,8)} • {(viewOrder as any).tableName || `Table ${viewOrder.tableNumber}`}</p>
+                <p className="text-sm font-medium text-slate-500 mt-1">#{viewOrder.displayId || (viewOrder.id || '').slice(0,8)} • {(viewOrder as any).tableName || `Table ${viewOrder.tableNumber}`}</p>
                 {(viewOrder.customerName || viewOrder.customerPhone) && (
                   <p className="text-sm font-bold text-orange-600 mt-1">
                     {viewOrder.customerName} {viewOrder.customerPhone ? `(${viewOrder.customerPhone})` : ''}
@@ -367,28 +368,31 @@ export default function AnalyticsPage() {
               <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
                 <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 font-bold text-xs uppercase tracking-wider text-slate-500">Order Items</div>
                 <ul className="divide-y divide-slate-100">
-                  {viewOrder.items.map((item, idx) => (
-                    <li key={idx} className="p-4 flex justify-between items-center">
-                      <div className="flex items-center space-x-3">
-                        <span className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-black text-xs">{item.qty}x</span>
-                        <span className="font-bold text-sm text-slate-900">{item.name}</span>
-                      </div>
-                      <span className="text-sm font-extrabold text-slate-900">₹ {(item.price * item.qty).toFixed(2)}</span>
-                    </li>
-                  ))}
+                  {(viewOrder.items || []).map((item, idx) => {
+                    if (!item) return null;
+                    return (
+                      <li key={idx} className="p-4 flex justify-between items-center">
+                        <div className="flex items-center space-x-3">
+                          <span className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-black text-xs">{item.qty || 1}x</span>
+                          <span className="font-bold text-sm text-slate-900">{item.name || 'Unknown'}</span>
+                        </div>
+                        <span className="text-sm font-extrabold text-slate-900">₹ {((item.price || 0) * (item.qty || 1)).toFixed(2)}</span>
+                      </li>
+                    );
+                  })}
                 </ul>
                 <div className="p-4 bg-slate-50/80 border-t border-slate-200">
                   <div className="flex justify-between text-sm font-semibold text-slate-500 mb-2">
                     <span>Subtotal</span>
-                    <span>₹ {viewOrder.subtotal.toFixed(2)}</span>
+                    <span>₹ {(viewOrder.subtotal || 0).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm font-semibold text-slate-500 mb-3">
                     <span>Tax</span>
-                    <span>₹ {viewOrder.tax.toFixed(2)}</span>
+                    <span>₹ {(viewOrder.tax || 0).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between font-black text-lg pt-3 border-t border-slate-200 text-slate-900">
                     <span>Total</span>
-                    <span className="text-emerald-600">₹ {viewOrder.total.toFixed(2)}</span>
+                    <span className="text-emerald-600">₹ {(viewOrder.total || 0).toFixed(2)}</span>
                   </div>
                 </div>
               </div>
