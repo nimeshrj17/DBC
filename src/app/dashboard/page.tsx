@@ -151,12 +151,20 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
             <button className="w-full py-2 px-3 rounded-xl bg-[#B4D318] hover:bg-[#9FBD10] text-[#111315] font-bold text-xs tracking-wide shadow-sm transition" type="button" onClick={(e) => { e.stopPropagation(); setSelectedTableId(table.id); }}>
               + Assign Guests / Order
             </button>
-            <button className="w-full py-1.5 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 font-medium text-xs transition flex items-center justify-center gap-1.5" type="button" onClick={(e) => e.stopPropagation()}>
-              <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round"></path>
-              </svg>
-              <span>Download QR PDF</span>
-            </button>
+            <QRCodeGenerator 
+              tableId={table.id} 
+              tableNumber={table.number} 
+              tableName={table.name}
+              buttonClassName="w-full py-1.5 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 font-medium text-xs transition flex items-center justify-center gap-1.5 disabled:opacity-50"
+              buttonContent={
+                <>
+                  <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round"></path>
+                  </svg>
+                  <span>Download QR PDF</span>
+                </>
+              }
+            />
           </>
         ) : isAwaitingPayment ? (
           <>
@@ -174,12 +182,20 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
           </>
         ) : (
           <>
-            <button className="w-full py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs tracking-wide shadow-sm transition flex items-center justify-center gap-1.5" type="button">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round"></path>
-              </svg>
-              <span>Download QR PDF</span>
-            </button>
+            <QRCodeGenerator 
+              tableId={table.id} 
+              tableNumber={table.number} 
+              tableName={table.name}
+              buttonClassName="w-full py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs tracking-wide shadow-sm transition flex items-center justify-center gap-1.5 disabled:opacity-50"
+              buttonContent={
+                <>
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round"></path>
+                  </svg>
+                  <span>Download QR PDF</span>
+                </>
+              }
+            />
             <div className="grid grid-cols-2 gap-2">
               <button className="py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs transition" type="button" onClick={(e) => { e.stopPropagation(); setSelectedTableId(table.id); }}>
                 Add Item
@@ -222,6 +238,7 @@ export default function DashboardPage() {
   const [draftOrders, setDraftOrders] = useState<Record<string, OrderItem[]>>({});
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [activeSection, setActiveSection] = useState('tables');
+  const [activeZone, setActiveZone] = useState('All');
   
   const [newTableNum, setNewTableNum] = useState<string>('');
   const [newTableName, setNewTableName] = useState<string>('');
@@ -788,10 +805,10 @@ export default function DashboardPage() {
         </div>
         <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
           <div className="inline-flex gap-1.5 p-1 bg-slate-100/80 rounded-xl text-xs font-semibold">
-            <button className="px-3.5 py-1.5 bg-white text-slate-800 rounded-lg shadow-sm">All Zones ({tables.length})</button>
-            <button className="px-3.5 py-1.5 text-slate-600 hover:text-slate-900 rounded-lg transition">Room Area ({tables.filter(t => (t.section || 'Main Hall') === 'Room Area').length})</button>
-            <button className="px-3.5 py-1.5 text-slate-600 hover:text-slate-900 rounded-lg transition">Main Hall ({tables.filter(t => (t.section || 'Main Hall') === 'Main Hall').length})</button>
-            <button className="px-3.5 py-1.5 text-slate-600 hover:text-slate-900 rounded-lg transition">Outdoor Patio ({tables.filter(t => (t.section || 'Main Hall') === 'Outdoor Patio').length})</button>
+            <button onClick={() => setActiveZone('All')} className={`px-3.5 py-1.5 rounded-lg transition ${activeZone === 'All' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>All Zones ({tables.length})</button>
+            {Array.from(new Set(tables.map(t => String(t.section || 'Main Hall')))).map(z => (
+              <button key={z} onClick={() => setActiveZone(z)} className={`px-3.5 py-1.5 rounded-lg transition ${activeZone === z ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>{z} ({tables.filter(t => (t.section || 'Main Hall') === z).length})</button>
+            ))}
           </div>
           <div className="flex items-center gap-3 text-xs font-medium text-slate-500">
             <span className="inline-flex items-center gap-1.5">
@@ -836,26 +853,25 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar py-2 -mx-5 px-5" data-purpose="zone-filters">
-          <button className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-white whitespace-nowrap shadow-xs">
+          <button onClick={() => setActiveZone('All')} className={`px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap shadow-xs transition-colors ${activeZone === 'All' ? 'font-semibold bg-slate-900 text-white' : 'font-medium bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
             All ({tables.length})
           </button>
-          <button className="px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap transition-colors flex items-center space-x-1.5">
+          <button onClick={() => setActiveZone('Active')} className={`px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap shadow-xs transition-colors flex items-center space-x-1.5 ${activeZone === 'Active' ? 'font-semibold bg-slate-900 text-white' : 'font-medium bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
             <span className="w-2 h-2 rounded-full bg-amber-500"></span>
             <span>Active ({tables.filter(t => t.status !== 'empty').length})</span>
           </button>
-          <button className="px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap transition-colors">
-            Room Area ({tables.filter(t => (t.section || 'Main Hall') === 'Room Area').length})
-          </button>
-          <button className="px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap transition-colors">
-            Outdoor Patio ({tables.filter(t => (t.section || 'Main Hall') === 'Outdoor Patio').length})
-          </button>
+          {Array.from(new Set(tables.map(t => String(t.section || 'Main Hall')))).map(z => (
+            <button key={z} onClick={() => setActiveZone(z)} className={`px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap shadow-xs transition-colors ${activeZone === z ? 'font-semibold bg-slate-900 text-white' : 'font-medium bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+              {z} ({tables.filter(t => (t.section || 'Main Hall') === z).length})
+            </button>
+          ))}
         </div>
       </section>
 
       {/* Tables Display Section */}
       <div className="px-5 md:px-8 pb-12 space-y-6 md:space-y-9 mt-2 md:mt-0">
         {(() => {
-          const activeTables = tables.filter(t => t.status !== 'empty').sort((a, b) => {
+          const activeTables = tables.filter(t => t.status !== 'empty' && (activeZone === 'All' || activeZone === 'Active' || (t.section || 'Main Hall') === activeZone)).sort((a, b) => {
             const getPriority = (status: string) => {
               switch(status) {
                 case 'awaiting_payment': return 1;
@@ -893,7 +909,7 @@ export default function DashboardPage() {
           );
         })()}
 
-        {Array.from(new Set(tables.filter(t => t.status === 'empty').map(t => String(t.section || 'Main Hall')))).map(section => (
+        {Array.from(new Set(tables.filter(t => t.status === 'empty' && (activeZone === 'All' || activeZone === 'Active' || (t.section || 'Main Hall') === activeZone)).map(t => String(t.section || 'Main Hall')))).map(section => (
           <section key={section}>
             <div className="flex items-center justify-between mb-3 md:mb-4 mt-6 md:mt-8">
               <div className="flex items-center gap-2 md:gap-2.5">
@@ -919,7 +935,7 @@ export default function DashboardPage() {
                 />
               ))}
               {/* Quick Add Table Card Prompt */}
-              <div onClick={() => setIsAddTableOpen(true)} className="border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-4 md:p-6 text-center hover:border-[#B4D318] hover:bg-lime-50/20 transition cursor-pointer min-h-[160px] md:min-h-[250px] group">
+              <div onClick={() => { setNewTableSection(section); setIsAddTableOpen(true); }} className="border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-4 md:p-6 text-center hover:border-[#B4D318] hover:bg-lime-50/20 transition cursor-pointer min-h-[160px] md:min-h-[250px] group">
                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-slate-100 group-hover:bg-[#B4D318] flex items-center justify-center text-slate-500 group-hover:text-[#111315] transition shadow-sm mb-2 md:mb-3">
                   <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round"></path>
