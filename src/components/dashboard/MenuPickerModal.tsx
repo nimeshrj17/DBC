@@ -29,11 +29,16 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
   });
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-background rounded-2xl w-full max-w-4xl h-[90vh] md:h-auto md:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex md:items-center items-end justify-center z-[60] md:p-4 transition-opacity">
+      <div className="bg-white md:rounded-2xl rounded-t-3xl w-full max-w-4xl h-[94vh] md:h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300 md:animate-none">
         
+        {/* Drag Handle Indicator for iOS bottom sheet feel */}
+        <div className="md:hidden w-full flex justify-center pt-3 pb-1" data-purpose="sheet-handle">
+          <div className="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+        </div>
+
         {/* Header */}
-        <div className="p-6 border-b border-border flex justify-between items-center bg-card">
+        <div className="p-5 md:p-6 border-b border-gray-100 flex justify-between items-start bg-white flex-shrink-0">
           <h2 className="text-xl font-bold">Add Item to Order</h2>
           <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition-colors">
             <X className="w-5 h-5" />
@@ -41,27 +46,29 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
         </div>
         
         {/* Search & Categories */}
-        <div className="p-4 border-b border-border bg-muted/30 flex flex-col sm:flex-row gap-4 items-center">
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+        <div className="px-5 pt-3 pb-2.5 space-y-3 flex-shrink-0 border-b border-gray-100 bg-white">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+              <Search className="w-4 h-4" />
+            </div>
             <input 
-              type="text" 
-              placeholder="Search menu items..." 
+              type="search" 
+              placeholder="Search menu items or codes (#G1)..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
             />
           </div>
           
-          <div className="flex overflow-x-auto hide-scrollbar gap-2 w-full">
+          <div className="flex overflow-x-auto hide-scrollbar gap-2 w-full pb-1">
             {categories.map(category => (
               <button 
                 key={category}
                 onClick={() => setActiveCategory(category)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs transition-all ${
                   activeCategory === category 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'bg-card text-muted-foreground border border-border hover:bg-muted'
+                    ? 'font-semibold bg-[#D2F801] text-gray-900 shadow-xs border border-lime-400' 
+                    : 'font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 active:scale-95'
                 }`}
               >
                 {category}
@@ -71,20 +78,18 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
         </div>
 
         {/* Menu Grid */}
-        <div className="flex-1 overflow-y-auto p-6 bg-background">
+        <div className="flex-1 overflow-y-auto px-4 py-4 bg-gray-50/50">
           {menuLoading || invLoading ? (
-            <div className="flex justify-center items-center h-full text-muted-foreground">Loading menu...</div>
+            <div className="flex justify-center items-center h-full text-gray-500">Loading menu...</div>
           ) : (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               {filteredItems.map(item => {
                 const draftItem = currentDraftItems.find(d => d.menuItemId === item.id);
                 const qty = draftItem ? draftItem.qty : 0;
                 
-                // Determine stock limits
                 let outOfStock = false;
                 let availableStock = Infinity;
                 
-                // Check legacy link
                 if (item.linkedInventoryId) {
                   const invItem = inventory.find(i => i.id === item.linkedInventoryId);
                   if (invItem) {
@@ -94,7 +99,6 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
                   }
                 }
                 
-                // Check BOM recipe
                 if (item.recipe && Array.isArray(item.recipe)) {
                   item.recipe.forEach((ingredient: any) => {
                     const invItem = inventory.find(i => i.id === ingredient.inventoryId);
@@ -102,7 +106,6 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
                       const stockForThis = Math.floor(invItem.quantity / ingredient.amount);
                       availableStock = Math.min(availableStock, stockForThis);
                     } else {
-                      // If ingredient doesn't exist, technically it's out of stock
                       availableStock = 0;
                     }
                   });
@@ -113,46 +116,42 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
                 }
                 
                 return (
-                  <div key={item.id} className={`bg-card border border-border rounded-xl overflow-hidden flex flex-row items-center p-3 hover:shadow-md transition-shadow ${outOfStock ? 'opacity-70' : ''}`}>
-                    <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center text-muted-foreground mr-3 flex-shrink-0">
-                      <span className="text-[9px] font-medium text-center leading-tight">{item.category.split(' ').map(w => w[0]).join('')}</span>
-                    </div>
-                    
-                    <div className="flex-1 min-w-0 pr-3">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <h3 className="font-bold text-sm leading-tight truncate">{item.name}</h3>
-                        {item.itemNumber && <span className="text-[10px] text-muted-foreground font-mono bg-muted px-1.5 py-0.5 rounded-md">#{item.itemNumber}</span>}
+                  <article key={item.id} className={`flex items-center justify-between p-3 bg-white rounded-2xl border border-gray-100 shadow-xs hover:border-gray-200 transition-colors ${outOfStock ? 'opacity-70' : ''}`}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-xl bg-gray-100 flex items-center justify-center text-gray-500 font-semibold text-sm flex-shrink-0 uppercase">
+                        {item.name.substring(0, 1)}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm tabular-nums">₹ {item.price}</span>
-                        {(!item.available || outOfStock) && (
-                          <span className="text-[9px] font-bold uppercase tracking-wider text-red-500 bg-red-50 px-1.5 py-0.5 rounded">Out of Stock</span>
-                        )}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h2 className="text-sm font-semibold text-gray-900 leading-tight">{item.name}</h2>
+                          {item.itemNumber && <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 border border-gray-200">#{item.itemNumber}</span>}
+                          {(!item.available || outOfStock) && <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-red-50 text-red-600 border border-red-100">OOS</span>}
+                        </div>
+                        <p className="text-sm font-bold text-gray-800 mt-1">₹ {item.price}</p>
                       </div>
                     </div>
                     
-                    <div className="flex items-center space-x-2 shrink-0">
+                    <div className="flex items-center gap-2">
                       {qty > 0 && (
-                        <span className="text-xs font-bold bg-primary/20 text-black px-2 py-1 rounded-full">
+                        <span className="text-xs font-bold bg-[#D2F801]/30 text-gray-900 px-2 py-1 rounded-full">
                           {qty}
                         </span>
                       )}
                       <button 
                         onClick={() => onAddItem(item)}
-                        className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors shadow-sm ${
-                          (!item.available || outOfStock) ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'
-                        }`}
                         disabled={!item.available || outOfStock}
-                        title={outOfStock ? 'Out of stock' : 'Add to order'}
+                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-transform ${
+                          (!item.available || outOfStock) ? 'bg-gray-200 text-gray-400' : 'bg-blue-600 active:bg-blue-700 text-white shadow-sm shadow-blue-200 active:scale-90'
+                        }`}
                       >
-                        <Plus className="w-5 h-5" />
+                        <Plus className="w-5 h-5" strokeWidth={2.5} />
                       </button>
                     </div>
-                  </div>
+                  </article>
                 );
               })}
               {filteredItems.length === 0 && (
-                <div className="col-span-full py-12 text-center text-muted-foreground bg-card rounded-xl border border-dashed border-border">
+                <div className="col-span-full py-12 text-center text-gray-500 bg-white rounded-2xl border border-dashed border-gray-200">
                   No items found.
                 </div>
               )}

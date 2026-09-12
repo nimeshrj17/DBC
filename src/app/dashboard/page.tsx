@@ -961,7 +961,15 @@ export default function DashboardPage() {
       {/* Side Panel overlay */}
 
       {selectedTable && (
-        <aside className="absolute inset-y-0 right-0 h-full w-[430px] max-w-full flex-shrink-0 bg-white border-l border-slate-200 shadow-2xl flex flex-col justify-between transform transition-transform duration-300 z-50 slideover-shadow" data-purpose="table-detail-drawer">
+        <>
+          {/* Mobile Backdrop */}
+          <div className="md:hidden fixed inset-0 bg-black/40 z-[40] backdrop-blur-[2px]" onClick={() => setSelectedTableId(null)}></div>
+          
+          <aside className="fixed md:absolute inset-x-0 bottom-0 md:inset-y-0 md:right-0 h-[85vh] md:h-full w-full md:w-[430px] max-w-full flex-shrink-0 bg-white md:border-l border-slate-200 shadow-2xl flex flex-col justify-between transform transition-transform duration-300 z-[50] slideover-shadow rounded-t-[28px] md:rounded-none" data-purpose="table-detail-drawer">
+            {/* Drag Handle for Mobile */}
+            <div className="md:hidden w-full flex justify-center pt-2.5 pb-1 cursor-grab">
+              <div className="w-10 h-1.5 rounded-full bg-slate-300"></div>
+            </div>
           {/* Drawer Header */}
           <div className="p-6 border-b border-slate-100 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2.5">
@@ -1254,6 +1262,7 @@ export default function DashboardPage() {
             </div>
           )}
         </aside>
+        </>
       )}
 
       <MenuPickerModal 

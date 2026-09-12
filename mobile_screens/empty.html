@@ -1,0 +1,288 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>Cafe POS - Empty Table Modal</title>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              lime: '#d9f99d',
+              limeHover: '#bef264',
+              limeActive: '#a3e635',
+              accent: '#84cc16',
+              dark: '#111827',
+              surface: '#f8fafc',
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+          },
+          boxShadow: {
+            'sheet': '0 -10px 30px -5px rgba(0, 0, 0, 0.18), 0 -4px 10px -2px rgba(0, 0, 0, 0.08)',
+          }
+        }
+      }
+    }
+  </script>
+<!-- Phosphor Icons for crisp iOS style iconography -->
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script><link rel="stylesheet" type="text/css" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/thin/style.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/light/style.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<style data-purpose="custom-mobile-tweaks">
+    /* Prevent bouncy mobile pull effects */
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Safe-area insets for modern notched phones */
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom, 16px);
+    }
+    .pt-safe {
+      padding-top: env(safe-area-inset-top, 12px);
+    }
+  </style>
+</head>
+<body class="bg-slate-900 font-sans text-slate-800 antialiased select-none flex justify-center items-center min-h-screen">
+<!-- BEGIN: MobileFrameContainer -->
+<!-- Target iPhone viewport standard ~390px x 844px -->
+<div class="relative w-full max-w-[420px] h-full sm:h-[844px] bg-slate-100 flex flex-col shadow-2xl overflow-hidden sm:rounded-[40px] border border-slate-700">
+<!-- BEGIN: iOSStatusBar -->
+<header class="w-full pt-safe px-6 pt-3 pb-1 flex justify-between items-center bg-white z-10 select-none">
+<span class="text-xs font-semibold text-slate-800 tracking-tight">9:41</span>
+<div class="flex items-center space-x-2">
+<i class="ph-bold ph-cell-signal-full text-xs text-slate-800"></i>
+<i class="ph-bold ph-wifi-high text-xs text-slate-800"></i>
+<i class="ph-fill ph-battery-full text-sm text-slate-800"></i>
+</div>
+</header>
+<!-- END: iOSStatusBar -->
+<!-- BEGIN: CafeTopHeader -->
+<nav class="bg-white border-b border-slate-200/80 px-4 py-3 flex items-center justify-between z-10">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-xl bg-lime-400 text-slate-900 flex items-center justify-center font-black shadow-sm">
+<i class="ph-bold ph-coffee text-lg"></i>
+</div>
+<div>
+<h1 class="text-xs font-bold leading-tight text-slate-900 tracking-tight">राखा भाई की चाय</h1>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="text-[10px] font-medium text-emerald-700">Live POS • Online</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<!-- Notification Bell -->
+<button class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 active:scale-95 transition-all">
+<i class="ph ph-bell text-base"></i>
+</button>
+<!-- User Badge -->
+<div class="flex items-center gap-1.5 bg-slate-100 pl-1 pr-2.5 py-1 rounded-full border border-slate-200">
+<div class="w-6 h-6 rounded-full bg-lime-400 text-slate-900 text-xs font-bold flex items-center justify-center">
+            B
+          </div>
+<span class="text-xs font-medium text-slate-700">Bella</span>
+</div>
+</div>
+</nav>
+<!-- END: CafeTopHeader -->
+<!-- BEGIN: BackgroundDashboardPreview -->
+<!-- Dimmed interactive preview layer of dashboard behind modal -->
+<main class="flex-1 overflow-y-auto px-4 py-3 bg-slate-100 opacity-40 select-none pointer-events-none">
+<div class="flex justify-between items-center mb-3">
+<div>
+<h2 class="text-base font-bold text-slate-900">Table Dashboard</h2>
+<p class="text-xs text-slate-500">Overview of all active tables</p>
+</div>
+<div class="bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700">
+          Live Orders: 6
+        </div>
+</div>
+<!-- Category Header -->
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-slate-400"></span>
+<span class="text-xs font-bold uppercase tracking-wider text-slate-600">Room</span>
+</div>
+<!-- Sample Background Cards -->
+<div class="grid grid-cols-2 gap-3 mb-4">
+<!-- Room 2 Card -->
+<div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+<div class="flex justify-between items-start">
+<span class="font-bold text-sm text-slate-800">Room-2</span>
+<i class="ph ph-users text-slate-400 text-sm"></i>
+</div>
+<p class="text-[11px] text-slate-500">4 Seats</p>
+<span class="inline-block px-2 py-0.5 rounded-full text-[10px] bg-slate-100 font-medium text-slate-600">Empty</span>
+</div>
+<!-- Room 3 Card (Active) -->
+<div class="bg-white p-3 rounded-2xl border-2 border-lime-400 shadow-sm space-y-2 relative">
+<div class="flex justify-between items-start">
+<span class="font-bold text-sm text-slate-900">Room-3</span>
+<i class="ph ph-users text-lime-600 text-sm"></i>
+</div>
+<p class="text-[11px] text-slate-500">4 Seats</p>
+<span class="inline-block px-2 py-0.5 rounded-full text-[10px] bg-slate-100 font-medium text-slate-700">Selected</span>
+</div>
+</div>
+<!-- Hall Header -->
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-slate-400"></span>
+<span class="text-xs font-bold uppercase tracking-wider text-slate-600">Hall</span>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+<div class="flex justify-between items-start">
+<span class="font-bold text-sm text-slate-800">Hall-1</span>
+<i class="ph ph-users text-slate-400 text-sm"></i>
+</div>
+<p class="text-[11px] text-slate-500">4 Seats</p>
+<span class="inline-block px-2 py-0.5 rounded-full text-[10px] bg-emerald-50 text-emerald-700 font-medium">Billed</span>
+</div>
+<div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+<div class="flex justify-between items-start">
+<span class="font-bold text-sm text-slate-800">Hall-2</span>
+<i class="ph ph-users text-slate-400 text-sm"></i>
+</div>
+<p class="text-[11px] text-slate-500">4 Seats</p>
+<span class="inline-block px-2 py-0.5 rounded-full text-[10px] bg-slate-100 font-medium text-slate-600">Empty</span>
+</div>
+</div>
+</main>
+<!-- END: BackgroundDashboardPreview -->
+<!-- BEGIN: EmptyTableBottomSheetModal -->
+<div class="absolute inset-0 bg-black/40 z-20 flex flex-col justify-end transition-opacity backdrop-blur-[2px]">
+<!-- Modal Content Sheet Container -->
+<section class="w-full bg-white rounded-t-[28px] shadow-sheet border-t border-slate-100 flex flex-col max-h-[85%] animate-in slide-in-from-bottom duration-300" data-purpose="empty-table-sheet">
+<!-- Drag Handle Indicator -->
+<div class="w-full flex justify-center pt-2.5 pb-1 cursor-grab">
+<div class="w-10 h-1.5 rounded-full bg-slate-300"></div>
+</div>
+<!-- Sheet Header Bar -->
+<div class="px-5 pt-2 pb-3 border-b border-slate-100 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<h2 class="text-xl font-bold tracking-tight text-slate-900">Room-3</h2>
+<button aria-label="Edit table name" class="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 active:scale-95 transition-all">
+<i class="ph-bold ph-pencil-simple text-sm"></i>
+</button>
+<!-- Table capacity pill -->
+<span class="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full ml-1">
+<i class="ph-bold ph-users text-xs"></i> 4 Seats
+            </span>
+</div>
+<div class="flex items-center gap-2">
+<!-- Empty Status Badge -->
+<span class="px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-slate-500 bg-slate-100 rounded-full border border-slate-200">
+              Empty
+            </span>
+<!-- Close Dismiss Button -->
+<button aria-label="Close sheet" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center active:scale-90 transition-transform ml-1">
+<i class="ph-bold ph-x text-sm"></i>
+</button>
+</div>
+</div>
+<!-- Sheet Body / Illustration / Details -->
+<div class="px-6 pt-6 pb-4 flex flex-col items-center text-center">
+<!-- Modern Aesthetic Graphic Placeholder for Table Ready State -->
+<div class="relative mb-4">
+<div class="w-20 h-20 rounded-3xl bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400">
+<i class="ph-fill ph-squares-four text-3xl text-slate-400"></i>
+</div>
+<!-- Sub-badge icon checkmark ready -->
+<div class="absolute -bottom-1 -right-1 w-7 h-7 bg-lime-400 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+<i class="ph-bold ph-sparkle text-xs text-slate-900"></i>
+</div>
+</div>
+<!-- Empty State Headline & Helper Copy -->
+<h3 class="text-base font-bold text-slate-900 tracking-tight">Table is currently empty</h3>
+<p class="text-xs text-slate-500 mt-1 max-w-[260px] leading-relaxed">
+            Ready for new guests. Assign party directly or add customer details to open a tab.
+          </p>
+<!-- Quick Metrics Bar -->
+<div class="w-full grid grid-cols-2 gap-2 mt-4 p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-left">
+<div class="px-2">
+<span class="text-[10px] font-medium text-slate-400 uppercase">Section</span>
+<p class="text-xs font-semibold text-slate-700">Room (Indoor AC)</p>
+</div>
+<div class="px-2 border-l border-slate-200">
+<span class="text-[10px] font-medium text-slate-400 uppercase">Idle Duration</span>
+<p class="text-xs font-semibold text-emerald-600">Clean &amp; Ready</p>
+</div>
+</div>
+</div>
+<!-- Sheet Action Buttons Area -->
+<div class="px-5 pb-6 pt-1 space-y-2.5">
+<!-- Primary CTA Button -->
+<button class="w-full min-h-[46px] py-3 px-4 bg-brand-lime hover:bg-brand-limeHover active:bg-brand-limeActive text-slate-900 font-bold text-sm rounded-xl shadow-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]" type="button">
+<i class="ph-bold ph-lightning text-base"></i>
+<span>Quick Assign (Skip Details)</span>
+</button>
+<!-- Secondary CTA Button -->
+<button class="w-full min-h-[44px] py-2.5 px-4 bg-white border border-slate-300 hover:bg-slate-50 active:bg-slate-100 text-slate-800 font-semibold text-sm rounded-xl flex items-center justify-center gap-2 transition-colors active:scale-[0.98]" type="button">
+<i class="ph-bold ph-user-plus text-base text-slate-500"></i>
+<span>Add Customer Details</span>
+</button>
+<!-- Tertiary Quick Action Buttons Row -->
+<div class="grid grid-cols-2 gap-2.5 pt-1">
+<button class="min-h-[40px] px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 active:scale-95 transition-all" type="button">
+<i class="ph-bold ph-qr-code text-sm text-slate-600"></i>
+<span>Download QR</span>
+</button>
+<button class="min-h-[40px] px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 active:scale-95 transition-all" type="button">
+<i class="ph-bold ph-calendar-plus text-sm text-slate-600"></i>
+<span>Reserve Table</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+<!-- END: EmptyTableBottomSheetModal -->
+<!-- BEGIN: MobileBottomNavigation -->
+<nav class="bg-white border-t border-slate-200/90 px-3 pt-2 pb-safe flex justify-around items-center z-10">
+<!-- Active Tables Tab -->
+<a class="flex flex-col items-center gap-1 py-1 px-3 text-slate-900 group" href="#">
+<div class="w-8 h-8 rounded-full bg-lime-400 flex items-center justify-center text-slate-950 font-bold shadow-xs">
+<i class="ph-fill ph-squares-four text-base"></i>
+</div>
+<span class="text-[10px] font-bold tracking-tight text-slate-900">Tables</span>
+</a>
+<!-- Orders Tab -->
+<a class="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-slate-600" href="#">
+<div class="w-8 h-8 rounded-full flex items-center justify-center">
+<i class="ph-bold ph-receipt text-lg"></i>
+</div>
+<span class="text-[10px] font-medium tracking-tight">Orders</span>
+</a>
+<!-- Menu Tab -->
+<a class="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-slate-600" href="#">
+<div class="w-8 h-8 rounded-full flex items-center justify-center">
+<i class="ph-bold ph-book-open text-lg"></i>
+</div>
+<span class="text-[10px] font-medium tracking-tight">Menu</span>
+</a>
+<!-- Inventory Tab -->
+<a class="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-slate-600" href="#">
+<div class="w-8 h-8 rounded-full flex items-center justify-center">
+<i class="ph-bold ph-package text-lg"></i>
+</div>
+<span class="text-[10px] font-medium tracking-tight">Stock</span>
+</a>
+<!-- Analytics Tab -->
+<a class="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-slate-600" href="#">
+<div class="w-8 h-8 rounded-full flex items-center justify-center">
+<i class="ph-bold ph-chart-bar text-lg"></i>
+</div>
+<span class="text-[10px] font-medium tracking-tight">Revenue</span>
+</a>
+</nav>
+<!-- END: MobileBottomNavigation -->
+<!-- BEGIN: iOSHomeIndicator -->
+<div class="w-full flex justify-center pb-1.5 bg-white">
+<div class="w-32 h-1 bg-slate-300 rounded-full"></div>
+</div>
+<!-- END: iOSHomeIndicator -->
+</div>
+<!-- END: MobileFrameContainer -->
+</body></html>
