@@ -103,9 +103,26 @@ export default function OrdersPage() {
 
         // 2. Update table
         if (tableSnap.exists()) {
-          transaction.update(tableRef, {
-            status: 'occupied' // Table remains occupied after payment
-          });
+          const tableData = tableSnap.data();
+          const activeIds = tableData.activeOrderIds || [];
+          // Assume the table is ready to be cleared if there's only 1 active order left, OR we can just clear it.
+          // Wait, we need to check if there are other unpaid active orders on this table.
+          // Since we are in a transaction and don't have all orders, we can safely just remove this order from activeOrderIds.
+          const newActiveIds = activeIds.filter((id: string) => id !== orderToPay.id);
+          if (newActiveIds.length === 0) {
+            transaction.update(tableRef, {
+              status: 'empty',
+              activeOrderIds: [],
+              occupancy: 0,
+              customerName: null,
+              customerPhone: null
+            });
+          } else {
+            transaction.update(tableRef, {
+              status: 'occupied',
+              activeOrderIds: newActiveIds
+            });
+          }
         }
       });
       setOrderToPay(null);

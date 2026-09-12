@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Coffee } from 'lucide-react';
+import { GlobalPaymentAlert } from '@/components/dashboard/GlobalPaymentAlert';
 import { useOrders } from '@/lib/hooks/useOrders';
 
 export default function DashboardLayout({

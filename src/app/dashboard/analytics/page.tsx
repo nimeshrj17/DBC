@@ -193,7 +193,7 @@ export default function AnalyticsPage() {
                         <span className="font-extrabold text-emerald-600 text-base">₹ {order.total.toFixed(2)}</span>
                       </td>
                       <td className="py-4 px-6 text-center">
-                        <button className="px-2.5 py-1 rounded-lg text-xs font-bold text-indigo-600 hover:bg-indigo-50 transition-colors">
+                        <button onClick={(e) => { e.stopPropagation(); setViewOrder(order); }} className="px-2.5 py-1 rounded-lg text-xs font-bold text-indigo-600 hover:bg-indigo-50 transition-colors">
                           Details
                         </button>
                       </td>
@@ -317,7 +317,7 @@ export default function AnalyticsPage() {
                     <div className="flex items-center gap-2">
                       <span>{formatDate(order.createdAt).time} • {formatDate(order.createdAt).date}</span>
                     </div>
-                    <button className="text-slate-400 hover:text-slate-700 flex items-center gap-0.5 font-medium" type="button">
+                    <button onClick={(e) => { e.stopPropagation(); setViewOrder(order); }} className="text-slate-400 hover:text-slate-700 flex items-center gap-0.5 font-medium" type="button">
                       Receipt
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path d="m8.25 4.5 7.5 7.5-7.5 7.5" strokeLinecap="round" strokeLinejoin="round"></path></svg>
                     </button>

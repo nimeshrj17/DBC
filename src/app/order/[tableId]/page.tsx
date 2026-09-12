@@ -215,7 +215,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         const checkoutOrderIds = tableOrders.map(o => o.id);
         for (const orderId of checkoutOrderIds) {
           const orderRef = doc(db, 'orders', orderId);
-          transaction.update(orderRef, { paymentMethod, paymentStatus: 'awaiting_confirmation' });
+          transaction.update(orderRef, { status: 'billed', paymentMethod, paymentStatus: 'awaiting_confirmation' });
         }
         transaction.update(tableRef, { status: 'awaiting_payment' });
       });
