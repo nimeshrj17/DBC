@@ -148,7 +148,7 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
       <div className="p-3.5 md:p-4 pt-0 space-y-2 mt-auto">
         {isVacant ? (
           <>
-            <button className="w-full py-2 px-3 rounded-xl bg-[#B4D318] hover:bg-[#9FBD10] text-[#111315] font-bold text-xs tracking-wide shadow-sm transition" type="button" onClick={(e) => { e.stopPropagation(); setSelectedTableId(table.id); setIsAddTableOpen(true); }}>
+            <button className="w-full py-2 px-3 rounded-xl bg-[#B4D318] hover:bg-[#9FBD10] text-[#111315] font-bold text-xs tracking-wide shadow-sm transition" type="button" onClick={(e) => { e.stopPropagation(); setSelectedTableId(table.id); }}>
               + Assign Guests / Order
             </button>
             <button className="w-full py-1.5 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 font-medium text-xs transition flex items-center justify-center gap-1.5" type="button" onClick={(e) => e.stopPropagation()}>
