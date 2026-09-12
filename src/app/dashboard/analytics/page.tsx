@@ -159,6 +159,7 @@ export default function AnalyticsPage() {
                   <th className="py-3.5 px-6" scope="col">Table / Source</th>
                   <th className="py-3.5 px-6" scope="col">Method</th>
                   <th className="py-3.5 px-6 text-right" scope="col">Total Paid</th>
+                  <th className="py-3.5 px-6 text-center" scope="col">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-sm">
@@ -168,7 +169,7 @@ export default function AnalyticsPage() {
                   </tr>
                 ) : (
                   completedOrders.map((order) => (
-                    <tr key={order.id} className="hover:bg-slate-50/80 transition-colors group">
+                    <tr key={order.id} onClick={() => setViewOrder(order)} className="hover:bg-slate-50/80 transition-colors group cursor-pointer">
                       <td className="py-4 px-6 font-bold text-slate-900">
                         <span className="group-hover:text-indigo-600 transition-colors">#{order.displayId || order.id.slice(0, 8)}</span>
                       </td>
@@ -190,6 +191,11 @@ export default function AnalyticsPage() {
                       </td>
                       <td className="py-4 px-6 text-right">
                         <span className="font-extrabold text-emerald-600 text-base">₹ {order.total.toFixed(2)}</span>
+                      </td>
+                      <td className="py-4 px-6 text-center">
+                        <button className="px-2.5 py-1 rounded-lg text-xs font-bold text-indigo-600 hover:bg-indigo-50 transition-colors">
+                          Details
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -292,7 +298,7 @@ export default function AnalyticsPage() {
               <p className="text-sm text-center text-slate-500 py-4 bg-white rounded-xl border border-slate-100">No completed orders</p>
             ) : (
               completedOrders.map(order => (
-                <article key={order.id} className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-sm active:scale-[0.99] transition">
+                <article key={order.id} onClick={() => setViewOrder(order)} className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-sm active:scale-[0.99] transition cursor-pointer">
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2">
                       <span className="font-extrabold text-xs text-slate-900">#{order.displayId || order.id.slice(0,8)}</span>
@@ -311,6 +317,10 @@ export default function AnalyticsPage() {
                     <div className="flex items-center gap-2">
                       <span>{formatDate(order.createdAt).time} • {formatDate(order.createdAt).date}</span>
                     </div>
+                    <button className="text-slate-400 hover:text-slate-700 flex items-center gap-0.5 font-medium" type="button">
+                      Receipt
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path d="m8.25 4.5 7.5 7.5-7.5 7.5" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+                    </button>
                   </div>
                 </article>
               ))
@@ -318,6 +328,74 @@ export default function AnalyticsPage() {
           </div>
         </section>
 
+
+      {/* Order Details Modal */}
+      {viewOrder && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 backdrop-blur-sm" onClick={() => setViewOrder(null)}>
+          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden border border-slate-200" onClick={e => e.stopPropagation()}>
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <div>
+                <h2 className="text-xl font-black text-slate-900">Order Details</h2>
+                <p className="text-sm font-medium text-slate-500 mt-1">#{viewOrder.displayId || viewOrder.id.slice(0,8)} • {(viewOrder as any).tableName || `Table ${viewOrder.tableNumber}`}</p>
+                {(viewOrder.customerName || viewOrder.customerPhone) && (
+                  <p className="text-sm font-bold text-orange-600 mt-1">
+                    {viewOrder.customerName} {viewOrder.customerPhone ? `(${viewOrder.customerPhone})` : ''}
+                  </p>
+                )}
+              </div>
+              <button onClick={() => setViewOrder(null)} className="p-2 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors text-slate-600">
+                <X className="w-5 h-5" strokeWidth={2.5} />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">Status</div>
+                  <div className="mt-1">
+                    <span className="flex items-center w-fit px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                      <CheckCircle2 className="w-3.5 h-3.5 mr-1" />Settled
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">Settled At</div>
+                  <div className="mt-1 font-bold text-slate-900">{formatDate(viewOrder.createdAt).time} - {formatDate(viewOrder.createdAt).date}</div>
+                </div>
+              </div>
+              
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 font-bold text-xs uppercase tracking-wider text-slate-500">Order Items</div>
+                <ul className="divide-y divide-slate-100">
+                  {viewOrder.items.map((item, idx) => (
+                    <li key={idx} className="p-4 flex justify-between items-center">
+                      <div className="flex items-center space-x-3">
+                        <span className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-black text-xs">{item.qty}x</span>
+                        <span className="font-bold text-sm text-slate-900">{item.name}</span>
+                      </div>
+                      <span className="text-sm font-extrabold text-slate-900">₹ {(item.price * item.qty).toFixed(2)}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="p-4 bg-slate-50/80 border-t border-slate-200">
+                  <div className="flex justify-between text-sm font-semibold text-slate-500 mb-2">
+                    <span>Subtotal</span>
+                    <span>₹ {viewOrder.subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm font-semibold text-slate-500 mb-3">
+                    <span>Tax</span>
+                    <span>₹ {viewOrder.tax.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between font-black text-lg pt-3 border-t border-slate-200 text-slate-900">
+                    <span>Total</span>
+                    <span className="text-emerald-600">₹ {viewOrder.total.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );
