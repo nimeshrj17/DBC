@@ -59,12 +59,15 @@ export default function OrdersPage() {
         
       let newTableStatus = table.status;
       
-      if (activeOrdersForTable.some(o => o.status === 'preparing' || o.status === 'prepared')) {
+      // Determine highest priority status for the table
+      if (activeOrdersForTable.some(o => o.status === 'preparing')) {
         newTableStatus = 'preparing';
-      } else if (activeOrdersForTable.every(o => o.status === 'served')) {
-        newTableStatus = 'served';
+      } else if (activeOrdersForTable.some(o => o.status === 'prepared')) {
+        newTableStatus = 'prepared';
       } else if (activeOrdersForTable.every(o => o.status === 'billed')) {
         newTableStatus = 'awaiting_payment';
+      } else if (activeOrdersForTable.every(o => o.status === 'served')) {
+        newTableStatus = 'served';
       } else if (activeOrdersForTable.some(o => o.status === 'pending')) {
         newTableStatus = 'order_placed';
       }
