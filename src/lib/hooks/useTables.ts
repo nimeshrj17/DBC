@@ -8,7 +8,7 @@ export interface Table {
   name?: string;
   section?: string;
   seats: number;
-  status: 'empty' | 'occupied' | 'order_placed' | 'preparing' | 'served' | 'awaiting_payment';
+  status: 'empty' | 'occupied' | 'order_placed' | 'preparing' | 'prepared' | 'served' | 'awaiting_payment';
   activeOrderIds: string[];
   time?: string;
   price?: string;
