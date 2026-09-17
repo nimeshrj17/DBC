@@ -371,6 +371,7 @@ export default function DashboardLayout({
 
         {children}
         <GlobalPaymentAlert />
+      <PrintAgent />
 
         {/* Mobile padding for bottom nav */}
         <div className="h-20 md:hidden block"></div>
