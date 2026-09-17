@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Coffee } from 'lucide-react';
 import { GlobalPaymentAlert } from '@/components/dashboard/GlobalPaymentAlert';
 import { useOrders } from '@/lib/hooks/useOrders';
+import PrintAgent from '@/components/PrintAgent';
 
 export default function DashboardLayout({
   children,

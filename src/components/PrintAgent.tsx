@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { collection, query, where, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 
 export default function PrintAgent() {
   const printingRef = useRef<Set<string>>(new Set());
