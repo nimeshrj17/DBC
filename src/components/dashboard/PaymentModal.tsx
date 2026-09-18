@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 import { X, Banknote, QrCode, CheckCircle2 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useSettings } from '@/lib/hooks/useSettings';
@@ -21,7 +22,7 @@ export default function PaymentModal({ orderId, displayId, total, tableId, onClo
   const handlePushToBox = async () => {
     setIsProcessing(true);
     try {
-      const { toast } = require('sonner');
+      
       const toastId = toast.loading('Pushing to Paytm Smart Box...');
       const res = await fetch('/api/paytm', {
         method: 'POST',
@@ -41,7 +42,7 @@ export default function PaymentModal({ orderId, displayId, total, tableId, onClo
         throw new Error(data.error);
       }
     } catch (e: any) {
-      const { toast } = require('sonner');
+      
       toast.error('Failed to connect to Paytm: ' + e.message);
     } finally {
       setIsProcessing(false);
