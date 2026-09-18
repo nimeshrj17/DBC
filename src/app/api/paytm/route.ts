@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     
     paytmParams.body = {
         "mid"           : MID,
-        "orderId"       : orderId,
+        "orderId"       : orderId + "_" + Date.now(), // Ensure strictly unique orderId per push attempt
         "amount"        : amount.toString(),
         "businessType"  : "UPI_QR_CODE",
         "posId"         : TID
@@ -56,10 +56,10 @@ export async function POST(req: Request) {
           message: "Pushed to Paytm Smart Box successfully!" 
         });
     } else {
-        const errorMsg = responseData.body?.resultInfo?.resultMsg || "Failed to push to device";
+        const errorMsg = responseData.body?.resultInfo?.resultMsg || JSON.stringify(responseData);
         return NextResponse.json({ 
           success: false, 
-          error: errorMsg 
+          error: `Paytm Error: ${errorMsg}` 
         }, { status: 400 });
     }
 
