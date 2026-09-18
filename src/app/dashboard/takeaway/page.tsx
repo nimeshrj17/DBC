@@ -58,7 +58,7 @@ export default function TakeawayPage() {
   };
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  const tax = subtotal * 0.05; // 5% GST
+  const tax = 0;
   const total = subtotal + tax;
 
   const handlePlaceOrder = async () => {
@@ -281,7 +281,7 @@ export default function TakeawayPage() {
             <div className="p-6 bg-white border-t border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
               <div className="space-y-2 mb-4 text-sm">
                 <div className="flex justify-between text-slate-500"><span>Subtotal</span><span className="font-semibold text-slate-700">₹{subtotal.toFixed(2)}</span></div>
-                <div className="flex justify-between text-slate-500"><span>GST (5%)</span><span className="font-semibold text-slate-700">₹{tax.toFixed(2)}</span></div>
+                
                 <div className="pt-2 border-t border-slate-100 flex justify-between text-lg font-black text-slate-900"><span>Total</span><span>₹{total.toFixed(2)}</span></div>
               </div>
               <button
