@@ -18,7 +18,14 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const tableId = resolvedParams.tableId;
 
   const { menuItems: rawMenuItems, loading: menuLoading } = useMenu();
-  const menuItems = rawMenuItems.filter(i => !i.isRetail && i.category !== 'Retail');
+  const menuItems = rawMenuItems.filter(i => {
+    const isSoftDrink = i.category && (
+      i.category.toLowerCase().includes('soft drink') || 
+      i.category.toLowerCase().includes('softdrink') ||
+      i.category.toLowerCase().includes('cold drink')
+    );
+    return (!i.isRetail && i.category !== 'Retail') || isSoftDrink;
+  });
   
   const categories = Array.from(new Set(menuItems.map(item => item.category)));
 

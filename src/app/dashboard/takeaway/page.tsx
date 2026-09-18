@@ -10,7 +10,7 @@ interface CartItem extends MenuItem {
 
 export default function TakeawayPage() {
   const { menuItems: rawMenuItems, loading: menuLoading } = useMenu();
-  const menuItems = rawMenuItems.filter(i => !i.isRetail && i.category !== 'Retail');
+  const menuItems = rawMenuItems;
   const categories = ['All', ...Array.from(new Set(menuItems.map(item => item.category)))];
 
   const [cart, setCart] = useState<CartItem[]>([]);
