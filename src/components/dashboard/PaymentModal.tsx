@@ -7,14 +7,46 @@ interface PaymentModalProps {
   orderId: string;
   displayId: string;
   total: number;
+  tableId?: string;
   onClose: () => void;
   onConfirmPayment: (method: 'cash' | 'qr') => Promise<void>;
 }
 
-export default function PaymentModal({ orderId, displayId, total, onClose, onConfirmPayment }: PaymentModalProps) {
+export default function PaymentModal({ orderId, displayId, total, tableId, onClose, onConfirmPayment }: PaymentModalProps) {
   const { settings } = useSettings();
   const [view, setView] = useState<'select' | 'qr'>('select');
   const [isProcessing, setIsProcessing] = useState(false);
+
+  
+  const handlePushToBox = async () => {
+    setIsProcessing(true);
+    try {
+      const { toast } = require('sonner');
+      const toastId = toast.loading('Pushing to Paytm Smart Box...');
+      const res = await fetch('/api/paytm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId,
+          amount: total,
+          tableId: tableId || ''
+        })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        toast.success('Amount pushed to Smart Box!', { id: toastId });
+        setView('qr'); // Or stay and just wait
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (e: any) {
+      const { toast } = require('sonner');
+      toast.error('Failed to connect to Paytm: ' + e.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const handleConfirm = async (method: 'cash' | 'qr') => {
     setIsProcessing(true);
@@ -71,28 +103,39 @@ export default function PaymentModal({ orderId, displayId, total, onClose, onCon
           </div>
 
           {view === 'select' && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-3">
               <button 
                 onClick={() => handleConfirm('cash')}
                 disabled={isProcessing}
-                className="flex flex-col items-center justify-center p-6 border-2 border-border rounded-2xl hover:border-primary hover:bg-primary/5 transition-all group disabled:opacity-50"
+                className="flex flex-col items-center justify-center p-4 border-2 border-border rounded-2xl hover:border-primary hover:bg-primary/5 transition-all group disabled:opacity-50"
               >
-                <div className="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <Banknote className="w-6 h-6" />
+                <div className="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                  <Banknote className="w-5 h-5" />
                 </div>
-                <span className="font-bold">Cash</span>
+                <span className="font-bold text-sm text-center leading-tight">Cash<br/>Payment</span>
               </button>
               <button 
                 onClick={() => {
                   setView('qr');
                 }}
                 disabled={isProcessing}
-                className="flex flex-col items-center justify-center p-6 border-2 border-border rounded-2xl hover:border-primary hover:bg-primary/5 transition-all group disabled:opacity-50"
+                className="flex flex-col items-center justify-center p-4 border-2 border-border rounded-2xl hover:border-primary hover:bg-primary/5 transition-all group disabled:opacity-50"
               >
-                <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <QrCode className="w-6 h-6" />
+                <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                  <QrCode className="w-5 h-5" />
                 </div>
-                <span className="font-bold">QR / Online</span>
+                <span className="font-bold text-sm text-center leading-tight">Scan<br/>Phone</span>
+              </button>
+
+              <button 
+                onClick={handlePushToBox}
+                disabled={isProcessing}
+                className="flex flex-col items-center justify-center p-4 border-2 border-border rounded-2xl hover:border-sky-400 hover:bg-sky-50 transition-all group disabled:opacity-50"
+              >
+                <div className="w-10 h-10 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
+                </div>
+                <span className="font-bold text-sm text-center leading-tight">Smart<br/>Box</span>
               </button>
             </div>
           )}

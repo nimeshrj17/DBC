@@ -409,6 +409,7 @@ export default function OrdersPage() {
         <PaymentModal 
           orderId={orderToPay.id}
           displayId={orderToPay.displayId}
+          tableId={orderToPay.tableId}
           total={orderToPay.total}
           onClose={() => setOrderToPay(null)}
           onConfirmPayment={async (method) => {
