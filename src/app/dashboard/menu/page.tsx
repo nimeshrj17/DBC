@@ -126,7 +126,7 @@ export default function MenuPage() {
           <Button 
             variant="primary" 
             className="shadow-[0_0_15px_rgba(204,255,0,0.3)] whitespace-nowrap"
-            onClick={() => setIsAddModalOpen(true)}
+            onClick={handleOpenAdd}
           >
             <Plus className="w-4 h-4 mr-2" /> Add Item
           </Button>

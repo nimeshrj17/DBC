@@ -332,15 +332,15 @@ export default function AnalyticsPage() {
 
       {/* Order Details Modal */}
       {viewOrder && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[99999] p-4 backdrop-blur-sm" onClick={() => setViewOrder(null)}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[999999] p-4 backdrop-blur-sm" onClick={() => setViewOrder(null)}>
           <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden border border-slate-200" onClick={e => e.stopPropagation()}>
             <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <div>
                 <h2 className="text-xl font-black text-slate-900">Order Details</h2>
-                <p className="text-sm font-medium text-slate-500 mt-1">#{viewOrder.displayId || (viewOrder.id || '').slice(0,8)} • {(viewOrder as any).tableName || `Table ${viewOrder.tableNumber}`}</p>
-                {(viewOrder.customerName || viewOrder.customerPhone) && (
+                <p className="text-sm font-medium text-slate-500 mt-1">#{viewOrder?.displayId || (viewOrder?.id || '').slice(0,8)} • {(viewOrder as any)?.tableName || `Table ${viewOrder?.tableNumber}`}</p>
+                {(viewOrder?.customerName || viewOrder?.customerPhone) && (
                   <p className="text-sm font-bold text-orange-600 mt-1">
-                    {viewOrder.customerName} {viewOrder.customerPhone ? `(${viewOrder.customerPhone})` : ''}
+                    {viewOrder?.customerName} {viewOrder?.customerPhone ? `(${viewOrder?.customerPhone})` : ''}
                   </p>
                 )}
               </div>
@@ -361,14 +361,14 @@ export default function AnalyticsPage() {
                 </div>
                 <div className="text-right">
                   <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">Settled At</div>
-                  <div className="mt-1 font-bold text-slate-900">{formatDate(viewOrder.createdAt).time} - {formatDate(viewOrder.createdAt).date}</div>
+                  <div className="mt-1 font-bold text-slate-900">{formatDate(viewOrder?.createdAt).time} - {formatDate(viewOrder?.createdAt).date}</div>
                 </div>
               </div>
               
               <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
                 <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 font-bold text-xs uppercase tracking-wider text-slate-500">Order Items</div>
                 <ul className="divide-y divide-slate-100">
-                  {(viewOrder.items || []).map((item, idx) => {
+                  {((viewOrder && viewOrder.items) || []).map((item: any, idx: number) => {
                     if (!item) return null;
                     return (
                       <li key={idx} className="p-4 flex justify-between items-center">
@@ -384,15 +384,15 @@ export default function AnalyticsPage() {
                 <div className="p-4 bg-slate-50/80 border-t border-slate-200">
                   <div className="flex justify-between text-sm font-semibold text-slate-500 mb-2">
                     <span>Subtotal</span>
-                    <span>₹ {(viewOrder.subtotal || 0).toFixed(2)}</span>
+                    <span>₹ {(viewOrder?.subtotal || 0).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm font-semibold text-slate-500 mb-3">
                     <span>Tax</span>
-                    <span>₹ {(viewOrder.tax || 0).toFixed(2)}</span>
+                    <span>₹ {(viewOrder?.tax || 0).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between font-black text-lg pt-3 border-t border-slate-200 text-slate-900">
                     <span>Total</span>
-                    <span className="text-emerald-600">₹ {(viewOrder.total || 0).toFixed(2)}</span>
+                    <span className="text-emerald-600">₹ {(viewOrder?.total || 0).toFixed(2)}</span>
                   </div>
                 </div>
               </div>
