@@ -111,6 +111,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) return false;
     if (user.role === 'admin') return true;
     
+    if (user.customPermissions && typeof user.customPermissions[permission] === 'boolean') {
+      return user.customPermissions[permission];
+    }
+    
     switch (permission) {
       case 'view_revenue':
         return user.role === 'manager' && user.canViewRevenue === true;

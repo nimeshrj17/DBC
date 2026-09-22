@@ -19,7 +19,15 @@ export default function StaffPage() {
     pin: '',
     role: 'cashier',
     isActive: true,
-    canViewRevenue: false
+    canViewRevenue: false,
+    customPermissions: {
+      manage_menu: false,
+      manage_inventory: false,
+      deduct_inventory: false,
+      view_revenue: false,
+      takeaway_billing: false,
+      edit_placed_orders: false
+    }
   });
 
   if (loading) {
@@ -38,7 +46,15 @@ export default function StaffPage() {
 
   const handleOpenAdd = () => {
     setEditingId(null);
-    setFormData({ name: '', pin: '', role: 'cashier', isActive: true, canViewRevenue: false });
+    setFormData({ name: '', pin: '', role: 'cashier', isActive: true, canViewRevenue: false,
+    customPermissions: {
+      manage_menu: false,
+      manage_inventory: false,
+      deduct_inventory: false,
+      view_revenue: false,
+      takeaway_billing: false,
+      edit_placed_orders: false
+    } });
     setIsModalOpen(true);
   };
 
@@ -49,7 +65,15 @@ export default function StaffPage() {
       pin: member.pin,
       role: member.role,
       isActive: member.isActive,
-      canViewRevenue: member.canViewRevenue || false
+      canViewRevenue: member.canViewRevenue || false,
+      customPermissions: {
+        manage_menu: member.customPermissions?.manage_menu ?? (member.role === 'manager'),
+        manage_inventory: member.customPermissions?.manage_inventory ?? (member.role === 'manager'),
+        deduct_inventory: member.customPermissions?.deduct_inventory ?? false,
+        view_revenue: member.customPermissions?.view_revenue ?? (member.role === 'manager' && !!member.canViewRevenue),
+        takeaway_billing: member.customPermissions?.takeaway_billing ?? (member.role === 'manager' || member.role === 'cashier'),
+        edit_placed_orders: member.customPermissions?.edit_placed_orders ?? false
+      }
     });
     setIsModalOpen(true);
   };
@@ -196,7 +220,18 @@ export default function StaffPage() {
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Role</label>
                 <select 
                   value={formData.role}
-                  onChange={e => setFormData({...formData, role: e.target.value})}
+                  onChange={e => {
+                    const newRole = e.target.value;
+                    const defaultPerms = {
+                      manage_menu: newRole === 'manager',
+                      manage_inventory: newRole === 'manager',
+                      deduct_inventory: false,
+                      view_revenue: newRole === 'manager',
+                      takeaway_billing: newRole === 'manager' || newRole === 'cashier',
+                      edit_placed_orders: false
+                    };
+                    setFormData({...formData, role: newRole, customPermissions: defaultPerms});
+                  }}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900"
                 >
                   <option value="admin">Admin / Owner (Full Access)</option>
@@ -206,18 +241,40 @@ export default function StaffPage() {
                 </select>
               </div>
 
-              {formData.role === 'manager' && (
-                <div className="flex items-center space-x-2 pt-2 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                  <input 
-                    type="checkbox" 
-                    id="canViewRevenue"
-                    checked={formData.canViewRevenue}
-                    onChange={(e) => setFormData({...formData, canViewRevenue: e.target.checked})}
-                    className="w-4 h-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
-                  />
-                  <label htmlFor="canViewRevenue" className="text-sm font-semibold text-slate-700 cursor-pointer select-none">
-                    Allow Manager to view Revenue/Analytics
-                  </label>
+              {formData.role !== 'admin' && (
+                <div className="pt-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2 border-b border-slate-200 pb-2">Custom Permissions</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    {[
+                      { id: 'view_revenue', label: 'View Revenue & Analytics' },
+                      { id: 'manage_menu', label: 'Add/Edit Menu Items' },
+                      { id: 'manage_inventory', label: 'Add Inventory Stock' },
+                      { id: 'deduct_inventory', label: 'Deduct Inventory Stock' },
+                      { id: 'takeaway_billing', label: 'Process Takeaway Billing' },
+                      { id: 'edit_placed_orders', label: 'Delete Placed Order Items' }
+                    ].map(perm => (
+                      <div key={perm.id} className="flex items-center space-x-2">
+                        <input 
+                          type="checkbox" 
+                          id={`perm-${perm.id}`}
+                          checked={formData.customPermissions[perm.id as keyof typeof formData.customPermissions] || false}
+                          onChange={(e) => {
+                            setFormData({
+                              ...formData, 
+                              customPermissions: {
+                                ...formData.customPermissions,
+                                [perm.id]: e.target.checked
+                              }
+                            });
+                          }}
+                          className="w-4 h-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
+                        />
+                        <label htmlFor={`perm-${perm.id}`} className="text-xs font-semibold text-slate-700 cursor-pointer select-none">
+                          {perm.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 

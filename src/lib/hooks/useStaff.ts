@@ -11,6 +11,15 @@ export interface Staff {
   role: Role;
   isActive: boolean;
   canViewRevenue?: boolean;
+  customPermissions?: {
+    manage_menu?: boolean;
+    manage_inventory?: boolean;
+    deduct_inventory?: boolean;
+    view_revenue?: boolean;
+    takeaway_billing?: boolean;
+    edit_placed_orders?: boolean;
+    [key: string]: boolean | undefined;
+  };
   createdAt?: any;
 }
 

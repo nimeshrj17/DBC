@@ -283,19 +283,29 @@ export default function DashboardLayout({
           </nav>
         </div>
         <div className="p-4 border-t border-slate-800/80">
-          <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition cursor-pointer">
+          <div className="flex flex-col gap-2 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="w-10 h-10 rounded-xl bg-[#D9F927] text-slate-900 font-extrabold flex items-center justify-center text-base shadow-sm">
-                  B
+                <div className="w-10 h-10 rounded-xl bg-[#D9F927] text-slate-900 font-extrabold flex items-center justify-center text-base shadow-sm uppercase">
+                  {user?.name ? user.name.charAt(0) : 'U'}
                 </div>
                 <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
               </div>
-              <div>
-                <h4 className="text-sm font-semibold text-white tracking-wide">Bella</h4>
-                <p className="text-xs text-slate-400 font-medium">Store Owner</p>
+              <div className="flex-1 overflow-hidden">
+                <h4 className="text-sm font-semibold text-white tracking-wide truncate">{user?.name}</h4>
+                <p className="text-xs text-slate-400 font-medium uppercase tracking-wider truncate">{user?.role}</p>
               </div>
             </div>
+            <button 
+              onClick={() => {
+                if (window.confirm("Are you sure you want to log out?")) {
+                  logout();
+                }
+              }}
+              className="mt-2 w-full py-2 bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-400 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors border border-slate-700 hover:border-rose-900/50"
+            >
+              Log Out
+            </button>
           </div>
         </div>
       </aside>
@@ -306,7 +316,7 @@ export default function DashboardLayout({
         <header className="hidden md:flex px-8 pt-8 pb-6 border-b border-slate-200/80 bg-white/80 backdrop-blur-md sticky top-0 z-20 items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <h2 className="text-2xl font-bold font-display tracking-tight text-slate-900">Good morning, {user.name}!</h2>
+              <h2 className="text-2xl font-bold font-display tracking-tight text-slate-900">Good morning, {user?.name}!</h2>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 Morning Shift
@@ -348,9 +358,21 @@ export default function DashboardLayout({
 
         {/* Mobile Header (from mobile_dashboard.html) */}
         <section className="md:hidden px-5 pt-3 pb-5 bg-white border-b border-slate-100" data-purpose="greeting-kpis">
-          <div className="mb-4">
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Good morning, {user.name}!</h1>
-            <p className="text-xs text-slate-500 mt-0.5 font-medium">Here's what's happening at your cafe today.</p>
+          <div className="mb-4 flex justify-between items-start">
+            <div>
+              <h1 className="text-2xl font-black text-slate-900 tracking-tight">Hi, {user?.name}!</h1>
+              <p className="text-xs text-slate-500 mt-0.5 font-medium uppercase tracking-wider">{user?.role}</p>
+            </div>
+            <button 
+              onClick={() => {
+                if (window.confirm("Are you sure you want to log out?")) {
+                  logout();
+                }
+              }}
+              className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-xs font-bold border border-rose-100"
+            >
+              Logout
+            </button>
           </div>
           <div className="grid grid-cols-2 gap-3" data-purpose="quick-metrics">
             <div className="bg-white border border-slate-150 rounded-2xl p-3.5 shadow-sm hover:border-slate-300 transition-colors">
