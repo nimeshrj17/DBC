@@ -7,6 +7,10 @@ import { useInventory, InventoryItem } from '@/lib/hooks/useInventory';
 import { useMenu } from '@/lib/hooks/useMenu';
 import { Timestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
+import { useAuth } from '@/lib/context/AuthContext';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { useEffect } from 'react';
 
 const formatDate = (timestamp: any) => {
   if (!timestamp) return { time: '', date: '' };
@@ -16,9 +20,29 @@ const formatDate = (timestamp: any) => {
 
 export default function InventoryPage() {
   const { inventory, loading, addInventoryItem, updateInventoryItem, deleteInventoryItem } = useInventory();
+  const { hasPermission } = useAuth();
   const { menuItems, addMenuItem, updateMenuItem } = useMenu();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'raw' | 'retail'>('raw');
+  const [activeTab, setActiveTab] = useState<'raw' | 'retail' | 'activity'>('raw');
+  const [activities, setActivities] = useState<any[]>([]);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const q = query(collection(db, 'inventory_logs'), orderBy('timestamp', 'desc'), limit(50));
+    return onSnapshot(q, (snap) => setActivities(snap.docs.map(d => ({id: d.id, ...d.data()}))));
+  }, []);
+
+  const logActivity = async (action: string, item: string, details: string) => {
+    if (!user) return;
+    await addDoc(collection(db, 'inventory_logs'), {
+      action,
+      item,
+      details,
+      user: user.name,
+      role: user.role,
+      timestamp: serverTimestamp()
+    });
+  };
   
   const initialForm = {
     name: '',
@@ -218,7 +242,7 @@ export default function InventoryPage() {
 
       setIsAddModalOpen(false);
       setEditingItemId(null);
-      setFormData({ ...initialForm, type: activeTab });
+      setFormData({ ...initialForm, type: activeTab === 'activity' ? 'raw' : activeTab });
     } catch (error) {
       console.error(error);
       toast.error("Failed to add inventory item.");
@@ -283,7 +307,7 @@ export default function InventoryPage() {
           <button 
             onClick={() => {
               setEditingItemId(null);
-              setFormData(prev => ({ ...prev, type: activeTab }));
+              setFormData(prev => ({ ...prev, type: activeTab === 'activity' ? 'raw' : activeTab }));
               setIsAddModalOpen(true);
             }}
             className="md:hidden bg-brand-lime hover:bg-[#b5de10] active:scale-95 transition-all text-black font-extrabold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm border border-lime-400"
@@ -316,7 +340,7 @@ export default function InventoryPage() {
           <button 
             onClick={() => {
               setEditingItemId(null);
-              setFormData(prev => ({ ...prev, type: activeTab }));
+              setFormData(prev => ({ ...prev, type: activeTab === 'activity' ? 'raw' : activeTab }));
               setIsAddModalOpen(true);
             }}
             className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-lime hover:bg-[#b5de10] text-slate-950 text-sm font-bold shadow-sm transition transform active:scale-95 whitespace-nowrap"

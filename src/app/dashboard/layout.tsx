@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Coffee } from 'lucide-react';
 import { GlobalPaymentAlert } from '@/components/dashboard/GlobalPaymentAlert';
 import { useOrders } from '@/lib/hooks/useOrders';
+import { useAuth } from '@/lib/context/AuthContext';
 import PrintAgent from '@/components/PrintAgent';
 
 export default function DashboardLayout({
@@ -13,6 +14,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const { user, loading: authLoading, login, logout, hasPermission } = useAuth();
   const { orders } = useOrders();
 
   // Calculate live orders (not completed, not cancelled)
@@ -122,7 +124,7 @@ export default function DashboardLayout({
 
   if (isChecking) return <div className="h-screen bg-slate-900" />;
 
-  if (!isAuthenticated) {
+  if (!user) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 font-sans">
         <div className="bg-slate-800 p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center animate-in zoom-in-95">
@@ -208,6 +210,7 @@ export default function DashboardLayout({
               {liveOrdersCount > 0 && <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">{liveOrdersCount}</span>}
             </Link>
 
+            {hasPermission('takeaway_billing') && (
             <Link href="/dashboard/takeaway" className={getLinkClass('/dashboard/takeaway')}>
               <div className="flex items-center gap-3.5">
                 <svg className="w-5 h-5 group-hover:text-slate-200 transition-colors" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
@@ -216,6 +219,8 @@ export default function DashboardLayout({
                 <span className="text-sm">Takeaway / Parcel</span>
               </div>
             </Link>
+            )}
+            {hasPermission('takeaway_billing') && (
             <Link href="/dashboard/customers" className={getLinkClass('/dashboard/customers')}>
               <div className="flex items-center gap-3.5">
                 <svg className="w-5 h-5 group-hover:text-slate-200" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -224,6 +229,8 @@ export default function DashboardLayout({
                 <span className="text-sm">Customers</span>
               </div>
             </Link>
+            )}
+            {hasPermission('manage_menu') && (
             <Link href="/dashboard/menu" className={getLinkClass('/dashboard/menu')}>
               <div className="flex items-center gap-3.5">
                 <svg className="w-5 h-5 group-hover:text-slate-200" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -232,8 +239,10 @@ export default function DashboardLayout({
                 <span className="text-sm">Menu</span>
               </div>
             </Link>
+            )}
             
-        <Link href="/dashboard/inventory" className={getLinkClass('/dashboard/inventory')}>
+        {hasPermission('manage_inventory') && (
+            <Link href="/dashboard/inventory" className={getLinkClass('/dashboard/inventory')}>
               <div className="flex items-center gap-3.5">
                 <svg className="w-5 h-5 group-hover:text-slate-200" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
                   <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" strokeLinecap="round" strokeLinejoin="round"></path>
@@ -241,6 +250,8 @@ export default function DashboardLayout({
                 <span className="text-sm">Inventory</span>
               </div>
             </Link>
+            )}
+            {hasPermission('view_revenue') && (
             <Link href="/dashboard/analytics" className={getLinkClass('/dashboard/analytics')}>
               <div className="flex items-center gap-3.5">
                 <svg className="w-5 h-5 group-hover:text-slate-200" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -249,7 +260,21 @@ export default function DashboardLayout({
                 <span className="text-sm">Revenue / Analytics</span>
               </div>
             </Link>
+            )}
 
+            
+            {hasPermission('manage_staff') && (
+            <Link href="/dashboard/staff" className={getLinkClass('/dashboard/staff')}>
+              <div className="flex items-center gap-3.5">
+                <svg className="w-5 h-5 group-hover:text-slate-200" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <span className="text-sm">Staff Mgmt</span>
+              </div>
+            </Link>
+            )}
+
+            {hasPermission('manage_settings') && (
             <Link href="/dashboard/settings" className={getLinkClass('/dashboard/settings')}>
               <div className="flex items-center gap-3.5">
                 <svg className="w-5 h-5 group-hover:text-slate-200" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -259,6 +284,7 @@ export default function DashboardLayout({
                 <span className="text-sm">Settings</span>
               </div>
             </Link>
+            )}
           </nav>
         </div>
         <div className="p-4 border-t border-slate-800/80">
@@ -285,7 +311,7 @@ export default function DashboardLayout({
         <header className="hidden md:flex px-8 pt-8 pb-6 border-b border-slate-200/80 bg-white/80 backdrop-blur-md sticky top-0 z-20 items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <h2 className="text-2xl font-bold font-display tracking-tight text-slate-900">Good morning, Bella!</h2>
+              <h2 className="text-2xl font-bold font-display tracking-tight text-slate-900">Good morning, {user.name}!</h2>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 Morning Shift
@@ -328,7 +354,7 @@ export default function DashboardLayout({
         {/* Mobile Header (from mobile_dashboard.html) */}
         <section className="md:hidden px-5 pt-3 pb-5 bg-white border-b border-slate-100" data-purpose="greeting-kpis">
           <div className="mb-4">
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Good morning, Bella!</h1>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Good morning, {user.name}!</h1>
             <p className="text-xs text-slate-500 mt-0.5 font-medium">Here's what's happening at your cafe today.</p>
           </div>
           <div className="grid grid-cols-2 gap-3" data-purpose="quick-metrics">
@@ -383,12 +409,14 @@ export default function DashboardLayout({
 
       {/* Mobile Bottom Navigation (from mobile_dashboard.html) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 pt-2.5 pb-[env(safe-area-inset-bottom,24px)] z-40 flex justify-around items-center text-[10px] font-medium text-slate-500">
+        {hasPermission('takeaway_billing') && (
         <Link href="/dashboard/customers" className={getMobileLinkClass('/dashboard/customers')}>
           <svg className="w-5 h-5 stroke-current fill-none stroke-[1.8]" viewBox="0 0 24 24">
             <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" strokeLinecap="round" strokeLinejoin="round"></path>
           </svg>
           <span>Customers</span>
         </Link>
+        )}
         <Link href="/dashboard" className={getMobileLinkClass('/dashboard')}>
           <span className={pathname === '/dashboard' ? "p-1 rounded-xl bg-slate-100 text-slate-950" : "p-1"}>
             <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -407,6 +435,7 @@ export default function DashboardLayout({
           <span>Orders</span>
         </Link>
 
+        {hasPermission('takeaway_billing') && (
         <Link href="/dashboard/takeaway" className={getMobileLinkClass('/dashboard/takeaway')}>
           <div className="relative">
             <svg className="w-5 h-5 stroke-current fill-none stroke-[1.8]" viewBox="0 0 24 24">
@@ -415,25 +444,32 @@ export default function DashboardLayout({
           </div>
           <span>Takeaway</span>
         </Link>
+        )}
         
+        {hasPermission('manage_menu') && (
         <Link href="/dashboard/menu" className={getMobileLinkClass('/dashboard/menu')}>
           <svg className="w-5 h-5 stroke-current fill-none stroke-[1.8]" viewBox="0 0 24 24">
             <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" strokeLinecap="round" strokeLinejoin="round"></path>
           </svg>
           <span>Menu</span>
         </Link>
+        )}
+        {hasPermission('manage_inventory') && (
         <Link href="/dashboard/inventory" className={getMobileLinkClass('/dashboard/inventory')}>
           <svg className="w-5 h-5 stroke-current fill-none stroke-[1.8]" viewBox="0 0 24 24">
             <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" strokeLinecap="round" strokeLinejoin="round"></path>
           </svg>
           <span>Inventory</span>
         </Link>
+        )}
+        {hasPermission('view_revenue') && (
         <Link href="/dashboard/analytics" className={getMobileLinkClass('/dashboard/analytics')}>
           <svg className="w-5 h-5 stroke-current fill-none stroke-[1.8]" viewBox="0 0 24 24">
             <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" strokeLinecap="round" strokeLinejoin="round"></path>
           </svg>
           <span>Revenue</span>
         </Link>
+        )}
       </nav>
     </div>
   );

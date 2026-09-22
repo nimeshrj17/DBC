@@ -11,6 +11,7 @@ import { useOrders, OrderItem, Order } from '@/lib/hooks/useOrders';
 import { useInventory } from '@/lib/hooks/useInventory';
 import { useSettings } from '@/lib/hooks/useSettings';
 import { useCustomers } from '@/lib/hooks/useCustomers';
+import { useAuth } from '@/lib/context/AuthContext';
 import { doc, runTransaction, increment } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import QRCodeGenerator from '@/components/dashboard/QRCodeGenerator';
@@ -216,6 +217,7 @@ export default function DashboardPage() {
   const { orders, loading: ordersLoading, updateOrder, updateOrderStatus, createOrder, removeSentItemTransaction } = useOrders();
   const { settings, loading: settingsLoading } = useSettings();
   const { addOrUpdateCustomer, customers } = useCustomers();
+  const { hasPermission } = useAuth();
   
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
   const [editingTableId, setEditingTableId] = useState<string | null>(null);
@@ -281,6 +283,11 @@ export default function DashboardPage() {
   
   const handleRemoveSentItem = async (menuItemId: string) => {
     if (!selectedTable || isRemoving) return;
+    
+    if (!hasPermission('edit_placed_orders')) {
+        toast.error("You do not have permission to deduct placed items.");
+        return;
+    }
     
     // Find the order that has this item. Prefer newest orders first.
     const tblOrders = orders.filter(o => selectedTable.activeOrderIds?.includes(o.id)).sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis());
