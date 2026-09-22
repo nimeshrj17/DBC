@@ -249,14 +249,7 @@ export default function DashboardLayout({
                 <span className="text-sm">Revenue / Analytics</span>
               </div>
             </Link>
-            <Link href="/dashboard/kiosk" className={getLinkClass('/dashboard/kiosk')}>
-              <div className="flex items-center gap-3.5">
-                <svg className="w-5 h-5 group-hover:text-slate-200" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                  <path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" strokeLinecap="round" strokeLinejoin="round"></path>
-                </svg>
-                <span className="text-sm">Kiosk / Print Queue</span>
-              </div>
-            </Link>
+
             <Link href="/dashboard/settings" className={getLinkClass('/dashboard/settings')}>
               <div className="flex items-center gap-3.5">
                 <svg className="w-5 h-5 group-hover:text-slate-200" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
