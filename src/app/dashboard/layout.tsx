@@ -81,29 +81,24 @@ export default function DashboardLayout({
     prevOrdersRef.current = orders;
   }, [orders]);
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
-  const [pin, setPin] = useState('');
+      const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
 
-  useEffect(() => {
-    const auth = localStorage.getItem('adminAuth');
-    if (auth === 'true') {
-      setIsAuthenticated(true);
-    }
-    setIsChecking(false);
-  }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (pin === '895518') { // Default PIN
-      localStorage.setItem('adminAuth', 'true');
-      setIsAuthenticated(true);
-      setError(false);
-    } else {
+    setIsLoggingIn(true);
+    const success = await login(pin);
+    if (!success) {
       setError(true);
       setPin('');
+    } else {
+      setError(false);
     }
+    setIsLoggingIn(false);
   };
 
   const getLinkClass = (path: string) => {
@@ -122,7 +117,7 @@ export default function DashboardLayout({
     return "flex flex-col items-center space-y-1 hover:text-slate-900 transition-colors text-slate-500";
   };
 
-  if (isChecking) return <div className="h-screen bg-slate-900" />;
+  if (authLoading) return <div className="h-screen bg-slate-900" />;
 
   if (!user) {
     return (
@@ -149,7 +144,7 @@ export default function DashboardLayout({
             
             <button 
               type="submit"
-              disabled={pin.length < 6}
+              disabled={pin.length < 4 || isLoggingIn}
               onClick={() => {
                 import('@/lib/audio').then(({ initAudio }) => initAudio());
               }}
