@@ -328,7 +328,7 @@ export default function AnalyticsPage() {
             )}
           </div>
         </section>
-
+      </div>
 
       {/* Order Details Modal */}
       {viewOrder && (
@@ -400,7 +400,6 @@ export default function AnalyticsPage() {
           </div>
         </div>
       )}
-      </div>
     </div>
   );
 }
