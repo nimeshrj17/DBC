@@ -216,9 +216,7 @@ export default function DashboardPage() {
   const { menuItems } = useMenu();
   const { tables, loading, updateTableStatus, addTable, updateTableDetails, deleteTable, transferTable, updateTablePosition } = useTables();
   const { orders, loading: ordersLoading, updateOrder, updateOrderStatus, createOrder, removeSentItemTransaction } = useOrders();
-  const { settings, updateSettings, loading: settingsLoading } = useSettings();
-  const [isManageSectionsOpen, setIsManageSectionsOpen] = useState(false);
-  const [newSectionName, setNewSectionName] = useState('');
+  const { settings, loading: settingsLoading } = useSettings();
   const { addOrUpdateCustomer, customers } = useCustomers();
   const { hasPermission } = useAuth();
   
@@ -803,9 +801,6 @@ export default function DashboardPage() {
               </svg>
               <span>Add Table</span>
             </button>
-            <button onClick={() => setIsManageSectionsOpen(true)} className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm shadow-sm transition" type="button">
-              <span>Manage Sections</span>
-            </button>
             <div className="inline-flex p-1 bg-white border border-slate-200 rounded-xl shadow-xs">
               <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-lg ${viewMode === 'grid' ? 'bg-slate-100 text-slate-800' : 'text-slate-400 hover:text-slate-700'}`} title="Grid View" type="button">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -860,9 +855,6 @@ export default function DashboardPage() {
                 <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round"></path>
               </svg>
               <span>Add Table</span>
-            </button>
-            <button onClick={() => setIsManageSectionsOpen(true)} className="bg-slate-100 text-slate-700 font-bold px-3 py-2 rounded-xl text-xs shadow-sm mx-2" type="button">
-              Sections
             </button>
             <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200">
               <button onClick={() => setViewMode('grid')} className={`p-1.5 ${viewMode === 'grid' ? 'bg-white text-slate-900 rounded-lg shadow-xs' : 'text-slate-400 hover:text-slate-600 rounded-lg'}`} title="Grid View">
@@ -1612,81 +1604,6 @@ export default function DashboardPage() {
         </div>
       )}
     
-
-      {/* Manage Sections Modal */}
-      {isManageSectionsOpen && (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-background rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden border border-border">
-            <div className="p-6 border-b border-border flex justify-between items-center bg-muted/30">
-              <h3 className="text-xl font-bold">Manage Sections</h3>
-              <button type="button" onClick={() => setIsManageSectionsOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="p-6 space-y-4">
-              <ul className="space-y-2">
-                {(settings.tableSections || []).map((section: string) => (
-                  <li key={section} className="flex justify-between items-center bg-muted p-2 rounded-lg text-sm">
-                    <span className="font-medium text-foreground">{section}</span>
-                    <button 
-                      type="button"
-                      onClick={async () => {
-                        const newSections = settings.tableSections.filter((s: string) => s !== section);
-                        await updateSettings({ tableSections: newSections });
-                        toast.success("Section removed");
-                      }}
-                      className="text-red-500 hover:text-red-700 p-1"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              
-              <div className="flex gap-2 pt-2">
-                <input 
-                  type="text"
-                  value={newSectionName}
-                  onChange={(e) => setNewSectionName(e.target.value)}
-                  placeholder="New section name"
-                  className="flex-1 px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  onKeyDown={async (e) => {
-                    if (e.key === 'Enter' && newSectionName.trim()) {
-                      e.preventDefault();
-                      const val = newSectionName.trim();
-                      if ((settings.tableSections || []).includes(val)) {
-                         toast.error("Section already exists");
-                         return;
-                      }
-                      await updateSettings({ tableSections: [...(settings.tableSections || []), val] });
-                      setNewSectionName('');
-                      toast.success("Section added");
-                    }
-                  }}
-                />
-                <Button 
-                  type="button"
-                  onClick={async () => {
-                    if (!newSectionName.trim()) return;
-                    const val = newSectionName.trim();
-                    if ((settings.tableSections || []).includes(val)) {
-                       toast.error("Section already exists");
-                       return;
-                    }
-                    await updateSettings({ tableSections: [...(settings.tableSections || []), val] });
-                    setNewSectionName('');
-                    toast.success("Section added");
-                  }}
-                  variant="primary"
-                >
-                  Add
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

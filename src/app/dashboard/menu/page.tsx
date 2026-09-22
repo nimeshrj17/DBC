@@ -2,11 +2,10 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Search, Plus, MoreHorizontal, X, Edit2, Trash2 } from 'lucide-react';
+import { Search, Plus, MoreHorizontal, X, Edit2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useMenu } from '@/lib/hooks/useMenu';
 import { useInventory } from '@/lib/hooks/useInventory';
-import { useSettings } from '@/lib/hooks/useSettings';
 
 
 export default function MenuPage() {
@@ -14,9 +13,6 @@ export default function MenuPage() {
   const { inventory: inventoryItems } = useInventory();
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const { settings, updateSettings } = useSettings();
-  const [isManageCategoriesOpen, setIsManageCategoriesOpen] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState('');
   
   // Add/Edit Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -35,7 +31,7 @@ export default function MenuPage() {
     recipe: [] as { inventoryId: string, amount: number }[]
   });
 
-  const categories = ['All', ...(settings.menuCategories?.length ? settings.menuCategories : Array.from(new Set(menuItems.map(item => item.category))))];
+  const categories = ['All', ...Array.from(new Set(menuItems.map(item => item.category)))];
 
   const filteredItems = menuItems.filter(item => {
     const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
@@ -261,17 +257,14 @@ export default function MenuPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Category</label>
-                  <select 
+                  <input 
+                    type="text" 
                     required
                     value={formData.category}
                     onChange={(e) => setFormData({...formData, category: e.target.value})}
                     className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  >
-                    <option value="" disabled>Select a category</option>
-                    {settings.menuCategories?.map((cat: string) => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
+                    placeholder="e.g. Beverages"
+                  />
                 </div>
               </div>
               
@@ -394,81 +387,6 @@ export default function MenuPage() {
                 </Button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* Manage Categories Modal */}
-      {isManageCategoriesOpen && (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-background rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden border border-border">
-            <div className="p-6 border-b border-border flex justify-between items-center bg-muted/30">
-              <h3 className="text-xl font-bold">Manage Categories</h3>
-              <button type="button" onClick={() => setIsManageCategoriesOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="p-6 space-y-4">
-              <ul className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                {(settings.menuCategories || []).map((cat: string) => (
-                  <li key={cat} className="flex justify-between items-center bg-muted p-2 rounded-lg text-sm">
-                    <span className="font-medium text-foreground">{cat}</span>
-                    <button 
-                      type="button"
-                      onClick={async () => {
-                        const newCats = settings.menuCategories.filter((c: string) => c !== cat);
-                        await updateSettings({ menuCategories: newCats });
-                        toast.success("Category removed");
-                      }}
-                      className="text-red-500 hover:text-red-700 p-1"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              
-              <div className="flex gap-2 pt-2 border-t border-border">
-                <input 
-                  type="text"
-                  value={newCategoryName}
-                  onChange={(e) => setNewCategoryName(e.target.value)}
-                  placeholder="New category..."
-                  className="flex-1 px-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  onKeyDown={async (e) => {
-                    if (e.key === 'Enter' && newCategoryName.trim()) {
-                      e.preventDefault();
-                      const val = newCategoryName.trim();
-                      if ((settings.menuCategories || []).includes(val)) {
-                         toast.error("Category already exists");
-                         return;
-                      }
-                      await updateSettings({ menuCategories: [...(settings.menuCategories || []), val] });
-                      setNewCategoryName('');
-                      toast.success("Category added");
-                    }
-                  }}
-                />
-                <Button 
-                  type="button"
-                  onClick={async () => {
-                    if (!newCategoryName.trim()) return;
-                    const val = newCategoryName.trim();
-                    if ((settings.menuCategories || []).includes(val)) {
-                       toast.error("Category already exists");
-                       return;
-                    }
-                    await updateSettings({ menuCategories: [...(settings.menuCategories || []), val] });
-                    setNewCategoryName('');
-                    toast.success("Category added");
-                  }}
-                  variant="primary"
-                >
-                  Add
-                </Button>
-              </div>
-            </div>
           </div>
         </div>
       )}
