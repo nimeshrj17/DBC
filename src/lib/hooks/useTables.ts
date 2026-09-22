@@ -8,6 +8,8 @@ export interface Table {
   name?: string;
   section?: string;
   seats: number;
+  x?: number;
+  y?: number;
   status: 'empty' | 'occupied' | 'order_placed' | 'preparing' | 'prepared' | 'served' | 'awaiting_payment';
   activeOrderIds: string[];
   time?: string;
@@ -110,6 +112,10 @@ export function useTables() {
 
   const addTable = async (number: number, seats: number, name?: string, section?: string) => {
     try {
+      const exists = tables.some(t => t.number === number);
+      if (exists) {
+        throw new Error(`Table number ${number} already exists. Please choose a unique number.`);
+      }
       const docRef = await addDoc(collection(db, 'tables'), {
         number,
         name: name || `Table ${number}`,
@@ -125,9 +131,16 @@ export function useTables() {
     }
   };
 
-  const updateTableDetails = async (id: string, name: string, section: string, number: number, seats: number) => {
+  const updateTableDetails = async (id: string, name: string, section: string, number: number, seats: number, x?: number, y?: number) => {
     try {
-      await updateDoc(doc(db, 'tables', id), { name, section, number, seats });
+      const exists = tables.some(t => t.id !== id && t.number === number);
+      if (exists) {
+        throw new Error(`Table number ${number} already exists. Please choose a unique number.`);
+      }
+      const updateData: any = { name, section, number, seats };
+      if (x !== undefined) updateData.x = x;
+      if (y !== undefined) updateData.y = y;
+      await updateDoc(doc(db, 'tables', id), updateData);
     } catch (error) {
       console.error("Error updating table details:", error);
       throw error;
@@ -143,5 +156,13 @@ export function useTables() {
     }
   };
 
-  return { tables, loading, updateTableStatus, addTable, updateTableDetails, deleteTable, transferTable };
+    const updateTablePosition = async (id: string, x: number, y: number) => {
+    try {
+      await updateDoc(doc(db, 'tables', id), { x, y });
+    } catch (error) {
+      console.error("Error updating position:", error);
+    }
+  };
+
+  return { tables, loading, updateTableStatus, addTable, updateTableDetails, deleteTable, transferTable, updateTablePosition };
 }

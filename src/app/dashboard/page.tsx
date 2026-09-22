@@ -16,6 +16,7 @@ import { doc, runTransaction, increment } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import QRCodeGenerator from '@/components/dashboard/QRCodeGenerator';
 import PaymentModal from '@/components/dashboard/PaymentModal';
+import { FloorMap } from '@/components/dashboard/FloorMap';
 
 const getStatusColor = (status: string) => {
   switch(status) {
@@ -213,7 +214,7 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
 };
 export default function DashboardPage() {
   const { menuItems } = useMenu();
-  const { tables, loading, updateTableStatus, addTable, updateTableDetails, deleteTable, transferTable } = useTables();
+  const { tables, loading, updateTableStatus, addTable, updateTableDetails, deleteTable, transferTable, updateTablePosition } = useTables();
   const { orders, loading: ordersLoading, updateOrder, updateOrderStatus, createOrder, removeSentItemTransaction } = useOrders();
   const { settings, loading: settingsLoading } = useSettings();
   const { addOrUpdateCustomer, customers } = useCustomers();
@@ -240,7 +241,7 @@ export default function DashboardPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAddTableOpen, setIsAddTableOpen] = useState(false);
   const [draftOrders, setDraftOrders] = useState<Record<string, OrderItem[]>>({});
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'floor'>('grid');
   const [activeSection, setActiveSection] = useState('tables');
   const [activeZone, setActiveZone] = useState('All');
   
@@ -642,9 +643,9 @@ export default function DashboardPage() {
       setNewTableName('');
       setNewTableSection('Inner Hall');
       setNewTableSeats('');
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error(editingTableId ? "Failed to update table" : "Failed to add table");
+      toast.error(error.message || (editingTableId ? "Failed to update table" : "Failed to add table"));
     } finally {
       setIsSubmittingTable(false);
     }
@@ -811,6 +812,12 @@ export default function DashboardPage() {
                   <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
               </button>
+              <button onClick={() => setViewMode('floor')} className={`p-1.5 rounded-lg ${viewMode === 'floor' ? 'bg-slate-100 text-slate-800' : 'text-slate-400 hover:text-slate-700'}`} title="Floor Map" type="button">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M4 4h16v16H4z"></path>
+                  <path d="M9 4v16M15 4v16M4 9h16M4 15h16" opacity="0.3"></path>
+                </svg>
+              </button>
             </div>
           </div>
         </div>
@@ -860,6 +867,12 @@ export default function DashboardPage() {
                   <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
               </button>
+              <button onClick={() => setViewMode('floor')} className={`p-1.5 ${viewMode === 'floor' ? 'bg-white text-slate-900 rounded-lg shadow-xs' : 'text-slate-400 hover:text-slate-600 rounded-lg'}`} title="Floor Map">
+                <svg className="w-4 h-4 stroke-current fill-none stroke-2" viewBox="0 0 24 24">
+                  <path d="M4 4h16v16H4z"></path>
+                  <path d="M9 4v16M15 4v16M4 9h16M4 15h16" opacity="0.3"></path>
+                </svg>
+              </button>
             </div>
           </div>
         </div>
@@ -881,6 +894,15 @@ export default function DashboardPage() {
 
       {/* Tables Display Section */}
       <div className="px-5 md:px-8 pb-12 space-y-6 md:space-y-9 mt-2 md:mt-0">
+        {viewMode === 'floor' ? (
+          <FloorMap 
+            tables={tables} 
+            activeZone={activeZone} 
+            onSelectTable={(id: string) => setSelectedTableId(id)} 
+            onUpdatePosition={updateTablePosition} 
+          />
+        ) : (
+          <>
         {(() => {
           const activeTables = tables.filter(t => t.status !== 'empty' && (activeZone === 'All' || activeZone === 'Active' || (t.section || 'Main Hall') === activeZone)).sort((a, b) => {
             const getPriority = (status: string) => {
@@ -962,6 +984,8 @@ export default function DashboardPage() {
             <p className="text-muted-foreground mb-4">No tables found.</p>
             <Button onClick={() => setIsAddTableOpen(true)}>Create your first table</Button>
           </div>
+        )}
+        </>
         )}
       </div>
 
