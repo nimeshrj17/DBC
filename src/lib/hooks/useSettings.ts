@@ -6,12 +6,16 @@ export interface AppSettings {
   taxEnabled: boolean;
   taxPercentage: number;
   upiId: string;
+  menuCategories: string[];
+  tableSections: string[];
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
   taxEnabled: true,
   taxPercentage: 5,
   upiId: '',
+  menuCategories: ['Coffee', 'Tea', 'Snacks', 'Desserts', 'Cold Beverages', 'Other'],
+  tableSections: ['Main Hall', 'Inner Hall', 'Outdoor', 'Balcony']
 };
 
 export function useSettings() {
