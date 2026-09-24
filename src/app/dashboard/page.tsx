@@ -17,6 +17,7 @@ import { db } from '@/lib/firebase';
 import QRCodeGenerator from '@/components/dashboard/QRCodeGenerator';
 import PaymentModal from '@/components/dashboard/PaymentModal';
 import { FloorMap } from '@/components/dashboard/FloorMap';
+import { QuickSaleModal } from '@/components/dashboard/QuickSaleModal';
 
 const getStatusColor = (status: string) => {
   switch(status) {
@@ -71,7 +72,7 @@ const getIconColorClass = (status: string) => {
 };
 
 
-const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAddTableOpen }: any) => {
+const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAddTableOpen, onQuickAssign }: any) => {
   const tableOrders = table.activeOrderIds 
     ? orders.filter((o: any) => table.activeOrderIds.includes(o.id)) 
     : [];
@@ -87,7 +88,12 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
   else if (!isVacant) borderColor = 'border-blue-500 border-2';
 
   return (
-    <div onClick={() => setSelectedTableId(table.id)} className={`bg-white rounded-2xl ${borderColor} shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-md transition group cursor-pointer h-full min-h-[180px] md:min-h-[250px]`}>
+    <div onClick={() => {
+      setSelectedTableId(table.id);
+      if (isVacant && onQuickAssign) {
+        onQuickAssign(table.id);
+      }
+    }} className={`bg-white rounded-2xl ${borderColor} shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-md transition group cursor-pointer h-full min-h-[180px] md:min-h-[250px]`}>
       <div className="p-3.5 md:p-5 md:pb-4">
         <div className="flex items-start justify-between">
           <div>
@@ -240,6 +246,7 @@ export default function DashboardPage() {
   
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAddTableOpen, setIsAddTableOpen] = useState(false);
+  const [isQuickSaleOpen, setIsQuickSaleOpen] = useState(false);
   const [draftOrders, setDraftOrders] = useState<Record<string, OrderItem[]>>({});
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'floor'>('grid');
   const [activeSection, setActiveSection] = useState('tables');
@@ -734,6 +741,31 @@ export default function DashboardPage() {
     }
   };
 
+    const handleQuickAssignAndMenu = async (tid: string) => {
+    setIsAssigning(true);
+    const finalName = 'Assigned by Admin';
+    const finalPhone = '9999999999';
+    try {
+      await addOrUpdateCustomer(finalPhone, finalName);
+      const targetTable = tables.find(t => t.id === tid);
+      if (targetTable) {
+         await updateTableStatus(tid, 'occupied', targetTable.activeOrderIds || []);
+         await runTransaction(db, async (t) => {
+           t.update(doc(db, 'tables', tid), {
+             customerId: finalPhone,
+             customerName: finalName
+           });
+         });
+      }
+      setIsMenuOpen(true);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to assign table");
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+  
   const handleQuickAssign = async () => {
     setIsAssigning(true);
     if (!selectedTable) return;
@@ -745,12 +777,10 @@ export default function DashboardPage() {
       await runTransaction(db, async (t) => {
         t.update(doc(db, 'tables', selectedTable.id), {
           customerId: finalPhone,
-          customerName: finalName,
-          customerPhone: finalPhone,
-          status: 'occupied'
+          customerName: finalName
         });
       });
-      toast.success("Table marked as occupied");
+      setIsMenuOpen(true); // Open menu directly
     } catch (err) {
       console.error(err);
       toast.error("Failed to assign table");
@@ -801,6 +831,9 @@ export default function DashboardPage() {
               </svg>
               <span>Add Table</span>
             </button>
+            <button onClick={() => setIsQuickSaleOpen(true)} className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold text-sm shadow-sm transition" type="button">
+              <span>⚡ Quick Sale</span>
+            </button>
             <div className="inline-flex p-1 bg-white border border-slate-200 rounded-xl shadow-xs">
               <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-lg ${viewMode === 'grid' ? 'bg-slate-100 text-slate-800' : 'text-slate-400 hover:text-slate-700'}`} title="Grid View" type="button">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -850,6 +883,9 @@ export default function DashboardPage() {
             <p className="text-xs text-slate-400 font-medium">Overview of all dining tables at a glance</p>
           </div>
           <div className="flex items-center space-x-2">
+            <button onClick={() => setIsQuickSaleOpen(true)} className="bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold px-3 py-2 rounded-xl text-xs shadow-sm mx-1" type="button">
+              ⚡ Sale
+            </button>
             <button onClick={() => setIsAddTableOpen(true)} className="bg-[#D9F927] hover:bg-[#c9e81f] text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center space-x-1.5 shadow-sm active:scale-95 transition-all">
               <svg className="w-3.5 h-3.5 stroke-current fill-none stroke-[3]" viewBox="0 0 24 24">
                 <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round"></path>
@@ -935,6 +971,7 @@ export default function DashboardPage() {
                     setSelectedTableId={setSelectedTableId} 
                     onClearTable={handleClearTable}
                     setIsAddTableOpen={setIsAddTableOpen}
+                    onQuickAssign={handleQuickAssignAndMenu}
                   />
                 ))}
               </div>
@@ -965,6 +1002,7 @@ export default function DashboardPage() {
                   setSelectedTableId={setSelectedTableId} 
                   onClearTable={handleClearTable}
                   setIsAddTableOpen={setIsAddTableOpen}
+                  onQuickAssign={handleQuickAssignAndMenu}
                 />
               ))}
               {/* Quick Add Table Card Prompt */}
@@ -1604,6 +1642,8 @@ export default function DashboardPage() {
         </div>
       )}
     
+
+      <QuickSaleModal isOpen={isQuickSaleOpen} onClose={() => setIsQuickSaleOpen(false)} />
     </>
   );
 }

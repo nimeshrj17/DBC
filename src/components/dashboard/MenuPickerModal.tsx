@@ -14,19 +14,52 @@ interface MenuPickerModalProps {
 export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems = [] }: MenuPickerModalProps) {
   const { menuItems, loading: menuLoading } = useMenu();
   const { inventory, loading: invLoading } = useInventory();
-  const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [activeCategory, setActiveCategory] = useState<string>('Popular');
   const [searchQuery, setSearchQuery] = useState('');
 
   if (!isOpen) return null;
 
-  const categories = ['All', ...Array.from(new Set(menuItems.map(item => item.category)))];
-
-  const filteredItems = menuItems.filter(item => {
-    const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          (item.itemNumber && item.itemNumber.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchesCategory && matchesSearch;
+  
+  const rawCats = Array.from(new Set(menuItems.map(item => item.category))).filter(Boolean);
+  
+  // Custom sort: Put high-frequency categories first
+  const priorityOrder = ['Chai', 'Cold Coffee', 'Hot Coffee', 'Biscuits', 'Burger', 'Fast Food', 'Chai Ke Sang'];
+  rawCats.sort((a, b) => {
+    const idxA = priorityOrder.indexOf(a);
+    const idxB = priorityOrder.indexOf(b);
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+    if (idxA !== -1) return -1;
+    if (idxB !== -1) return 1;
+    return a.localeCompare(b);
   });
+  
+  const categories = ['Popular', ...rawCats];
+
+
+
+  const popularItemKeywords = ['chai', 'cappuccino', 'cold coffee', 'oreo', 'good day', 'crack jack', 'coconut', 'burger', 'maggi'];
+  
+  const filteredItems = menuItems.filter(item => {
+    if (searchQuery.trim()) {
+      return item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+             (item.itemNumber && item.itemNumber.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+    
+    if (activeCategory === 'Popular') {
+       // Show high frequency items in Popular tab
+       return popularItemKeywords.some(kw => item.name.toLowerCase().includes(kw));
+    }
+    
+    return item.category === activeCategory;
+  });
+
+
+
+  const totalCost = currentDraftItems.reduce((sum, draftItem) => {
+    const mItem = menuItems.find(m => m.id === draftItem.menuItemId);
+    return sum + (mItem ? mItem.price * draftItem.qty : 0);
+  }, 0);
+  const totalItemsCount = currentDraftItems.reduce((sum, d) => sum + d.qty, 0);
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex md:items-center items-end justify-center z-[60] md:p-4 transition-opacity">
@@ -115,7 +148,14 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
                   outOfStock = true;
                 }
                 
-                return (
+              
+  const totalCost = currentDraftItems.reduce((sum, draftItem) => {
+    const mItem = menuItems.find(m => m.id === draftItem.menuItemId);
+    return sum + (mItem ? mItem.price * draftItem.qty : 0);
+  }, 0);
+  const totalItemsCount = currentDraftItems.reduce((sum, d) => sum + d.qty, 0);
+
+  return (
                   <article key={item.id} className={`flex items-center justify-between p-3 bg-white rounded-2xl border border-gray-100 shadow-xs hover:border-gray-200 transition-colors ${outOfStock ? 'opacity-70' : ''}`}>
                     <div className="flex items-center gap-3">
                       <div className="w-11 h-11 rounded-xl bg-gray-100 flex items-center justify-center text-gray-500 font-semibold text-sm flex-shrink-0 uppercase">
@@ -157,6 +197,18 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
               )}
             </div>
           )}
+        </div>
+
+        {/* Sticky Footer */}
+        <div className="bg-white border-t border-gray-200 p-3 flex justify-between items-center shrink-0">
+          <div>
+            <span className="text-gray-500 text-sm font-medium">{totalItemsCount} items</span>
+            <span className="mx-2 text-gray-300">|</span>
+            <span className="text-gray-900 font-bold text-lg">₹{totalCost.toFixed(2)}</span>
+          </div>
+          <Button onClick={onClose} className="px-8 font-bold bg-[#D2F801] text-black hover:bg-[#c2e600]">
+            Done
+          </Button>
         </div>
       </div>
     </div>
