@@ -63,6 +63,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const [viewingOrders, setViewingOrders] = useState(false);
   const [justPaid, setJustPaid] = useState(false);
   const prevAwaitingRef = useRef(false);
+  const prevOrdersRef = useRef(0);
   const [deviceId, setDeviceId] = useState<string>('');
 
   useEffect(() => {
@@ -84,10 +85,16 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     }
     
     const isAwaiting = tableOrders.some(o => o.paymentStatus === 'awaiting_confirmation');
-    if (prevAwaitingRef.current && !isAwaiting && tableOrders.length === 0) {
+    
+    const userPaid = prevAwaitingRef.current && !isAwaiting && tableOrders.length === 0;
+    const staffCleared = prevOrdersRef.current > 0 && tableOrders.length === 0 && table?.status === 'empty';
+    
+    if (userPaid || staffCleared) {
       setJustPaid(true);
     }
+    
     prevAwaitingRef.current = isAwaiting;
+    prevOrdersRef.current = tableOrders.length;
   }, [tableOrders, table]);
 
   useEffect(() => {
