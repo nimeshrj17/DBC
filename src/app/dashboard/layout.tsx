@@ -82,7 +82,7 @@ export default function DashboardLayout({
   }, [orders]);
 
       const [pin, setPin] = useState('');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // Desktop sidebar replaced by top nav
   const [error, setError] = useState(false);
 
 
@@ -161,218 +161,82 @@ export default function DashboardLayout({
 
   return (
     <div 
-      className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans"
+      className="flex flex-col h-screen bg-[#F8FAFC] overflow-hidden font-sans"
       onClick={() => {
         import('@/lib/audio').then(({ initAudio }) => initAudio());
       }}
     >
-      {/* Desktop Sidebar Drawer */}
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-slate-900/50 z-40 backdrop-blur-sm transition-opacity hidden md:block"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-      <aside className={`fixed md:inset-y-0 md:left-0 z-50 w-72 bg-[#0F172A] text-slate-300 flex-col justify-between shrink-0 border-r border-slate-800/80 select-none transition-transform duration-300 ease-in-out hidden md:flex ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex flex-col">
-          <div className="h-20 flex items-center justify-between px-6 border-b border-slate-800/60">
-            <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-xl bg-slate-800/80 border border-[#D9F927]/30 flex items-center justify-center text-[#D9F927] shadow-inner shadow-[#D9F927]/10">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M17 8h1a4 4 0 1 1 0 8h-1"></path>
-                  <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path>
-                  <line x1="6" x2="6" y1="2" y2="4"></line>
-                  <line x1="10" x2="10" y1="2" y2="4"></line>
-                  <line x1="14" x2="14" y1="2" y2="4"></line>
-                </svg>
-              </div>
-              <div className="leading-tight">
-                <h1 className="text-white font-bold text-base tracking-tight font-display">राखा भाई की चाय</h1>
-                <p className="text-xs text-[#D9F927] font-medium tracking-wide">and Cafe • POS</p>
-              </div>
+      {/* Desktop Top Navigation Bar */}
+      <header className="hidden md:flex px-6 h-16 border-b border-slate-200 bg-white sticky top-0 z-50 items-center justify-between shadow-sm shrink-0">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 mr-4">
+            <div className="w-8 h-8 rounded-none bg-slate-900 text-[#D9F927] flex items-center justify-center shadow-inner">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path d="M17 8h1a4 4 0 1 1 0 8h-1"></path>
+                <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path>
+                <line x1="6" x2="6" y1="2" y2="4"></line>
+                <line x1="10" x2="10" y1="2" y2="4"></line>
+                <line x1="14" x2="14" y1="2" y2="4"></line>
+              </svg>
             </div>
-            <button onClick={() => setIsSidebarOpen(false)} className="p-1 text-slate-400 hover:text-white rounded-md transition-colors">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
+            <div className="leading-tight flex flex-col">
+              <span className="font-bold text-slate-900 text-sm tracking-tight font-display">राखा भाई की चाय</span>
+              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">POS System</span>
+            </div>
           </div>
-          <nav aria-label="Sidebar Navigation" className="p-4 space-y-1.5">
-            <Link onClick={() => setIsSidebarOpen(false)} href="/dashboard" className={getLinkClass('/dashboard')}>
-              <div className="flex items-center gap-3.5">
-                <svg className="w-5 h-5 group-hover:text-slate-200 transition-colors" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-                  <rect height="7" rx="1.5" width="7" x="3" y="3"></rect>
-                  <rect height="7" rx="1.5" width="7" x="14" y="3"></rect>
-                  <rect height="7" rx="1.5" width="7" x="14" y="14"></rect>
-                  <rect height="7" rx="1.5" width="7" x="3" y="14"></rect>
-                </svg>
-                <span className="text-sm">Dashboard (Tables)</span>
-              </div>
+          
+          <nav className="flex items-center gap-1">
+            <Link href="/dashboard" className={pathname === '/dashboard' ? 'flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-900 font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+              Dashboard
             </Link>
-            <Link onClick={() => setIsSidebarOpen(false)} href="/dashboard/orders" className={getLinkClass('/dashboard/orders')}>
-              <div className="flex items-center gap-3.5">
-                <svg className="w-5 h-5 group-hover:text-slate-200 transition-colors" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                  <line x1="16" x2="8" y1="13" y2="13"></line>
-                  <line x1="16" x2="8" y1="17" y2="17"></line>
-                  <polyline points="10 9 9 9 8 9"></polyline>
-                </svg>
-                <span className="text-sm">Live Kitchen (KDS)</span>
-              </div>
+            <Link href="/dashboard/orders" className={pathname.startsWith('/dashboard/orders') ? 'flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-900 font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+              Live Orders
+              {liveOrdersCount > 0 && <span className="bg-rose-500 text-white px-1.5 py-0.5 rounded-none text-[10px] font-bold">{liveOrdersCount}</span>}
             </Link>
-            <Link onClick={() => setIsSidebarOpen(false)} href="/dashboard/takeaway" className={getLinkClass('/dashboard/takeaway')}>
-              <div className="flex items-center gap-3.5">
-                <svg className="w-5 h-5 group-hover:text-slate-200 transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-                <span className="text-sm">Takeaway / POS</span>
-              </div>
+            <Link href="/dashboard/takeaway" className={pathname.startsWith('/dashboard/takeaway') ? 'flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-900 font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+              Takeaway
             </Link>
-            
             {hasPermission('view_revenue') && (
-            <Link onClick={() => setIsSidebarOpen(false)} href="/dashboard/analytics" className={getLinkClass('/dashboard/analytics')}>
-              <div className="flex items-center gap-3.5">
-                <svg className="w-5 h-5 group-hover:text-slate-200 transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <line x1="18" y1="20" x2="18" y2="10"></line>
-                  <line x1="12" y1="20" x2="12" y2="4"></line>
-                  <line x1="6" y1="20" x2="6" y2="14"></line>
-                </svg>
-                <span className="text-sm">Revenue Ledger</span>
-              </div>
-            </Link>
+              <Link href="/dashboard/analytics" className={pathname.startsWith('/dashboard/analytics') ? 'flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-900 font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+                Analytics
+              </Link>
             )}
-
             {hasPermission('manage_menu') && (
-            <Link onClick={() => setIsSidebarOpen(false)} href="/dashboard/menu" className={getLinkClass('/dashboard/menu')}>
-              <div className="flex items-center gap-3.5">
-                <svg className="w-5 h-5 group-hover:text-slate-200 transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                </svg>
-                <span className="text-sm">Menu / Recipes</span>
-              </div>
-            </Link>
+              <Link href="/dashboard/menu" className={pathname.startsWith('/dashboard/menu') ? 'flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-900 font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+                Menu
+              </Link>
             )}
-            
             {hasPermission('manage_inventory') && (
-            <Link onClick={() => setIsSidebarOpen(false)} href="/dashboard/inventory" className={getLinkClass('/dashboard/inventory')}>
-              <div className="flex items-center gap-3.5">
-                <svg className="w-5 h-5 group-hover:text-slate-200 transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                  <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                </svg>
-                <span className="text-sm">Stock & Inventory</span>
-              </div>
-            </Link>
+              <Link href="/dashboard/inventory" className={pathname.startsWith('/dashboard/inventory') ? 'flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-900 font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+                Inventory
+              </Link>
             )}
-
             {hasPermission('manage_staff') && (
-            <Link onClick={() => setIsSidebarOpen(false)} href="/dashboard/staff" className={getLinkClass('/dashboard/staff')}>
-              <div className="flex items-center gap-3.5">
-                <svg className="w-5 h-5 group-hover:text-slate-200 transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="9" cy="7" r="4"></circle>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
-                <span className="text-sm">Staff Profiles</span>
-              </div>
-            </Link>
-            )}
-
-            {hasPermission('manage_settings') && (
-            <Link onClick={() => setIsSidebarOpen(false)} href="/dashboard/settings" className={getLinkClass('/dashboard/settings')}>
-              <div className="flex items-center gap-3.5">
-                <svg className="w-5 h-5 group-hover:text-slate-200 transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="3"></circle>
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                </svg>
-                <span className="text-sm">App Settings</span>
-              </div>
-            </Link>
+              <Link href="/dashboard/staff" className={pathname.startsWith('/dashboard/staff') ? 'flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-900 font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+                Staff
+              </Link>
             )}
           </nav>
         </div>
-        <div className="p-4 border-t border-slate-800/80">
-          <div className="flex flex-col gap-2 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <div className="w-10 h-10 rounded-xl bg-[#D9F927] text-slate-900 font-extrabold flex items-center justify-center text-base shadow-sm uppercase">
-                  {user?.name ? user.name.charAt(0) : 'U'}
-                </div>
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <h4 className="text-sm font-semibold text-white tracking-wide truncate">{user?.name}</h4>
-                <p className="text-xs text-slate-400 font-medium uppercase tracking-wider truncate">{user?.role}</p>
-              </div>
-            </div>
-            <button 
-              onClick={() => {
-                if (window.confirm("Are you sure you want to log out?")) {
-                  logout();
-                }
-              }}
-              className="mt-2 w-full py-2 bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-400 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors border border-slate-700 hover:border-rose-900/50"
-            >
-              Log Out
-            </button>
+
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold text-slate-900">{user?.name}</span>
+            <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase rounded-none">{user?.role}</span>
           </div>
+          <div className="h-6 w-px bg-slate-200"></div>
+          <button 
+            onClick={() => window.confirm("Are you sure you want to log out?") && logout()}
+            className="text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-3 py-1.5 transition-colors rounded-none"
+          >
+            LOGOUT
+          </button>
         </div>
-      </aside>
+      </header>
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#F8FAFC]">
-        {/* Desktop Header */}
-        <header className="hidden md:flex px-8 pt-6 pb-6 border-b border-slate-200/80 bg-white/80 backdrop-blur-md sticky top-0 z-20 items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <button onClick={() => setIsSidebarOpen(true)} className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl transition-colors shadow-sm">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-            </button>
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <h2 className="text-2xl font-bold font-display tracking-tight text-slate-900">Good morning, {user?.name}!</h2>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Morning Shift
-              </span>
-            </div>
-            <p className="text-sm text-slate-500">Here's what's happening at your cafe today.</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 shrink-0">
-            <div className="bg-white border border-slate-200/90 rounded-2xl px-5 py-3.5 shadow-sm hover:shadow transition-shadow flex items-center gap-4 min-w-[210px]">
-              <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg border border-emerald-100">
-                ₹
-              </div>
-              <div>
-                <span className="text-xs font-medium text-slate-400 uppercase tracking-wider block">Today's Revenue</span>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-xl font-bold text-slate-900">₹ {todayRevenue.toFixed(0)}</span>
-                  <span className="text-[11px] font-semibold text-emerald-600 flex items-center">
-                    ↑ 12%
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white border border-slate-200/90 rounded-2xl px-5 py-3.5 shadow-sm hover:shadow transition-shadow flex items-center gap-4 min-w-[200px]">
-              <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"></path>
-                </svg>
-              </div>
-              <div>
-                <span className="text-xs font-medium text-slate-400 uppercase tracking-wider block">Live Orders</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-xl font-bold text-slate-900">{liveOrdersCount} Active</span>
-                  <span className="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Mobile Header (from mobile_dashboard.html) */}
+        {/* Mobile Header */}
         <section className="md:hidden px-5 pt-3 pb-5 bg-white border-b border-slate-100" data-purpose="greeting-kpis">
           <div className="mb-4 flex justify-between items-start">
             <div>
@@ -385,16 +249,16 @@ export default function DashboardLayout({
                   logout();
                 }
               }}
-              className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-xs font-bold border border-rose-100"
+              className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-none text-xs font-bold border border-rose-100"
             >
               Logout
             </button>
           </div>
           <div className="grid grid-cols-2 gap-3" data-purpose="quick-metrics">
-            <div className="bg-white border border-slate-150 rounded-2xl p-3.5 shadow-sm hover:border-slate-300 transition-colors">
+            <div className="bg-white border border-slate-150 rounded-none p-3.5 shadow-sm hover:border-slate-300 transition-colors">
               <div className="flex items-center justify-between text-xs text-slate-500 font-medium mb-1.5">
                 <span>Today's Revenue</span>
-                <span className="p-1 rounded-md bg-emerald-50 text-emerald-600">
+                <span className="p-1 rounded-none bg-emerald-50 text-emerald-600">
                   <svg className="w-3.5 h-3.5 stroke-current fill-none" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path d="M23 6l-9.5 9.5-5-5L1 18"></path>
                     <path d="M17 6h6v6"></path>
@@ -404,15 +268,11 @@ export default function DashboardLayout({
               <div className="flex items-baseline space-x-1">
                 <span className="text-lg font-black text-slate-900">₹{todayRevenue.toFixed(0)}</span>
               </div>
-              <div className="flex items-center mt-1 text-[11px] font-semibold text-emerald-600">
-                <span>+12.4%</span>
-                <span className="text-slate-400 font-normal ml-1">vs yesterday</span>
-              </div>
             </div>
-            <div className="bg-white border border-slate-150 rounded-2xl p-3.5 shadow-sm hover:border-slate-300 transition-colors">
+            <div className="bg-white border border-slate-150 rounded-none p-3.5 shadow-sm hover:border-slate-300 transition-colors">
               <div className="flex items-center justify-between text-xs text-slate-500 font-medium mb-1.5">
                 <span>Live Orders</span>
-                <span className="p-1 rounded-md bg-blue-50 text-blue-600">
+                <span className="p-1 rounded-none bg-blue-50 text-blue-600">
                   <svg className="w-3.5 h-3.5 stroke-current fill-none" strokeWidth="2" viewBox="0 0 24 24">
                     <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" strokeLinecap="round" strokeLinejoin="round"></path>
                   </svg>
@@ -421,26 +281,19 @@ export default function DashboardLayout({
               <div className="flex items-baseline space-x-1">
                 <span className="text-lg font-black text-slate-900">{liveOrdersCount}</span>
               </div>
-              <div className="flex items-center mt-1 text-[11px] font-medium text-emerald-600 space-x-1">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <span className="font-semibold text-emerald-700">Active right now</span>
-              </div>
             </div>
           </div>
         </section>
 
         {children}
         <GlobalPaymentAlert />
-      <PrintAgent />
+        <PrintAgent />
 
         {/* Mobile padding for bottom nav */}
         <div className="h-20 md:hidden block"></div>
       </main>
 
-      {/* Mobile Bottom Navigation (from mobile_dashboard.html) */}
+      {/* Mobile Bottom Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 pt-2.5 pb-[env(safe-area-inset-bottom,24px)] z-40 flex justify-around items-center text-[10px] font-medium text-slate-500">
         {hasPermission('takeaway_billing') && (
         <Link href="/dashboard/customers" className={getMobileLinkClass('/dashboard/customers')}>
@@ -451,7 +304,7 @@ export default function DashboardLayout({
         </Link>
         )}
         <Link href="/dashboard" className={getMobileLinkClass('/dashboard')}>
-          <span className={pathname === '/dashboard' ? "p-1 rounded-xl bg-slate-100 text-slate-950" : "p-1"}>
+          <span className={pathname === '/dashboard' ? "p-1 rounded-none bg-slate-100 text-slate-950" : "p-1"}>
             <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
               <path d="M4 13h6c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v8c0 .55.45 1 1 1zm0 8h6c.55 0 1-.45 1-1v-4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1zm10 0h6c.55 0 1-.45 1-1v-8c0-.55-.45-1-1-1h-6c-.55 0-1 .45-1 1v8c0 .55.45 1 1 1zm0-18v4c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1h-6c-.55 0-1 .45-1 1z"></path>
             </svg>
@@ -463,7 +316,7 @@ export default function DashboardLayout({
             <svg className="w-5 h-5 stroke-current fill-none stroke-[1.8]" viewBox="0 0 24 24">
               <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round"></path>
             </svg>
-            {liveOrdersCount > 0 && <span className="absolute -top-1.5 -right-2 bg-rose-500 text-white font-bold text-[9px] w-4 h-4 rounded-full flex items-center justify-center">{liveOrdersCount}</span>}
+            {liveOrdersCount > 0 && <span className="absolute -top-1.5 -right-2 bg-rose-500 text-white font-bold text-[9px] w-4 h-4 rounded-none flex items-center justify-center">{liveOrdersCount}</span>}
           </div>
           <span>Orders</span>
         </Link>
