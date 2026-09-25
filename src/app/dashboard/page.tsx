@@ -897,7 +897,7 @@ export default function DashboardPage() {
                 <h4 className="text-sm md:text-base font-bold text-slate-900 tracking-tight">Active &amp; Dining Tables</h4>
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200/80 text-slate-700">{activeTables.length} In Service</span>
               </div>
-              <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3.5 md:gap-5" : "flex flex-col gap-3 md:gap-4"}>
+              <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-3.5 md:gap-5" : "flex flex-col gap-3 md:gap-4"}>
                 {activeTables.map((table) => (
                   <NewTableCard 
                     key={table.id} 
@@ -914,9 +914,10 @@ export default function DashboardPage() {
           );
         })()}
 
-        {Array.from(new Set(tables.filter(t => t.status === 'empty' && (activeZone === 'All' || activeZone === 'Active' || (t.section || 'Main Hall') === activeZone)).map(t => String(t.section || 'Main Hall')))).map(section => (
-          <section key={section}>
-            <div className="flex items-center justify-between mb-3 md:mb-4 mt-6 md:mt-8">
+        <div className="columns-1 xl:columns-2 gap-x-6 gap-y-0">
+          {Array.from(new Set(tables.filter(t => t.status === 'empty' && (activeZone === 'All' || activeZone === 'Active' || (t.section || 'Main Hall') === activeZone)).map(t => String(t.section || 'Main Hall')))).map(section => (
+            <section key={section} className="break-inside-avoid mb-8">
+              <div className="flex items-center justify-between mb-3 md:mb-4 mt-4">
               <div className="flex items-center gap-2 md:gap-2.5">
                 <span className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-slate-300"></span>
                 <h4 className="text-sm md:text-base font-bold text-slate-900 tracking-tight">{section}</h4>
@@ -925,7 +926,7 @@ export default function DashboardPage() {
                 </span>
               </div>
             </div>
-            <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3.5 md:gap-5" : "flex flex-col gap-3 md:gap-4"}>
+            <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-2 2xl:grid-cols-3 gap-3.5 md:gap-5" : "flex flex-col gap-3 md:gap-4"}>
               {tables
                 .filter(t => t.status === 'empty' && (t.section || 'Main Hall') === section)
                 .sort((a, b) => a.number - b.number)
@@ -950,6 +951,7 @@ export default function DashboardPage() {
             </div>
           </section>
         ))}
+        </div>
         {tables.length === 0 && (
           <div className="py-10 text-center">
             <p className="text-muted-foreground mb-4">No tables found.</p>
