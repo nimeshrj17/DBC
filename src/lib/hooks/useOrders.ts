@@ -197,7 +197,7 @@ export function useOrders() {
     }
   };
 
-    const removeSentItemTransaction = async (orderId: string, menuItemId: string, taxPercentage: number) => {
+    const removeSentItemTransaction = async (orderId: string, menuItemId: string, taxPercentage: number, notes?: string) => {
     try {
       await runTransaction(db, async (transaction) => {
         // 1. Get the order
@@ -208,7 +208,7 @@ export function useOrders() {
         const orderData = orderSnap.data() as Order;
         
         // 2. Find the item
-        const itemIndex = orderData.items.findIndex(i => i.menuItemId === menuItemId);
+        const itemIndex = orderData.items.findIndex(i => i.menuItemId === menuItemId && (i.notes || '') === (notes || ''));
         if (itemIndex === -1) throw new Error("Item not in order");
         
         const itemToRemove = orderData.items[itemIndex];
