@@ -128,7 +128,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       }
       return [...prev, { ...item, qty: 1 }];
     });
-    toast.success(`Added ${item.name} to cart`);
+    toast.success(`Added ${item.name} to cart`, { duration: 1000 });
   };
 
   const updateQty = (id: string, delta: number) => {
