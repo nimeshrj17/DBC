@@ -280,7 +280,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               <path d="M6 2v2m4-2v2m4-2v2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
-          <span className="text-xs tracking-wider uppercase font-bold text-stone-500">राखा भाई की चाय</span>
+          <span className="text-xs tracking-wider uppercase font-bold text-stone-700">राखा भाई की चाय</span>
         </div>
         <div className="flex items-center space-x-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2.5 py-1 rounded-full text-xs font-semibold">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -298,12 +298,12 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         </div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-[#2b1a13] tracking-tight leading-snug">Thank You for Visiting!</h1>
         <p className="text-base text-[#9A3412] font-medium mt-0.5">राखा भाई की चाय AND CAFÉ</p>
-        <p className="text-xs sm:text-sm text-stone-500 mt-2 max-w-[280px] leading-relaxed">
+        <p className="text-xs sm:text-sm text-stone-700 mt-2 max-w-[280px] leading-relaxed">
           Payment of <span className="font-bold text-[#2b1a13]">₹{(finalReceiptData?.total || 0).toFixed(2)}</span> was successful. We hope you enjoyed your time at <span className="font-semibold text-[#2b1a13]">{`Table ${table.number}`}</span>.
         </p>
       </section>
       
-      <section className="bg-white rounded-2xl p-4 border border-[#EBE3DA] mb-4 relative overflow-hidden shadow-sm">
+      <section className="bg-white rounded-none p-4 border border-[#EBE3DA] mb-4 relative overflow-hidden shadow-sm">
         <div className="flex items-center justify-between pb-3 border-b border-dashed border-gray-200">
           <div>
             <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wide">Order Ref</span>
@@ -314,7 +314,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
             <p className="text-xs font-semibold text-[#2b1a13]">{new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
           </div>
         </div>
-        <div className="py-2.5 space-y-1.5 text-xs text-stone-500">
+        <div className="py-2.5 space-y-1.5 text-xs text-stone-700">
           <div className="flex justify-between items-center">
             <span>Total Items Ordered</span>
             <span className="font-medium text-[#2b1a13]">{finalReceiptData?.count || 0}</span>
@@ -325,7 +325,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           </div>
         </div>
         <div className="mt-2.5 pt-2.5 border-t border-[#F0E7DD]">
-          <button className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-[#FAF7F2] hover:bg-[#F3ECE5] text-[#2b1a13] text-xs font-bold transition-colors" type="button">
+          <button className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-none bg-[#FAF7F2] hover:bg-[#F3ECE5] text-[#2b1a13] text-xs font-bold transition-colors" type="button">
             <svg className="w-4 h-4 text-[#9A3412]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
             </svg>
@@ -334,8 +334,8 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         </div>
       </section>
 
-      <section className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-[#EFE5DB] mb-5 text-center shadow-sm">
-        <p className="text-xs font-bold uppercase tracking-wider text-stone-500">Rate your experience</p>
+      <section className="bg-white/80 backdrop-blur-sm rounded-none p-4 border border-[#EFE5DB] mb-5 text-center shadow-sm">
+        <p className="text-xs font-bold uppercase tracking-wider text-stone-700">Rate your experience</p>
         <div className="flex items-center justify-center gap-2 mt-2">
           {[1,2,3,4,5].map(star => (
             <button key={star} onClick={() => setRating(star)} className={`p-1 hover:scale-110 transition-transform text-2xl focus:outline-none ${star <= rating ? 'text-amber-500' : 'text-amber-200'}`} type="button">★</button>
@@ -349,7 +349,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       </section>
 
       <div className="mt-auto pb-4 flex flex-col items-center">
-        <p className="text-stone-500 text-sm font-semibold italic">Scan the QR to place order again</p>
+        <p className="text-stone-700 text-sm font-semibold italic">Scan the QR to place order again</p>
       </div>
       <footer className="text-center pt-5 pb-1">
         <p className="text-[11px] text-stone-400 font-medium flex items-center justify-center gap-1.5">
@@ -489,7 +489,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       <header className="bg-[#5a3829] text-white pt-6 pb-5 px-5 rounded-b-[2rem] shadow-lg sticky top-0 z-30">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-amber-200"><svg className="w-7 h-7 text-[#2e1c14] tea-steam-anim" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <div className="w-10 h-10 rounded-none bg-white/20 border border-white/30 flex items-center justify-center text-amber-200"><svg className="w-7 h-7 text-[#2e1c14] tea-steam-anim" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
 <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" strokeLinecap="round" strokeLinejoin="round" />
 <path d="M6 2v2m4-2v2m4-2v2" strokeLinecap="round" strokeLinejoin="round" />
 </svg></div>
@@ -498,7 +498,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               <p className="text-[11px] font-medium tracking-wider text-amber-200/80 uppercase">AND CAFÉ</p>
             </div>
           </div>
-          <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold tracking-wide text-white">
+          <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-none bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold tracking-wide text-white">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
             <span>{`Table ${table.number}`}</span>
           </div>
@@ -507,14 +507,14 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       <main className="max-w-md mx-auto px-4 py-6 w-full flex-1 space-y-6">
         <section className="text-center pt-2">
           <div className="relative mx-auto w-24 h-24 mb-4 flex items-center justify-center">
-            <div className="relative w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center shadow-md shadow-emerald-500/25">
+            <div className="relative w-20 h-20 bg-emerald-500 rounded-none flex items-center justify-center shadow-md shadow-emerald-500/25">
               <svg className="h-10 w-10 text-white stroke-[3.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </div>
           </div>
-          <h2 className="text-2xl font-black text-[#5a3829] tracking-tight mb-2">Order Sent to Kitchen!</h2>
-          <p className="text-sm font-medium text-stone-600 px-4 leading-relaxed max-w-xs mx-auto">We're preparing your freshly made food and will deliver it right to <span className="font-bold text-[#2A1A14]">{`Table ${table.number}`}</span>.</p>
+          <h2 className="text-xl font-black text-stone-900 tracking-widest uppercase mb-3">Order Sent to Kitchen</h2>
+          <p className="text-sm font-medium text-stone-600 px-4 leading-relaxed max-w-xs mx-auto">We're preparing your freshly made food and will deliver it to your table shortly.</p>
         </section>
-        <section className="bg-white rounded-2xl p-5 shadow-sm border border-stone-200/70">
+        <section className="bg-white rounded-none p-5 shadow-sm border border-stone-200/70">
           <div className="flex items-center justify-between mb-4 border-b border-stone-100 pb-3">
             <div className="flex items-center space-x-2">
               <span className="relative flex h-2.5 w-2.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span></span>
@@ -542,7 +542,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                 </div>
                 <div className="ml-1">
                   <div className="flex items-center space-x-2">
-                    <p className={`text-sm font-bold ${currentStep >= 1 ? 'text-stone-800' : 'text-stone-400'}`}>Order Received</p>
+                    <p className={`text-sm font-bold ${currentStep >= 1 ? 'text-stone-800' : 'text-stone-400'}`}>ORDER RECEIVED</p>
                     {currentStep === 1 && <span className="text-[10px] bg-amber-100/70 text-amber-800 font-semibold px-2 py-0.5 rounded-full">In Progress</span>}
                   </div>
                 </div>
@@ -553,10 +553,10 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                 </div>
                 <div className="ml-1">
                   <div className="flex items-center space-x-2">
-                    <p className={`text-sm font-bold ${currentStep >= 2 ? 'text-amber-800' : 'text-stone-400'}`}>Preparing in Kitchen</p>
+                    <p className={`text-sm font-bold ${currentStep >= 2 ? 'text-amber-800' : 'text-stone-400'}`}>PREPARING IN KITCHEN</p>
                     {currentStep === 2 && <span className="text-[10px] bg-amber-100/70 text-amber-800 font-semibold px-2 py-0.5 rounded-full">In Progress</span>}
                   </div>
-                  <p className="text-xs text-stone-500 mt-0.5">Chef is preparing your fresh order</p>
+                  <p className="text-xs text-stone-700 mt-0.5">Chef is preparing your fresh order</p>
                 </div>
               </div>
               <div className="relative flex items-start">
@@ -565,7 +565,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                 </div>
                 <div className="ml-1">
                   <div className="flex items-center space-x-2">
-                    <p className={`text-sm font-bold ${currentStep >= 3 ? 'text-stone-800' : 'text-stone-400'}`}>Ready to Serve</p>
+                    <p className={`text-sm font-bold ${currentStep >= 3 ? 'text-stone-800' : 'text-stone-400'}`}>READY TO SERVE</p>
                     {currentStep === 3 && <span className="text-[10px] bg-amber-100/70 text-amber-800 font-semibold px-2 py-0.5 rounded-full">In Progress</span>}
                   </div>
                 </div>
@@ -575,14 +575,14 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           })()}
         </section>
         {tableOrders.map(order => (
-          <section key={order.id} className="bg-white rounded-2xl p-5 shadow-sm border border-stone-200/70">
+          <section key={order.id} className="bg-white rounded-none p-5 shadow-sm border border-stone-200/70">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3 mb-3">
               <div>
-                <span className="text-[11px] uppercase tracking-wider font-semibold text-stone-400">Order ID</span>
+                <span className="text-[10px] uppercase tracking-widest font-black text-stone-700">ORDER ID</span>
                 <p className="text-base font-extrabold text-stone-800">{order.displayId || `#${order.id.slice(0,6)}`}</p>
               </div>
               <div className="text-right">
-                <span className="text-[11px] uppercase tracking-wider font-semibold text-stone-400">Status</span>
+                <span className="text-[10px] uppercase tracking-widest font-black text-stone-700">Status</span>
                 <p className="text-sm font-bold text-[#5a3829] uppercase">{getStatusText(order.status)}</p>
               </div>
             </div>
@@ -593,7 +593,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                     <span className="w-5 h-5 flex items-center justify-center bg-stone-100 rounded text-xs font-bold text-stone-700">{item.qty}×</span>
                     <div className="flex flex-col">
                       <span className="font-medium text-stone-800">{item.name}</span>
-                      {item.notes && <span className="text-[10px] text-stone-500 italic mt-0.5 max-w-[200px] truncate">Note: {item.notes}</span>}
+                      {item.notes && <span className="text-[10px] text-stone-700 italic mt-0.5 max-w-[200px] truncate">Note: {item.notes}</span>}
                     </div>
                   </div>
                   <span className="font-semibold text-stone-800">₹{(item.price * item.qty).toFixed(2)}</span>
@@ -605,14 +605,14 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       </main>
       <footer className="bg-white border-t border-stone-200/80 px-4 pt-3 pb-6 sticky bottom-0 z-20 shadow-[0_-8px_20px_rgba(0,0,0,0.03)]">
         <div className="max-w-md mx-auto space-y-2.5">
-          <button onClick={() => setViewingOrders(false)} className="w-full py-3.5 px-4 rounded-xl bg-[#5a3829] hover:bg-[#382117] text-white font-bold text-sm tracking-wide shadow-md active:scale-[0.98] transition-all flex items-center justify-center space-x-2">
+          <button onClick={() => setViewingOrders(false)} className="w-full py-3.5 px-4 rounded-none bg-[#5a3829] hover:bg-[#382117] text-white font-bold text-sm tracking-wide shadow-md active:scale-[0.98] transition-all flex items-center justify-center space-x-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
 </svg>
 <span>Order More Items</span>
           </button>
           <div className="mt-4 text-center px-2">
-            <p className="text-xs text-stone-500 leading-relaxed font-medium mb-2">
+            <p className="text-xs text-stone-700 leading-relaxed font-medium mb-2">
               Need to modify or cancel? Please contact our staff.
             </p>
             <div className="w-full h-px bg-stone-200 my-3"></div>
@@ -621,7 +621,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
             </p>
           </div>
           {isAwaitingConfirmation ? (
-            <div className="w-full py-3 px-4 rounded-xl bg-amber-50 border-2 border-amber-300 text-amber-800 font-bold text-sm flex items-center justify-center gap-2">
+            <div className="w-full py-3 px-4 rounded-none bg-amber-50 border-2 border-amber-300 text-amber-800 font-bold text-sm flex items-center justify-center gap-2">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
@@ -638,25 +638,25 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       {isPaymentModalOpen && (
         <>
           <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity" onClick={() => setIsPaymentModalOpen(false)}></div>
-          <main className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 w-full max-w-md bg-[#FAF7F2] rounded-t-[32px] shadow-2xl flex flex-col max-h-[92vh]">
+          <main className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 w-full max-w-md bg-[#FAF7F2] rounded-none shadow-2xl flex flex-col max-h-[92vh]">
             <div className="w-full flex justify-center pt-3 pb-1">
               <div className="w-12 h-1.5 bg-stone-300 hover:bg-stone-400 cursor-pointer active:cursor-grabbing transition rounded-full" onClick={() => setIsPaymentModalOpen(false)} title="Drag down to close"></div>
             </div>
             <header className="px-6 pt-2 pb-3 flex items-start justify-between border-b border-[#e5dcd2]">
               <div>
                 <h1 className="text-xl font-bold tracking-tight text-[#1c110b] leading-tight">राखा भाई की चाय</h1>
-                <p className="text-xs text-stone-500 font-medium">Payment for {`Table ${table.number}`}</p>
+                <p className="text-xs text-stone-700 font-black tracking-widest uppercase mt-0.5">Payment for Table {table.number}</p>
               </div>
-              <button aria-label="Close payment modal" onClick={() => setIsPaymentModalOpen(false)} className="p-2 rounded-full hover:bg-stone-200/80 active:scale-95 transition-all text-stone-600">
+              <button aria-label="Close payment modal" onClick={() => setIsPaymentModalOpen(false)} className="p-2 rounded-none hover:bg-stone-200/80 active:scale-95 transition-all text-stone-600">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
               </button>
             </header>
             <section className="overflow-y-auto px-6 py-4 space-y-4 no-scrollbar">
-              <div className="bg-white rounded-2xl p-4 border border-stone-200 shadow-sm">
+              <div className="bg-white rounded-none p-4 border border-stone-200 shadow-sm">
                 <div className="flex justify-between items-baseline mb-1">
-                  <span className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Total Amount Due</span>
+                  <span className="text-[11px] font-bold text-stone-700 uppercase tracking-wider">Total Amount Due</span>
                 </div>
                 <div className="flex items-baseline gap-1 mt-1">
                   <span className="text-2xl font-bold text-[#2b1a13]">₹</span>
@@ -665,28 +665,28 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                 <p className="text-[10px] text-stone-400 font-medium mt-1">Incl. of all taxes &amp; fees</p>
               </div>
               <div>
-                <h2 className="text-[11px] font-bold uppercase tracking-wider text-stone-500 mb-2.5 px-0.5">Select Payment Method</h2>
+                <h2 className="text-[11px] font-bold uppercase tracking-wider text-stone-700 mb-2.5 px-0.5">Select Payment Method</h2>
                 <div className="grid grid-cols-2 gap-2.5">
-                  <label onClick={() => setPaymentMethod('upi_qr')} className={`cursor-pointer relative flex flex-col items-center justify-center p-3.5 bg-white border-2 rounded-2xl text-center transition ${paymentMethod === 'upi_qr' ? 'border-[#3e261c] shadow-sm' : 'border-stone-200 hover:border-[#2b1a13]'}`}>
+                  <label onClick={() => setPaymentMethod('upi_qr')} className={`cursor-pointer relative flex flex-col items-center justify-center p-3.5 bg-white border-2 rounded-none text-center transition ${paymentMethod === 'upi_qr' ? 'border-[#3e261c] shadow-sm' : 'border-stone-200 hover:border-[#2b1a13]'}`}>
                     {paymentMethod === 'upi_qr' && (<span className="absolute top-2 right-2 flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#5a3829] opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-[#3e261c]"></span></span>)}
                     <div className="w-10 h-10 rounded-full bg-[#F3ECE5] flex items-center justify-center text-[#2b1a13] mb-1.5">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM14 14h3v3h-3zM18 18h3v3h-3zM14 18h4M18 14h3" strokeLinecap="round" strokeLinejoin="round"></path></svg>
                     </div>
                     <span className="text-xs font-bold text-[#1c110b]">UPI / QR</span>
-                    <span className="text-[10px] text-stone-500 mt-0.5">Scan on Table / Screen</span>
+                    <span className="text-[10px] text-stone-700 mt-0.5">Scan on Table / Screen</span>
                   </label>
-                  <label onClick={() => setPaymentMethod('cash')} className={`cursor-pointer relative flex flex-col items-center justify-center p-3.5 bg-white border-2 rounded-2xl text-center transition ${paymentMethod === 'cash' ? 'border-[#3e261c] shadow-sm' : 'border-stone-200 hover:border-[#2b1a13]'}`}>
+                  <label onClick={() => setPaymentMethod('cash')} className={`cursor-pointer relative flex flex-col items-center justify-center p-3.5 bg-white border-2 rounded-none text-center transition ${paymentMethod === 'cash' ? 'border-[#3e261c] shadow-sm' : 'border-stone-200 hover:border-[#2b1a13]'}`}>
                     {paymentMethod === 'cash' && (<span className="absolute top-2 right-2 flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#5a3829] opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-[#3e261c]"></span></span>)}
                     <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center mb-1.5">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect height="12" rx="2" width="20" x="2" y="6"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
                     </div>
                     <span className="text-xs font-bold text-stone-800">Cash Payment</span>
-                    <span className="text-[10px] text-stone-500 mt-0.5">Pay at Counter / Waiter</span>
+                    <span className="text-[10px] text-stone-700 mt-0.5">Pay at Counter / Waiter</span>
                   </label>
                 </div>
                 {paymentMethod === 'upi_qr' && (
-                  <div className="mt-4 bg-white border border-[#e5dcd2] rounded-2xl p-4 text-center">
-                    <div className="inline-block p-3 bg-[#FAF7F2] rounded-xl border border-stone-200/80 mb-2">
+                  <div className="mt-4 bg-white border border-[#e5dcd2] rounded-none p-4 text-center">
+                    <div className="inline-block p-3 bg-[#FAF7F2] rounded-none border border-stone-200/80 mb-2">
                       <div className="flex items-center justify-center w-36 h-36 mx-auto"><QRCodeSVG value={upiLink} size={144} fgColor="#1c110b" bgColor="transparent" /></div>
                     </div>
                     <p className="text-xs font-semibold text-stone-700">Scan using any UPI Payment App</p>
@@ -697,8 +697,8 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
             </section>
             <footer className="p-5 bg-white border-t border-[#F3ECE5] flex flex-col gap-2.5">
               <div className="flex items-center gap-3">
-                <button onClick={() => setIsPaymentModalOpen(false)} className="w-1/3 py-3.5 px-4 rounded-xl border border-stone-300 font-semibold text-stone-700 text-sm hover:bg-stone-50 active:bg-stone-100 transition text-center" type="button">Back</button>
-                <button onClick={handleCustomerCheckout} className="w-2/3 py-3.5 px-4 bg-[#2b1a13] hover:bg-[#1c110b] active:scale-[0.98] text-white rounded-xl font-bold text-sm tracking-wide shadow-md shadow-[#1c110b]/20 flex items-center justify-center gap-2 transition duration-150" type="button">
+                <button onClick={() => setIsPaymentModalOpen(false)} className="w-1/3 py-3.5 px-4 rounded-none border border-stone-300 font-semibold text-stone-700 text-sm hover:bg-stone-50 active:bg-stone-100 transition text-center" type="button">Back</button>
+                <button onClick={handleCustomerCheckout} className="w-2/3 py-3.5 px-4 bg-[#2b1a13] hover:bg-[#1c110b] active:scale-[0.98] text-white rounded-none font-bold text-sm tracking-wide shadow-md shadow-[#1c110b]/20 flex items-center justify-center gap-2 transition duration-150" type="button">
                   <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path></svg>
                   <span>Request Bill Confirmation</span>
                 </button>
@@ -716,23 +716,23 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 
       {isCustomerModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#FAF7F2] rounded-2xl w-full max-w-sm p-6 shadow-2xl relative">
+          <div className="bg-[#FAF7F2] rounded-none w-full max-w-sm p-6 shadow-2xl relative">
             <h2 className="text-xl font-bold text-[#2b1a13] mb-1">Your Details</h2>
-            <p className="text-xs text-stone-500 mb-5">Please enter your details to send order to kitchen.</p>
+            <p className="text-xs text-stone-700 mb-5">Please enter your details to send order to kitchen.</p>
             
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Name <span className="text-red-500">*</span></label>
-                <input type="text" value={custName} onChange={e => setCustName(e.target.value)} className="w-full bg-white border border-stone-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#9A3412]" placeholder="e.g. Rahul Sharma" />
+                <input type="text" value={custName} onChange={e => setCustName(e.target.value)} className="w-full bg-white border border-stone-200 rounded-none px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#9A3412]" placeholder="e.g. Rahul Sharma" />
               </div>
               <div>
                 <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Phone Number (Optional)</label>
-                <input type="tel" value={custPhone} onChange={e => setCustPhone(e.target.value)} className="w-full bg-white border border-stone-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#9A3412]" placeholder="10-digit mobile" />
+                <input type="tel" value={custPhone} onChange={e => setCustPhone(e.target.value)} className="w-full bg-white border border-stone-200 rounded-none px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#9A3412]" placeholder="10-digit mobile" />
               </div>
             </div>
             
             <div className="mt-6 flex gap-3">
-              <button onClick={() => setIsCustomerModalOpen(false)} className="flex-1 py-3 bg-stone-200 hover:bg-stone-300 rounded-xl font-bold text-stone-700 text-sm">Cancel</button>
+              <button onClick={() => setIsCustomerModalOpen(false)} className="flex-1 py-3 bg-stone-200 hover:bg-stone-300 rounded-none font-bold text-stone-700 text-sm">Cancel</button>
               <button onClick={() => {
                 if (!custName.trim()) {
                   toast.error("Please enter your name");
@@ -740,7 +740,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                 }
                 setIsCustomerModalOpen(false);
                 executePlaceOrder();
-              }} className="flex-1 py-3 bg-[#2b1a13] hover:bg-[#1c110b] text-white rounded-xl font-bold text-sm shadow-md">Confirm</button>
+              }} className="flex-1 py-3 bg-[#2b1a13] hover:bg-[#1c110b] text-white rounded-none font-bold text-sm shadow-md">Confirm</button>
             </div>
           </div>
         </div>
@@ -748,7 +748,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 
       <header className="relative bg-[#26150e] text-amber-50 px-5 pt-7 pb-6 rounded-b-[2.5rem] shadow-xl overflow-hidden" data-purpose="brand-header">
 <div className="absolute -right-8 -top-8 w-44 h-44 rounded-full border-[10px] border-white/5 pointer-events-none"></div>
-<div className="absolute -right-4 top-10 w-28 h-28 rounded-2xl border-4 border-white/5 rotate-12 pointer-events-none"></div>
+<div className="absolute -right-4 top-10 w-28 h-28 rounded-none border-4 border-white/5 rotate-12 pointer-events-none"></div>
 <div className="flex items-center justify-between gap-2 mb-4 relative z-10">
 <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/15 px-3 py-1.5 rounded-full text-xs font-medium tracking-wide">
 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -759,7 +759,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         </div>
 </div>
 <div className="flex items-center gap-3.5 mb-4 relative z-10">
-<div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-100 to-[#f5dbca] flex items-center justify-center text-[#26150e] shadow-md shadow-black/20 flex-shrink-0 border border-amber-200/50">
+<div className="w-14 h-14 rounded-none bg-gradient-to-tr from-amber-100 to-[#f5dbca] flex items-center justify-center text-[#26150e] shadow-md shadow-black/20 flex-shrink-0 border border-amber-200/50">
 <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
 <path d="M4 19h14a2 2 0 0 0 2-2v-1h1.5A3.5 3.5 0 0 0 25 12.5v-1A3.5 3.5 0 0 0 21.5 8H20V5H4v14zm16-9h1.5a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5H20v-4zM6 7h12v10H6V7z"></path>
 <path d="M7 2h2v3H7zm4-1h2v4h-2zm4 1h2v3h-2z" opacity="0.75"></path>
@@ -774,7 +774,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 </p>
 </div>
 </div>
-<div className="bg-black/25 border border-white/10 backdrop-blur-sm rounded-xl p-3 flex items-start gap-2.5 text-xs text-amber-100/90 leading-relaxed relative z-10" data-purpose="table-instructions">
+<div className="bg-black/25 border border-white/10 backdrop-blur-sm rounded-none p-3 flex items-start gap-2.5 text-xs text-amber-100/90 leading-relaxed relative z-10" data-purpose="table-instructions">
 <svg className="w-4 h-4 text-amber-300 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
 </svg>
@@ -784,10 +784,10 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 
       {tableOrders.length > 0 && !viewingOrders && (
         <section className="px-4 -mt-3 relative z-10">
-          <div className="bg-white rounded-2xl p-4 shadow-lg border border-amber-900/10 transition hover:shadow-xl">
+          <div className="bg-white rounded-none p-4 shadow-lg border border-amber-900/10 transition hover:shadow-xl">
             <div className="flex items-center justify-between pb-3 border-b border-stone-100">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-stone-400">Order ID</span>
+                <span className="text-xs font-semibold text-stone-400">ORDER ID</span>
                 <span className="text-sm font-bold text-stone-900 tracking-tight">{tableOrders.length === 1 ? tableOrders[0].displayId || 'Pending' : `${tableOrders.length} Orders`}</span>
               </div>
               {(() => {
@@ -828,7 +828,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
             </div>
             <div className="py-3 flex items-center justify-between text-sm">
               <div className="flex items-center gap-2 font-medium text-stone-700">
-                <span className="w-5 h-5 rounded-md bg-stone-100 text-stone-600 flex items-center justify-center text-xs font-bold">{tableOrders.reduce((sum, o) => sum + o.items.reduce((s, i) => s + i.qty, 0), 0)}×</span>
+                <span className="w-5 h-5 rounded-none bg-stone-100 text-stone-600 flex items-center justify-center text-xs font-bold">{tableOrders.reduce((sum, o) => sum + o.items.reduce((s, i) => s + i.qty, 0), 0)}×</span>
                 <span>{tableOrders.length === 1 ? (tableOrders[0].items[0]?.name + (tableOrders[0].items.length > 1 ? ` +${tableOrders[0].items.length - 1} more` : '')) : 'Items ordered'}</span>
               </div>
               <span className="font-bold text-stone-900">₹{grandTotal.toFixed(2)}</span>
@@ -849,7 +849,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 
       <main className="px-4 pt-3 flex-1 flex flex-col gap-4">
         <div className="relative w-full mb-2">
-          <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white text-stone-800 placeholder-stone-400 text-sm rounded-2xl py-3 px-4 border border-stone-200 shadow-xs focus:ring-2 outline-none" placeholder="Search by name..." type="text"/>
+          <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white text-stone-800 placeholder-stone-400 text-sm rounded-none py-3 px-4 border border-stone-200 shadow-xs focus:ring-2 outline-none" placeholder="Search by name..." type="text"/>
         </div>
         <section className="flex flex-col gap-3.5">
           {menuItems.filter(i => {
@@ -860,24 +860,24 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           }).map(item => {
             const cartItem = cart.find(i => i.id === item.id);
             return (
-              <article key={item.id} className="bg-white rounded-2xl p-4 shadow-sm border border-stone-100 flex justify-between gap-3 relative transition hover:shadow-md">
+              <article key={item.id} className="bg-white rounded-none p-4 shadow-sm border border-stone-100 flex justify-between gap-3 relative transition hover:shadow-md">
                 <div className="flex-1 space-y-1.5">
                   <div className="flex items-center gap-2">
                     <span className="w-4 h-4 border border-emerald-600 rounded-[3px] flex items-center justify-center" title="Pure Vegetarian"><span className="w-2 h-2 rounded-full bg-emerald-600"></span></span><span className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest ml-1">VEG</span>
                   </div>
                   <h3 className="font-bold text-stone-900 text-base leading-snug">{item.name}</h3>
-                  {item.description && item.description !== 'null' && <p className="text-xs text-stone-500 leading-relaxed">{item.description}</p>}
+                  {item.description && item.description !== 'null' && <p className="text-xs text-stone-700 leading-relaxed">{item.description}</p>}
                   <div className="pt-1"><span className="text-base font-extrabold text-stone-900">₹{item.price}</span></div>
                 </div>
-                <div className="flex flex-col justify-end items-end">
+                <div className="flex items-end shrink-0 pl-2">
                   {cartItem ? (
-                    <div className="flex items-center bg-[#26150e] text-white rounded-xl shadow-md overflow-hidden">
+                    <div className="flex items-center bg-[#26150e] text-white rounded-none shadow-md overflow-hidden">
                       <button onClick={() => updateQty(item.id, -1)} className="px-2.5 py-1.5 text-amber-200 hover:bg-black/30 font-bold active:scale-95">−</button>
                       <span className="px-2 py-1 text-xs font-bold">{cartItem.qty}</span>
                       <button onClick={() => updateQty(item.id, 1)} className="px-2.5 py-1.5 text-amber-200 hover:bg-black/30 font-bold active:scale-95">+</button>
                     </div>
                   ) : (
-                    <button onClick={() => addToCart(item)} className="bg-[#26150e] text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-[#3c2217] active:scale-95 shadow transition">+ Add</button>
+                    <button onClick={() => addToCart(item)} className="bg-[#26150e] text-white px-5 py-2 rounded-none text-xs font-bold hover:bg-[#3c2217] active:scale-95 shadow transition">+ Add</button>
                   )}
                 </div>
               </article>
@@ -889,7 +889,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       {cart.length === 0 && tableOrders.length === 0 && (
         <div className="fixed bottom-0 left-0 right-0 flex justify-center pointer-events-none z-30 px-4 pb-4">
           <div className="w-full max-w-md pointer-events-auto">
-            <aside className="bg-stone-900/95 backdrop-blur-md text-white rounded-2xl p-3 shadow-2xl border border-white/10 flex items-center justify-between">
+            <aside className="bg-stone-900/95 backdrop-blur-md text-white rounded-none p-3 shadow-2xl border border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-3 pl-1.5">
                 <div>
                   <p className="text-xs font-semibold text-stone-200">No items selected</p>
@@ -903,15 +903,15 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 
       {cart.length > 0 && !isCartOpen && (
         <div className="fixed bottom-3 left-0 right-0 max-w-md mx-auto px-4 z-30">
-          <div className="bg-[#1c110b] text-white p-3.5 rounded-2xl shadow-2xl flex items-center justify-between border border-amber-500/20 backdrop-blur-lg">
+          <div className="bg-[#1c110b] text-white p-3.5 rounded-none shadow-2xl flex items-center justify-between border border-amber-500/20 backdrop-blur-lg">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-300 font-bold text-sm">{cart.reduce((s,i)=>s+i.qty,0)}</div>
+              <div className="w-10 h-10 rounded-none bg-amber-500/20 flex items-center justify-center text-amber-300 font-bold text-sm">{cart.reduce((s,i)=>s+i.qty,0)}</div>
               <div>
                 <p className="text-xs text-stone-300 font-medium">Cart Total</p>
                 <p className="text-base font-extrabold text-white">₹{total.toFixed(2)}</p>
               </div>
             </div>
-            <button onClick={() => setIsCartOpen(true)} className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 active:scale-95 text-stone-950 font-extrabold text-xs rounded-xl shadow transition flex items-center gap-1.5">
+            <button onClick={() => setIsCartOpen(true)} className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 active:scale-95 text-stone-950 font-extrabold text-xs rounded-none shadow transition flex items-center gap-1.5">
               <span>View Cart</span>
             </button>
           </div>
@@ -920,15 +920,15 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 
       {tableOrders.length > 0 && cart.length === 0 && !isCartOpen && (
         <div className="fixed bottom-3 left-0 right-0 max-w-md mx-auto px-4 z-30">
-          <div className="bg-[#1c110b] text-white p-3.5 rounded-2xl shadow-2xl flex items-center justify-between border border-amber-500/20 backdrop-blur-lg">
+          <div className="bg-[#1c110b] text-white p-3.5 rounded-none shadow-2xl flex items-center justify-between border border-amber-500/20 backdrop-blur-lg">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-300 font-bold text-sm">{tableOrders.length}</div>
+              <div className="w-10 h-10 rounded-none bg-amber-500/20 flex items-center justify-center text-amber-300 font-bold text-sm">{tableOrders.length}</div>
               <div>
                 <p className="text-xs text-stone-300 font-medium">Table Bill Total</p>
                 <p className="text-base font-extrabold text-white">₹{grandTotal.toFixed(2)}</p>
               </div>
             </div>
-            <button onClick={() => setViewingOrders(true)} className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 active:scale-95 text-stone-950 font-extrabold text-xs rounded-xl shadow transition flex items-center gap-1.5">
+            <button onClick={() => setViewingOrders(true)} className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 active:scale-95 text-stone-950 font-extrabold text-xs rounded-none shadow transition flex items-center gap-1.5">
               <span>View Orders</span>
             </button>
           </div>
@@ -938,7 +938,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       {isCartOpen && (
         <>
           <div className="fixed inset-0 z-10 bg-black/45 backdrop-blur-[2px] transition-opacity" onClick={() => setIsCartOpen(false)}></div>
-          <main className="fixed bottom-0 left-1/2 -translate-x-1/2 z-20 w-full max-w-md bg-[#FAF7F2] rounded-t-[32px] shadow-sheet border-t border-[#f0e4d7] flex flex-col max-h-[88vh] transition-transform">
+          <main className="fixed bottom-0 left-1/2 -translate-x-1/2 z-20 w-full max-w-md bg-[#FAF7F2] rounded-none shadow-sheet border-t border-[#f0e4d7] flex flex-col max-h-[88vh] transition-transform">
             <header className="pt-3 px-6 pb-4 shrink-0">
               <div className="flex justify-center mb-3">
                 <div className="w-12 h-1.5 rounded-full bg-[#D6CDC5] cursor-grab" onClick={() => setIsCartOpen(false)}></div>
@@ -960,33 +960,33 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               </div>
               <div className="flex items-baseline justify-between mt-1">
                 <h1 className="text-2xl font-extrabold tracking-tight text-[#2c1f17]">Your Cart</h1>
-                <span className="text-xs font-bold text-gray-500 bg-stone-200/60 px-2 py-0.5 rounded-md">{cart.reduce((s,i)=>s+i.qty,0)} items</span>
+                <span className="text-xs font-bold text-stone-700 bg-stone-200/60 px-2 py-0.5 rounded-none">{cart.reduce((s,i)=>s+i.qty,0)} items</span>
               </div>
             </header>
             <div className="overflow-y-auto px-6 space-y-4 pb-4 flex-1">
               {cart.map(item => (
-                <section key={item.id} className="bg-white p-4 rounded-2xl border border-stone-200/80 shadow-sm">
+                <section key={item.id} className="bg-white p-4 rounded-none border border-stone-200/80 shadow-sm">
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1.5 flex-1">
                       <h2 className="font-bold text-[#2c1f17] text-base leading-tight">{item.name}</h2>
-                      {item.description && item.description !== 'null' && <p className="text-xs text-stone-500 leading-relaxed mb-1">{item.description}</p>}
-                      <p className="text-xs text-gray-500">Unit price: ₹{item.price.toFixed(2)}</p>
+                      {item.description && item.description !== 'null' && <p className="text-xs text-stone-700 leading-relaxed mb-1">{item.description}</p>}
+                      <p className="text-xs text-stone-700">Unit price: ₹{item.price.toFixed(2)}</p>
                       <p className="text-base font-extrabold text-[#9c4c2d] pt-0.5">₹{(item.price * item.qty).toFixed(2)}</p>
-                      <input type="text" placeholder="Add special instructions (e.g. less spicy)..." className="mt-2 w-full text-xs p-2 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-stone-400 focus:bg-white transition-colors" value={item.notes || ''} onChange={(e) => {
+                      <input type="text" placeholder="Add special instructions (e.g. less spicy)..." className="mt-2 w-full text-xs p-2 bg-stone-50 border border-stone-200 rounded-none focus:outline-none focus:border-stone-400 focus:bg-white transition-colors" value={item.notes || ''} onChange={(e) => {
                         setCart(prev => prev.map(i => i.id === item.id ? { ...i, notes: e.target.value } : i));
                       }} />
                     </div>
                     <div className="flex items-center bg-[#F3ECE5] rounded-full p-1 border border-[#e5dcd2]">
-                      <button onClick={() => updateQty(item.id, -1)} className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#2c1f17] font-bold text-base shadow-sm hover:bg-stone-50 active:scale-90 transition-transform">−</button>
+                      <button onClick={() => updateQty(item.id, -1)} className="w-8 h-8 rounded-none bg-white border border-stone-300 flex items-center justify-center text-stone-600 font-bold text-base shadow-sm hover:bg-stone-50 hover:text-red-600 active:scale-90 transition-all">{item.qty === 1 ? <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> : "−"}</button>
                       <span className="w-8 text-center font-bold text-[#2c1f17] text-sm">{item.qty}</span>
-                      <button onClick={() => updateQty(item.id, 1)} className="w-8 h-8 rounded-full bg-[#2c1f17] flex items-center justify-center text-white font-bold text-base shadow-sm hover:bg-black active:scale-90 transition-transform">+</button>
+                      <button onClick={() => updateQty(item.id, 1)} className="w-8 h-8 rounded-none bg-[#2c1f17] flex items-center justify-center text-white font-bold text-base shadow-sm hover:bg-black active:scale-90 transition-transform">+</button>
                     </div>
                   </div>
                 </section>
               ))}
-              <section className="bg-white p-4 rounded-2xl border border-stone-200/80 shadow-sm space-y-2.5">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 pb-1 border-b border-stone-100">Bill Breakdown</h3>
-                <div className="flex justify-between items-center text-sm font-medium text-gray-500"><span>Subtotal</span><span className="text-[#2c1f17] font-semibold">₹{subtotal.toFixed(2)}</span></div>
+              <section className="bg-white p-4 rounded-none border border-stone-200/80 shadow-sm space-y-2.5">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-stone-700 pb-1 border-b border-stone-100">Bill Breakdown</h3>
+                <div className="flex justify-between items-center text-sm font-medium text-stone-700"><span>Subtotal</span><span className="text-[#2c1f17] font-semibold">₹{subtotal.toFixed(2)}</span></div>
                 <div className="pt-2 border-t border-stone-200/80 flex justify-between items-baseline">
                   <div><span className="text-base font-extrabold text-[#2c1f17]">Total</span></div>
                   <div className="text-xl font-black text-[#2c1f17] tracking-tight">₹{total.toFixed(2)}</div>
@@ -994,7 +994,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               </section>
             </div>
             <footer className="p-5 pt-3 bg-white border-t border-stone-200/80 shrink-0 space-y-2">
-              <button disabled={isSubmitting || cart.length === 0} onClick={() => setIsConfirmModalOpen(true)} className="w-full bg-[#2b1a13] hover:bg-[#1c110b] text-white py-3.5 px-6 rounded-2xl font-bold text-base shadow-lg flex items-center justify-center gap-2.5 transition-all">
+              <button disabled={isSubmitting || cart.length === 0} onClick={() => setIsConfirmModalOpen(true)} className="w-full bg-[#2b1a13] hover:bg-[#1c110b] text-white py-3.5 px-6 rounded-none font-bold text-base shadow-lg flex items-center justify-center gap-2.5 transition-all">
                 {isSubmitting ? (
                   <>
                   <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
@@ -1015,7 +1015,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               </button>
             </footer>
             <div className="pb-5 bg-white shrink-0">
-            <p className="text-center text-[11px] font-medium text-stone-500 flex items-center justify-center gap-1.5 pb-2">
+            <p className="text-center text-[11px] font-medium text-stone-700 flex items-center justify-center gap-1.5 pb-2">
 <svg className="w-3.5 h-3.5 text-amber-700 inline" fill="currentColor" viewBox="0 0 20 20">
 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd"></path>
 </svg>
@@ -1029,26 +1029,26 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       {isPaymentModalOpen && (
         <>
           <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity" onClick={() => setIsPaymentModalOpen(false)}></div>
-          <main className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 w-full max-w-md bg-[#FAF7F2] rounded-t-[32px] shadow-2xl flex flex-col max-h-[92vh]">
+          <main className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 w-full max-w-md bg-[#FAF7F2] rounded-none shadow-2xl flex flex-col max-h-[92vh]">
             <div className="w-full flex justify-center pt-3 pb-1">
               <div className="w-12 h-1.5 bg-stone-300 hover:bg-stone-400 cursor-pointer active:cursor-grabbing transition rounded-full" onClick={() => setIsPaymentModalOpen(false)} title="Drag down to close"></div>
             </div>
             <header className="px-6 pt-2 pb-3 flex items-start justify-between border-b border-[#e5dcd2]">
               <div>
                 <h1 className="text-xl font-bold tracking-tight text-[#1c110b] leading-tight">राखा भाई की चाय</h1>
-                <p className="text-xs text-stone-500 font-medium">Payment for {`Table ${table.number}`}</p>
+                <p className="text-xs text-stone-700 font-black tracking-widest uppercase mt-0.5">Payment for Table {table.number}</p>
               </div>
-              <button aria-label="Close payment modal" onClick={() => setIsPaymentModalOpen(false)} className="p-2 rounded-full hover:bg-stone-200/80 active:scale-95 transition-all text-stone-600">
+              <button aria-label="Close payment modal" onClick={() => setIsPaymentModalOpen(false)} className="p-2 rounded-none hover:bg-stone-200/80 active:scale-95 transition-all text-stone-600">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
               </button>
             </header>
             <section className="overflow-y-auto px-6 py-4 space-y-4 no-scrollbar">
-              <div className="bg-white rounded-2xl p-4 border border-stone-200 shadow-sm relative overflow-hidden group">
+              <div className="bg-white rounded-none p-4 border border-stone-200 shadow-sm relative overflow-hidden group">
                 <div className="absolute -right-4 -top-4 w-16 h-16 bg-emerald-50 rounded-full opacity-50 group-hover:scale-110 transition-transform"></div>
                 <div className="flex justify-between items-baseline mb-1">
-                  <span className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Total Amount Due</span>
+                  <span className="text-[11px] font-bold text-stone-700 uppercase tracking-wider">Total Amount Due</span>
                 </div>
                 <div className="flex items-baseline gap-1 mt-1">
                   <span className="text-2xl font-bold text-[#2b1a13]">₹</span>
@@ -1057,9 +1057,9 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                 <p className="text-[10px] text-stone-400 font-medium mt-1">Incl. of all taxes &amp; fees</p>
               </div>
               <div>
-                <h2 className="text-[11px] font-bold uppercase tracking-wider text-stone-500 mb-2.5 px-0.5">Select Payment Method</h2>
+                <h2 className="text-[11px] font-bold uppercase tracking-wider text-stone-700 mb-2.5 px-0.5">Select Payment Method</h2>
                 <div className="grid grid-cols-2 gap-2.5">
-                  <label onClick={() => setPaymentMethod('upi_qr')} className={`cursor-pointer relative flex flex-col items-center justify-center p-3.5 bg-white border-2 rounded-2xl text-center transition ${paymentMethod === 'upi_qr' ? 'border-[#3e261c] shadow-sm' : 'border-transparent border-stone-200 hover:border-[#2b1a13]'}`}>
+                  <label onClick={() => setPaymentMethod('upi_qr')} className={`cursor-pointer relative flex flex-col items-center justify-center p-3.5 bg-white border-2 rounded-none text-center transition ${paymentMethod === 'upi_qr' ? 'border-[#3e261c] shadow-sm' : 'border-transparent border-stone-200 hover:border-[#2b1a13]'}`}>
                     {paymentMethod === 'upi_qr' && (
                       <span className="absolute top-2 right-2 flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#5a3829] opacity-75"></span>
@@ -1072,9 +1072,9 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                       </svg>
                     </div>
                     <span className="text-xs font-bold text-[#1c110b]">Dynamic QR</span>
-                    <span className="text-[10px] text-stone-500 mt-0.5">Scan on Table / Screen</span>
+                    <span className="text-[10px] text-stone-700 mt-0.5">Scan on Table / Screen</span>
                   </label>
-                  <label onClick={() => setPaymentMethod('cash')} className={`cursor-pointer relative flex flex-col items-center justify-center p-3.5 bg-white border-2 rounded-2xl text-center transition ${paymentMethod === 'cash' ? 'border-[#3e261c] shadow-sm' : 'border-transparent border-stone-200 hover:border-[#2b1a13]'}`}>
+                  <label onClick={() => setPaymentMethod('cash')} className={`cursor-pointer relative flex flex-col items-center justify-center p-3.5 bg-white border-2 rounded-none text-center transition ${paymentMethod === 'cash' ? 'border-[#3e261c] shadow-sm' : 'border-transparent border-stone-200 hover:border-[#2b1a13]'}`}>
                     {paymentMethod === 'cash' && (
                       <span className="absolute top-2 right-2 flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#5a3829] opacity-75"></span>
@@ -1089,27 +1089,27 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                       </svg>
                     </div>
                     <span className="text-xs font-bold text-stone-800">Cash Payment</span>
-                    <span className="text-[10px] text-stone-500 mt-0.5">Pay at Counter / Waiter</span>
+                    <span className="text-[10px] text-stone-700 mt-0.5">Pay at Counter / Waiter</span>
                   </label>
                 </div>
                 <div className="mt-3">
-                  <p className="text-[11px] font-medium text-stone-500 mb-2 px-0.5">Or open your installed UPI App</p>
+                  <p className="text-[11px] font-medium text-stone-700 mb-2 px-0.5">Or open your installed UPI App</p>
                   <div className="grid grid-cols-4 gap-2">
-                    <a href={`gpay://upi/pay?pa=${targetUpiId}&pn=${targetUpiName}&am=${grandTotal.toFixed(2)}&cu=INR`} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition">
+                    <a href={`gpay://upi/pay?pa=${targetUpiId}&pn=${targetUpiName}&am=${grandTotal.toFixed(2)}&cu=INR`} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-none hover:border-stone-300 shadow-sm active:scale-95 transition">
                       <div className="w-7 h-7 flex items-center justify-center font-bold text-sm text-blue-600 font-display tracking-tighter">
                         <span className="text-blue-500">G</span><span className="text-red-500">P</span><span className="text-yellow-500">a</span><span className="text-green-500">y</span>
                       </div>
                       <span className="text-[10px] font-semibold text-stone-700 mt-1">GPay</span>
                     </a>
-                    <a href={`phonepe://pay?pa=${targetUpiId}&pn=${targetUpiName}&am=${grandTotal.toFixed(2)}&cu=INR`} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition">
+                    <a href={`phonepe://pay?pa=${targetUpiId}&pn=${targetUpiName}&am=${grandTotal.toFixed(2)}&cu=INR`} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-none hover:border-stone-300 shadow-sm active:scale-95 transition">
                       <div className="w-7 h-7 bg-[#5f259f] rounded-full flex items-center justify-center text-white font-bold text-xs">पे</div>
                       <span className="text-[10px] font-semibold text-stone-700 mt-1">PhonePe</span>
                     </a>
-                    <a href={`paytmmp://pay?pa=${targetUpiId}&pn=${targetUpiName}&am=${grandTotal.toFixed(2)}&cu=INR`} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition">
+                    <a href={`paytmmp://pay?pa=${targetUpiId}&pn=${targetUpiName}&am=${grandTotal.toFixed(2)}&cu=INR`} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-none hover:border-stone-300 shadow-sm active:scale-95 transition">
                       <div className="w-7 h-7 flex items-center justify-center font-extrabold text-[11px] text-[#00b9f5] tracking-tight">pay<span className="text-[#002e6e]">tm</span></div>
                       <span className="text-[10px] font-semibold text-stone-700 mt-1">Paytm</span>
                     </a>
-                    <a href={upiLink} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition">
+                    <a href={upiLink} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-none hover:border-stone-300 shadow-sm active:scale-95 transition">
                       <div className="w-7 h-7 rounded-full bg-amber-50 text-[#3e261c] flex items-center justify-center">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                           <path d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" strokeLinecap="round" strokeLinejoin="round"></path>
@@ -1121,8 +1121,8 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                 </div>
               </div>
               {paymentMethod === 'upi_qr' && (
-                <div className="bg-white border border-[#e5dcd2] rounded-2xl p-4 text-center">
-                  <div className="inline-block p-3 bg-[#FAF7F2] rounded-xl border border-stone-200/80 mb-2">
+                <div className="bg-white border border-[#e5dcd2] rounded-none p-4 text-center">
+                  <div className="inline-block p-3 bg-[#FAF7F2] rounded-none border border-stone-200/80 mb-2">
                     <div className="flex items-center justify-center w-36 h-36 mx-auto"><QRCodeSVG value={upiLink} size={144} fgColor="#1c110b" bgColor="transparent" /></div>
                   </div>
                   <p className="text-xs font-semibold text-stone-700">Scan using any UPI Payment App</p>
@@ -1132,8 +1132,8 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
             </section>
             <footer className="p-5 bg-white border-t border-[#F3ECE5] flex flex-col gap-2.5">
               <div className="flex items-center gap-3">
-                <button onClick={() => setIsPaymentModalOpen(false)} className="w-1/3 py-3.5 px-4 rounded-xl border border-stone-300 font-semibold text-stone-700 text-sm hover:bg-stone-50 active:bg-stone-100 transition text-center" type="button">Back</button>
-                <button onClick={handleCustomerCheckout} className="w-2/3 py-3.5 px-4 bg-[#2b1a13] hover:bg-[#1c110b] active:scale-[0.98] text-white rounded-xl font-bold text-sm tracking-wide shadow-md shadow-[#1c110b]/20 flex items-center justify-center gap-2 transition duration-150" type="button">
+                <button onClick={() => setIsPaymentModalOpen(false)} className="w-1/3 py-3.5 px-4 rounded-none border border-stone-300 font-semibold text-stone-700 text-sm hover:bg-stone-50 active:bg-stone-100 transition text-center" type="button">Back</button>
+                <button onClick={handleCustomerCheckout} className="w-2/3 py-3.5 px-4 bg-[#2b1a13] hover:bg-[#1c110b] active:scale-[0.98] text-white rounded-none font-bold text-sm tracking-wide shadow-md shadow-[#1c110b]/20 flex items-center justify-center gap-2 transition duration-150" type="button">
                   <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
                   </svg>
@@ -1155,17 +1155,17 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       {isConfirmModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsConfirmModalOpen(false)}></div>
-          <div className="relative bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+          <div className="relative bg-white rounded-none p-6 w-full max-w-sm shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mb-4 mx-auto">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
             <h3 className="text-xl font-bold text-center text-stone-900 mb-2">Confirm Your Table</h3>
-            <p className="text-center text-stone-500 text-sm mb-6 leading-relaxed">
+            <p className="text-center text-stone-700 text-sm mb-6 leading-relaxed">
               Please double check that you are seated at <strong className="text-stone-800">Table {table.number}</strong>. Orders cannot be easily canceled once sent to the kitchen.
             </p>
             <div className="flex gap-3">
-              <button onClick={() => setIsConfirmModalOpen(false)} className="flex-1 py-3 px-4 rounded-xl font-bold text-stone-600 bg-stone-100 hover:bg-stone-200 transition-colors">Cancel</button>
-              <button onClick={() => { setIsConfirmModalOpen(false); executePlaceOrder(); }} className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-[#2b1a13] hover:bg-[#1c110b] transition-colors shadow-md">Confirm Order</button>
+              <button onClick={() => setIsConfirmModalOpen(false)} className="flex-1 py-3 px-4 rounded-none font-bold text-stone-600 bg-stone-100 hover:bg-stone-200 transition-colors">Cancel</button>
+              <button onClick={() => { setIsConfirmModalOpen(false); executePlaceOrder(); }} className="flex-1 py-3 px-4 rounded-none font-bold text-white bg-[#2b1a13] hover:bg-[#1c110b] transition-colors shadow-md">Confirm Order</button>
             </div>
           </div>
         </div>
