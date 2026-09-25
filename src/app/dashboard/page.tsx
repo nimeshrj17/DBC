@@ -832,7 +832,7 @@ export default function DashboardPage() {
               <span>Add Table</span>
             </button>
             <button onClick={() => setIsQuickSaleOpen(true)} className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold text-sm shadow-sm transition" type="button">
-              <span>⚡ Quick Sale</span>
+              <span>Quick Sale</span>
             </button>
             <div className="inline-flex p-1 bg-white border border-slate-200 rounded-xl shadow-xs">
               <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-lg ${viewMode === 'grid' ? 'bg-slate-100 text-slate-800' : 'text-slate-400 hover:text-slate-700'}`} title="Grid View" type="button">
@@ -884,7 +884,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center space-x-2">
             <button onClick={() => setIsQuickSaleOpen(true)} className="bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold px-3 py-2 rounded-xl text-xs shadow-sm mx-1" type="button">
-              ⚡ Sale
+              Sale
             </button>
             <button onClick={() => setIsAddTableOpen(true)} className="bg-[#D9F927] hover:bg-[#c9e81f] text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center space-x-1.5 shadow-sm active:scale-95 transition-all">
               <svg className="w-3.5 h-3.5 stroke-current fill-none stroke-[3]" viewBox="0 0 24 24">

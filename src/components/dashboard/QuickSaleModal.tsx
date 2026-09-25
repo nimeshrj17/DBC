@@ -67,7 +67,7 @@ export function QuickSaleModal({ isOpen, onClose }: { isOpen: boolean, onClose: 
       <div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
         <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
           <h2 className="text-xl font-bold flex items-center gap-2">
-            ⚡ Quick Retail Sale
+            Quick Retail Sale
           </h2>
           <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
             <X className="w-5 h-5" />
