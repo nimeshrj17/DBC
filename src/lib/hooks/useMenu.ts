@@ -2,6 +2,21 @@ import { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, orderBy, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
+export interface IngredientCost {
+  name: string;
+  qty: number;
+  unit: string;
+  unitCost: number;
+  lineCost: number;
+}
+
+export interface CostingData {
+  ingredients: IngredientCost[];
+  totalCost: number;
+  margin: number;
+  marginPct: number;
+}
+
 export interface MenuItem {
   id: string;
   name: string;
@@ -11,7 +26,10 @@ export interface MenuItem {
   available: boolean;
   imageUrl?: string;
   archived?: boolean;
-  isRetail?: boolean; // Flag to bypass kitchen routing
+  isRetail?: boolean;
+  costing?: CostingData;
+  prepTime?: number;
+  menuVersion?: 'current' | 'new-launch'; // Flag to bypass kitchen routing
   linkedInventoryId?: string; // Legacy: used for 1-to-1 retail linkage
   linkedInventoryAmount?: number; // Legacy
   recipe?: { inventoryId: string, amount: number }[]; // BOM/Recipe array
