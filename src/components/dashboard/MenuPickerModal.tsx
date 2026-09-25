@@ -86,7 +86,7 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
             </div>
             <input 
               type="search" 
-              placeholder="Search menu items or codes (#G1)..." 
+              placeholder="Search menu items..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
@@ -105,7 +105,7 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
                 onClick={() => setActiveCategory(category)}
                 className={`w-full text-left px-3 py-3.5 border-b border-gray-100 text-xs md:text-sm transition-all ${
                   activeCategory === category 
-                    ? 'font-bold bg-blue-50/50 text-blue-700 border-l-4 border-l-blue-600' 
+                    ? 'font-bold bg-slate-900 text-white border-l-4 border-l-[#D9F927]' 
                     : 'font-medium text-gray-600 hover:bg-gray-50'
                 }`}
               >
@@ -163,18 +163,18 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
                   <article 
                     key={item.id} 
                     onClick={() => { if(item.available && !outOfStock) onAddItem(item); }}
-                    className={`flex flex-col justify-between p-3.5 bg-white rounded-2xl border ${qty > 0 ? 'border-blue-400 bg-blue-50/30 ring-1 ring-blue-200' : 'border-gray-200'} shadow-sm hover:shadow-md hover:border-black/20 transition-all cursor-pointer ${outOfStock ? 'opacity-50 grayscale cursor-not-allowed' : ''} min-h-[110px] relative`}
+                    className={`flex flex-col justify-between p-3 bg-white rounded-2xl border ${qty > 0 ? 'border-blue-400 bg-blue-50/30 ring-1 ring-blue-200' : 'border-gray-200'} shadow-sm hover:shadow-md hover:border-black/20 transition-all cursor-pointer ${outOfStock ? 'opacity-50 grayscale cursor-not-allowed' : ''}  relative`}
                   >
                     <div>
                       <div className="flex justify-between items-start gap-1">
                         <h2 className="text-sm md:text-[15px] font-bold text-gray-900 leading-tight line-clamp-2 pr-6">{item.name}</h2>
-                        {item.itemNumber && <span className="absolute top-3 right-3 text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 border border-gray-200 flex-shrink-0">#{item.itemNumber}</span>}
+                        
                       </div>
                       {(!item.available || outOfStock) && <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-red-50 text-red-600 border border-red-100 inline-block mt-1.5">OOS</span>}
                     </div>
                     
                     <div className="flex items-end justify-between mt-3">
-                      <p className="text-base md:text-lg font-black text-emerald-600 leading-none">₹{item.price}</p>
+                      <p className="text-base md:text-lg font-black text-slate-900 leading-none">₹{item.price}</p>
                       
                       <div className="flex items-center">
                         {qty > 0 ? (
@@ -182,8 +182,8 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
                             <span className="text-xs font-bold text-blue-800">{qty} in cart</span>
                           </div>
                         ) : (
-                          <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-transform ${
-                            (!item.available || outOfStock) ? 'bg-gray-100 text-gray-400' : 'bg-blue-600 text-white'
+                          <div className={`w-6 h-6 rounded-md flex items-center justify-center transition-transform ${
+                            (!item.available || outOfStock) ? 'bg-gray-100 text-gray-400' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                           }`}>
                             <Plus className="w-4 h-4" strokeWidth={3} />
                           </div>
@@ -203,16 +203,7 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
           </div>
         </div>
 
-        {/* Sticky Footer */}
-        <div className="bg-white border-t border-gray-200 p-3 flex justify-between items-center shrink-0">
-          <div>
-            <span className="text-gray-500 text-sm font-medium">{totalItemsCount} items</span>
-            <span className="mx-2 text-gray-300">|</span>
-            <span className="text-gray-900 font-bold text-lg">₹{totalCost.toFixed(2)}</span>
-          </div>
-
-        </div>
-      </div>
+              </div>
     </div>
   );
 }
