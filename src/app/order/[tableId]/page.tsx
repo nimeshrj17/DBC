@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 
 interface CartItem extends MenuItem {
   qty: number;
+  notes?: string;
 }
 
 export default function CustomerOrderPage({ params }: { params: Promise<{ tableId: string }> }) {
@@ -20,6 +21,14 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 
   const { menuItems: rawMenuItems, loading: menuLoading } = useMenu();
   const { settings } = useSettings();
+
+  const getStatusText = (s: string) => {
+    if (s === 'pending') return 'Order Received';
+    if (s === 'preparing') return 'Preparing';
+    if (s === 'prepared') return 'Ready';
+    if (s === 'served') return 'Served';
+    return s.toUpperCase();
+  };
   const menuItems = rawMenuItems.filter(i => {
     const isSoftDrink = i.category && (
       i.category.toLowerCase().includes('soft drink') || 
@@ -47,6 +56,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const [finalReceiptData, setFinalReceiptData] = useState<{total: number, count: number, ref: string} | null>(null);
   
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [custName, setCustName] = useState('');
   const [custPhone, setCustPhone] = useState('');
 
@@ -174,7 +184,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           customerPhone: finalCustomerPhone,
           customerName: finalCustomerName,
           displayIdPrefix: 'QR',
-          items: kitchenItems.map(i => ({ menuItemId: i.id, name: i.name, price: i.price, category: i.category, qty: i.qty })),
+          items: kitchenItems.map(i => ({ menuItemId: i.id, name: i.name, price: i.price, category: i.category, qty: i.qty, notes: i.notes || '' })),
           subtotal: sub, tax: 0, total: sub, status: 'pending', paymentMethod: null, paymentStatus: 'unpaid'
         });
         newOrderIds.push(orderId);
@@ -188,7 +198,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           customerPhone: finalCustomerPhone,
           customerName: finalCustomerName,
           displayIdPrefix: 'QR',
-          items: retailItems.map(i => ({ menuItemId: i.id, name: i.name, price: i.price, category: i.category, qty: i.qty })),
+          items: retailItems.map(i => ({ menuItemId: i.id, name: i.name, price: i.price, category: i.category, qty: i.qty, notes: i.notes || '' })),
           subtotal: sub, tax: 0, total: sub, status: 'served', paymentMethod: null, paymentStatus: 'unpaid'
         });
         newOrderIds.push(orderId);
@@ -573,7 +583,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               </div>
               <div className="text-right">
                 <span className="text-[11px] uppercase tracking-wider font-semibold text-stone-400">Status</span>
-                <p className="text-sm font-bold text-[#5a3829]">{order.status}</p>
+                <p className="text-sm font-bold text-[#5a3829] uppercase">{getStatusText(order.status)}</p>
               </div>
             </div>
             <div className="space-y-3 pt-1">
@@ -581,7 +591,10 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                 <div key={idx} className="flex items-center justify-between text-sm">
                   <div className="flex items-center space-x-2.5">
                     <span className="w-5 h-5 flex items-center justify-center bg-stone-100 rounded text-xs font-bold text-stone-700">{item.qty}×</span>
-                    <span className="font-medium text-stone-800">{item.name}</span>
+                    <div className="flex flex-col">
+                      <span className="font-medium text-stone-800">{item.name}</span>
+                      {item.notes && <span className="text-[10px] text-stone-500 italic mt-0.5 max-w-[200px] truncate">Note: {item.notes}</span>}
+                    </div>
                   </div>
                   <span className="font-semibold text-stone-800">₹{(item.price * item.qty).toFixed(2)}</span>
                 </div>
@@ -599,7 +612,11 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 <span>Order More Items</span>
           </button>
           <div className="mt-4 text-center px-2">
-            <p className="text-xs text-stone-500 leading-relaxed font-medium">
+            <p className="text-xs text-stone-500 leading-relaxed font-medium mb-2">
+              Need to modify or cancel? Please contact our staff.
+            </p>
+            <div className="w-full h-px bg-stone-200 my-3"></div>
+            <p className="text-[11px] text-stone-400 leading-relaxed">
               Pay at counter for final bill.<br/>Soft drinks, cigarettes, and biscuits can be purchased from the counter.
             </p>
           </div>
@@ -770,7 +787,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           <div className="bg-white rounded-2xl p-4 shadow-lg border border-amber-900/10 transition hover:shadow-xl">
             <div className="flex items-center justify-between pb-3 border-b border-stone-100">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-stone-400">Table's Order</span>
+                <span className="text-xs font-semibold text-stone-400">Order ID</span>
                 <span className="text-sm font-bold text-stone-900 tracking-tight">{tableOrders.length === 1 ? tableOrders[0].displayId || 'Pending' : `${tableOrders.length} Orders`}</span>
               </div>
               {(() => {
@@ -846,10 +863,10 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               <article key={item.id} className="bg-white rounded-2xl p-4 shadow-sm border border-stone-100 flex justify-between gap-3 relative transition hover:shadow-md">
                 <div className="flex-1 space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <span className="w-4 h-4 border border-emerald-600 rounded-[3px] flex items-center justify-center" title="Pure Vegetarian"><span className="w-2 h-2 rounded-full bg-emerald-600"></span></span>
+                    <span className="w-4 h-4 border border-emerald-600 rounded-[3px] flex items-center justify-center" title="Pure Vegetarian"><span className="w-2 h-2 rounded-full bg-emerald-600"></span></span><span className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest ml-1">VEG</span>
                   </div>
                   <h3 className="font-bold text-stone-900 text-base leading-snug">{item.name}</h3>
-                  <p className="text-xs text-stone-500 line-clamp-2 leading-relaxed">{item.description}</p>
+                  {item.description && item.description !== 'null' && <p className="text-xs text-stone-500 leading-relaxed">{item.description}</p>}
                   <div className="pt-1"><span className="text-base font-extrabold text-stone-900">₹{item.price}</span></div>
                 </div>
                 <div className="flex flex-col justify-end items-end">
@@ -952,8 +969,12 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1.5 flex-1">
                       <h2 className="font-bold text-[#2c1f17] text-base leading-tight">{item.name}</h2>
+                      {item.description && item.description !== 'null' && <p className="text-xs text-stone-500 leading-relaxed mb-1">{item.description}</p>}
                       <p className="text-xs text-gray-500">Unit price: ₹{item.price.toFixed(2)}</p>
                       <p className="text-base font-extrabold text-[#9c4c2d] pt-0.5">₹{(item.price * item.qty).toFixed(2)}</p>
+                      <input type="text" placeholder="Add special instructions (e.g. less spicy)..." className="mt-2 w-full text-xs p-2 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-stone-400 focus:bg-white transition-colors" value={item.notes || ''} onChange={(e) => {
+                        setCart(prev => prev.map(i => i.id === item.id ? { ...i, notes: e.target.value } : i));
+                      }} />
                     </div>
                     <div className="flex items-center bg-[#F3ECE5] rounded-full p-1 border border-[#e5dcd2]">
                       <button onClick={() => updateQty(item.id, -1)} className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#2c1f17] font-bold text-base shadow-sm hover:bg-stone-50 active:scale-90 transition-transform">−</button>
@@ -973,7 +994,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               </section>
             </div>
             <footer className="p-5 pt-3 bg-white border-t border-stone-200/80 shrink-0 space-y-2">
-              <button disabled={isSubmitting || cart.length === 0} onClick={executePlaceOrder} className="w-full bg-[#9c4c2d] hover:bg-[#853e22] text-white py-3.5 px-6 rounded-2xl font-bold text-base shadow-lg flex items-center justify-center gap-2.5 transition-all">
+              <button disabled={isSubmitting || cart.length === 0} onClick={() => setIsConfirmModalOpen(true)} className="w-full bg-[#2b1a13] hover:bg-[#1c110b] text-white py-3.5 px-6 rounded-2xl font-bold text-base shadow-lg flex items-center justify-center gap-2.5 transition-all">
                 {isSubmitting ? (
                   <>
                   <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
@@ -1129,6 +1150,27 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           </main>
         </>
       )}
+
+      {/* Confirmation Modal */}
+      {isConfirmModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsConfirmModalOpen(false)}></div>
+          <div className="relative bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mb-4 mx-auto">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <h3 className="text-xl font-bold text-center text-stone-900 mb-2">Confirm Your Table</h3>
+            <p className="text-center text-stone-500 text-sm mb-6 leading-relaxed">
+              Please double check that you are seated at <strong className="text-stone-800">Table {table.number}</strong>. Orders cannot be easily canceled once sent to the kitchen.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setIsConfirmModalOpen(false)} className="flex-1 py-3 px-4 rounded-xl font-bold text-stone-600 bg-stone-100 hover:bg-stone-200 transition-colors">Cancel</button>
+              <button onClick={() => { setIsConfirmModalOpen(false); executePlaceOrder(); }} className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-[#2b1a13] hover:bg-[#1c110b] transition-colors shadow-md">Confirm Order</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
