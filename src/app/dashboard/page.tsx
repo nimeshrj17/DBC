@@ -411,6 +411,8 @@ export default function DashboardPage() {
         delete next[selectedTable.id];
         return next;
       });
+      setIsMenuOpen(false);
+      setSelectedTableId(null);
       
     } catch (error) {
       console.error("Failed to send order to kitchen", error);
