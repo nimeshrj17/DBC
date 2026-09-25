@@ -83,9 +83,14 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
   const isVacant = table.status === 'empty';
   const isAwaitingPayment = table.status === 'awaiting_payment';
   
-  let borderColor = 'border-slate-200';
-  if (isAwaitingPayment) borderColor = 'border-amber-400 border-2';
-  else if (!isVacant) borderColor = 'border-blue-500 border-2';
+  let cardStyle = '';
+  if (isAwaitingPayment) {
+    cardStyle = 'bg-amber-50/40 border-amber-200 border-l-[6px] border-l-amber-500';
+  } else if (!isVacant) {
+    cardStyle = 'bg-blue-50/40 border-blue-200 border-l-[6px] border-l-blue-500';
+  } else {
+    cardStyle = 'bg-emerald-50/20 border-slate-200 border-l-[6px] border-l-emerald-400';
+  }
 
   return (
     <div onClick={() => {
@@ -93,12 +98,12 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
       if (isVacant && onQuickAssign) {
         onQuickAssign(table.id);
       }
-    }} className={`bg-white rounded-none ${borderColor} shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-md transition group cursor-pointer h-full min-h-[140px]`}>
+    }} className={`rounded-none border ${cardStyle} shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-md transition group cursor-pointer h-full min-h-[140px]`}>
       <div className="p-4 flex-1 flex flex-col">
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center gap-2">
             <h4 className="text-lg font-bold text-slate-900 leading-none">{table.name || `Table ${table.number}`}</h4>
-            <div className="flex items-center gap-1 text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded-none text-[10px] font-bold">
+            <div className="flex items-center gap-1 text-slate-700 bg-slate-200/70 border-none px-2 py-1 rounded-none text-[10px] font-bold">
               <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round"></path>
               </svg>
@@ -144,7 +149,7 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
           </>
         )}
         {isVacant && (
-          <button onClick={(e) => { e.stopPropagation(); onQuickAssign(table.id); }} className="flex-1 py-2 text-xs font-bold text-slate-700 hover:bg-[#D9F927] transition-colors flex items-center justify-center gap-1.5">
+          <button onClick={(e) => { e.stopPropagation(); onQuickAssign(table.id); }} className="flex-1 py-2.5 text-xs font-bold text-slate-900 bg-[#D9F927] hover:bg-[#c9e81f] transition-colors flex items-center justify-center gap-1.5 shadow-inner">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"></path></svg>
             Open Table
           </button>
@@ -777,9 +782,16 @@ export default function DashboardPage() {
         <div className="flex flex-wrap items-center gap-6">
           <div className="inline-flex gap-1 p-1 bg-slate-100/80 rounded-none text-xs font-bold">
             <button onClick={() => setActiveZone('All')} className={`px-4 py-1.5 rounded-none transition ${activeZone === 'All' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}>All Zones ({tables.length})</button>
-            {Array.from(new Set(tables.map(t => String(t.section || 'Main Hall')))).map(z => (
-              <button key={z} onClick={() => setActiveZone(z)} className={`px-4 py-1.5 rounded-none transition ${activeZone === z ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}>{z} ({tables.filter(t => (t.section || 'Main Hall') === z).length})</button>
-            ))}
+            {Array.from(new Set(tables.map(t => String(t.section || 'Main Hall')))).map((z, idx) => {
+              const colors = ['bg-indigo-400', 'bg-pink-400', 'bg-teal-400', 'bg-orange-400', 'bg-purple-400', 'bg-cyan-400'];
+              const dotColor = colors[idx % colors.length];
+              return (
+                <button key={z} onClick={() => setActiveZone(z)} className={`px-4 py-1.5 rounded-none transition flex items-center gap-1.5 ${activeZone === z ? 'bg-white text-slate-900 shadow-sm font-bold' : 'text-slate-500 hover:text-slate-900'}`}>
+                  <span className={`w-2 h-2 rounded-full ${dotColor}`}></span>
+                  {z} ({tables.filter(t => (t.section || 'Main Hall') === z).length})
+                </button>
+              );
+            })}
           </div>
           
           <div className="h-4 w-px bg-slate-200"></div>
