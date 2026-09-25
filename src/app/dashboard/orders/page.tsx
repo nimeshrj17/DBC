@@ -164,13 +164,20 @@ export default function OrdersPage() {
   };
 
   const activeOrders = orders.filter(o => {
-    return true; 
+    // Only show today's orders
+    if (!o.createdAt) return false;
+    const createdTime = typeof o.createdAt.toMillis === 'function' ? o.createdAt.toMillis() : (o.createdAt.seconds * 1000);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return createdTime >= today.getTime();
   }).sort((a, b) => {
     return (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0);
   });
 
   const filteredOrders = activeOrders.filter(order => {
     if (order.status === 'completed') return false;
+    // Hide dismissed cancelled orders from 'all' tab, but keep them in 'cancelled' tab
+    if (order.status === 'cancelled' && order.kdsDismissed && statusFilter !== 'cancelled') return false;
     if (statusFilter !== 'all' && order.status !== statusFilter) return false;
     
     const searchLower = searchQuery.toLowerCase();
@@ -396,6 +403,11 @@ export default function OrdersPage() {
                         {(order.status === 'pending' || order.status === 'preparing') && (
                           <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'cancelled') }} className="w-full py-1.5 px-4 bg-transparent text-slate-400 hover:text-red-500 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition active:scale-95">
                             Cancel
+                          </button>
+                        )}
+                        {(order.status === 'cancelled' && !order.kdsDismissed) && (
+                          <button onClick={(e) => { e.stopPropagation(); updateOrder(order.id, { kdsDismissed: true }); }} className="w-full py-2.5 px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95">
+                            Dismiss
                           </button>
                         )}
                       </div>
