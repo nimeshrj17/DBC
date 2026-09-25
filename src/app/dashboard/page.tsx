@@ -941,13 +941,7 @@ export default function DashboardPage() {
                   onQuickAssign={handleQuickAssignAndMenu}
                 />
               ))}
-              {/* Quick Add Table Card Prompt */}
-              <div onClick={() => { setNewTableSection(section); setIsAddTableOpen(true); }} className="border border-dashed border-slate-300 bg-transparent hover:bg-slate-50/50 text-slate-400 hover:text-slate-600 rounded-none flex flex-col items-center justify-center gap-2 transition group opacity-70 hover:opacity-100 cursor-pointer min-h-[140px]">
-                <svg className="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round"></path>
-                </svg>
-                <span className="text-xs font-bold tracking-wide">Add New Table</span>
-              </div>
+
             </div>
           </section>
         ))}
