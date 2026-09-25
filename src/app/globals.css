@@ -93,6 +93,6 @@ body {
 }
 
 /* Global override to ensure sharp corners everywhere as requested */
-* {
+*:not(.rounded-full) {
   border-radius: 0 !important;
 }
