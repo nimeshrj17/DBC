@@ -21,6 +21,18 @@ export interface Staff {
     [key: string]: boolean | undefined;
   };
   createdAt?: any;
+  shiftStart?: string;
+  shiftEnd?: string;
+  salary?: number;
+}
+
+export interface AttendanceLog {
+  id?: string;
+  date: string;
+  staffId: string;
+  staffName: string;
+  arrivalTime: string;
+  status: 'on-time' | 'late' | 'absent';
 }
 
 export function useStaff() {
