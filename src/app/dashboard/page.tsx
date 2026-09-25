@@ -149,7 +149,7 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
           </>
         )}
         {isVacant && (
-          <button onClick={(e) => { e.stopPropagation(); onQuickAssign(table.id); }} className="flex-1 py-2.5 text-xs font-bold text-slate-900 bg-[#D9F927] hover:bg-[#c9e81f] transition-colors flex items-center justify-center gap-1.5 shadow-inner">
+          <button onClick={(e) => { e.stopPropagation(); onQuickAssign(table.id); }} className="flex-1 py-2.5 text-xs font-bold text-white bg-[#10B981] hover:bg-[#059669] transition-colors flex items-center justify-center gap-1.5 shadow-inner">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"></path></svg>
             Open Table
           </button>
@@ -762,7 +762,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center gap-3">
             <div className="relative w-64">
-              <input className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-none placeholder-slate-400 focus:ring-2 focus:ring-[#D9F927] focus:border-[#D9F927] outline-none" placeholder="Search tables..." type="text"/>
+              <input className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-none placeholder-slate-400 focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none" placeholder="Search tables..." type="text"/>
               <svg className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round"></path>
               </svg>
@@ -821,7 +821,7 @@ export default function DashboardPage() {
             <button onClick={() => setIsQuickSaleOpen(true)} className="bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold px-3 py-2 rounded-xl text-xs shadow-sm mx-1" type="button">
               Sale
             </button>
-            <button onClick={() => setIsAddTableOpen(true)} className="bg-[#D9F927] hover:bg-[#c9e81f] text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center space-x-1.5 shadow-sm active:scale-95 transition-all">
+            <button onClick={() => setIsAddTableOpen(true)} className="bg-[#10B981] hover:bg-[#059669] text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center space-x-1.5 shadow-sm active:scale-95 transition-all">
               <svg className="w-3.5 h-3.5 stroke-current fill-none stroke-[3]" viewBox="0 0 24 24">
                 <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round"></path>
               </svg>
@@ -1060,7 +1060,7 @@ export default function DashboardPage() {
                 {/* Drawer Footer Actions */}
                 <div className="p-6 border-t border-slate-100 bg-slate-50/50 space-y-3 shrink-0">
                   {/* Primary Action CTA */}
-                  <button disabled={isAssigning} onClick={handleQuickAssign} className="w-full py-3.5 px-5 bg-[#D9F927] hover:bg-[#c9e81f] text-neutral-900 font-bold text-sm rounded-xl transition-all shadow-sm flex items-center justify-center gap-2">
+                  <button disabled={isAssigning} onClick={handleQuickAssign} className="w-full py-3.5 px-5 bg-[#10B981] hover:bg-[#059669] text-neutral-900 font-bold text-sm rounded-xl transition-all shadow-sm flex items-center justify-center gap-2">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 256 256"><path d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7L45.79,130.17a8,8,0,0,0,5,13.66l57.6,21.61L93.75,238.76a8,8,0,0,0,13.69,7l108.35-119.6A8,8,0,0,0,215.79,118.17Z"></path></svg>
                     <span>{isAssigning ? 'Assigning...' : 'Quick Assign (Skip Details)'}</span>
                   </button>
@@ -1205,7 +1205,7 @@ export default function DashboardPage() {
                       <button 
                         onClick={handleSendToKitchen}
                         disabled={isSubmitting}
-                        className="w-full py-4 px-4 rounded-xl bg-[#D9F927] hover:bg-[#c9e81f] text-slate-950 font-bold text-[15px] transition shadow-sm flex items-center justify-center gap-2 disabled:opacity-70"
+                        className="w-full py-4 px-4 rounded-xl bg-[#10B981] hover:bg-[#059669] text-slate-950 font-bold text-[15px] transition shadow-sm flex items-center justify-center gap-2 disabled:opacity-70"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         {isSubmitting ? 'Sending...' : 'Place Order'}
@@ -1233,7 +1233,7 @@ export default function DashboardPage() {
                           onClick={() => setIsPaymentModalOpen(true)} 
                           className="w-full py-4 px-4 rounded-xl bg-slate-900 hover:bg-black text-white font-bold text-[15px] transition shadow-md flex items-center justify-center gap-2"
                         >
-                          <Banknote className="w-5 h-5 text-[#D9F927]" />
+                          <Banknote className="w-5 h-5 text-[#10B981]" />
                           Settle Bill / Payment
                         </button>
                       </div>

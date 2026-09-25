@@ -105,7 +105,7 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
                 onClick={() => setActiveCategory(category)}
                 className={`w-full text-left px-3 py-3.5 border-b border-gray-100 text-xs md:text-sm transition-all ${
                   activeCategory === category 
-                    ? 'font-bold bg-slate-900 text-white border-l-4 border-l-[#D9F927]' 
+                    ? 'font-bold bg-slate-900 text-white border-l-4 border-l-[#10B981]' 
                     : 'font-medium text-gray-600 hover:bg-gray-50'
                 }`}
               >

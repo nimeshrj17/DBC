@@ -86,7 +86,7 @@ export function FloorMap({ tables, activeZone, onSelectTable, onUpdatePosition }
         </div>
         <button 
           onClick={() => setEditMode(!editMode)}
-          className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${editMode ? 'bg-[#D9F927] text-slate-900 shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+          className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${editMode ? 'bg-[#10B981] text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
         >
           {editMode ? (
             <><CheckCircle2 className="w-3.5 h-3.5" /> <span>Done Editing</span></>

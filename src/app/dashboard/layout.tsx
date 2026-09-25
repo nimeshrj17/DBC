@@ -105,7 +105,7 @@ export default function DashboardLayout({
   const getLinkClass = (path: string) => {
     const isActive = pathname === path || (path !== '/dashboard' && pathname.startsWith(path));
     if (isActive) {
-      return "flex items-center gap-3.5 px-4 py-3 rounded-xl bg-[#D9F927] text-slate-900 font-bold shadow-md shadow-[#D9F927]/15 transition-all";
+      return "flex items-center gap-3.5 px-4 py-3 rounded-xl bg-[#10B981] text-white font-bold shadow-md shadow-[#10B981]/15 transition-all";
     }
     return "flex items-center justify-between px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 font-medium transition-all group";
   };
@@ -124,7 +124,7 @@ export default function DashboardLayout({
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 font-sans">
         <div className="bg-slate-800 p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center animate-in zoom-in-95">
-          <Coffee className="w-16 h-16 mx-auto mb-6 text-[#D9F927]" />
+          <Coffee className="w-16 h-16 mx-auto mb-6 text-[#10B981]" />
           <h1 className="text-2xl font-bold mb-2 text-white">Admin Dashboard</h1>
           <p className="text-slate-400 mb-8 text-sm">Enter the 4-digit PIN to access</p>
           
@@ -137,7 +137,7 @@ export default function DashboardLayout({
                 setPin(e.target.value.replace(/\D/g, ''));
                 setError(false);
               }}
-              className={`w-full bg-slate-900 border-2 ${error ? 'border-red-500' : 'border-slate-700'} rounded-xl py-4 px-6 text-3xl text-center tracking-[1em] font-bold focus:outline-none focus:border-[#D9F927] transition-colors text-white placeholder-slate-600`}
+              className={`w-full bg-slate-900 border-2 ${error ? 'border-red-500' : 'border-slate-700'} rounded-xl py-4 px-6 text-3xl text-center tracking-[1em] font-bold focus:outline-none focus:border-[#10B981] transition-colors text-white placeholder-slate-600`}
               placeholder="••••"
               autoFocus
             />
@@ -149,7 +149,7 @@ export default function DashboardLayout({
               onClick={() => {
                 import('@/lib/audio').then(({ initAudio }) => initAudio());
               }}
-              className="w-full mt-6 bg-[#D9F927] text-slate-950 py-4 rounded-xl font-bold shadow-lg hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:hover:scale-100 transition-all text-lg"
+              className="w-full mt-6 bg-[#10B981] text-white py-4 rounded-xl font-bold shadow-lg hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:hover:scale-100 transition-all text-lg"
             >
               Access Dashboard
             </button>
@@ -170,7 +170,7 @@ export default function DashboardLayout({
       <header className="hidden md:flex px-6 h-16 border-b border-slate-200 bg-white sticky top-0 z-50 items-center justify-between shadow-sm shrink-0">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2 mr-4">
-            <div className="w-8 h-8 rounded-none bg-slate-900 text-[#D9F927] flex items-center justify-center shadow-inner">
+            <div className="w-8 h-8 rounded-none bg-slate-900 text-[#10B981] flex items-center justify-center shadow-inner">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path d="M17 8h1a4 4 0 1 1 0 8h-1"></path>
                 <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path>
@@ -186,33 +186,33 @@ export default function DashboardLayout({
           </div>
           
           <nav className="flex items-center gap-1">
-            <Link href="/dashboard" className={pathname === '/dashboard' ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#D9F927] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+            <Link href="/dashboard" className={pathname === '/dashboard' ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#10B981] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
               Dashboard
             </Link>
-            <Link href="/dashboard/orders" className={pathname.startsWith('/dashboard/orders') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#D9F927] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+            <Link href="/dashboard/orders" className={pathname.startsWith('/dashboard/orders') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#10B981] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
               Live Orders
               {liveOrdersCount > 0 && <span className="bg-rose-500 text-white px-1.5 py-0.5 rounded-none text-[10px] font-bold">{liveOrdersCount}</span>}
             </Link>
-            <Link href="/dashboard/takeaway" className={pathname.startsWith('/dashboard/takeaway') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#D9F927] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+            <Link href="/dashboard/takeaway" className={pathname.startsWith('/dashboard/takeaway') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#10B981] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
               Takeaway
             </Link>
             {hasPermission('view_revenue') && (
-              <Link href="/dashboard/analytics" className={pathname.startsWith('/dashboard/analytics') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#D9F927] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+              <Link href="/dashboard/analytics" className={pathname.startsWith('/dashboard/analytics') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#10B981] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
                 Analytics
               </Link>
             )}
             {hasPermission('manage_menu') && (
-              <Link href="/dashboard/menu" className={pathname.startsWith('/dashboard/menu') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#D9F927] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+              <Link href="/dashboard/menu" className={pathname.startsWith('/dashboard/menu') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#10B981] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
                 Menu
               </Link>
             )}
             {hasPermission('manage_inventory') && (
-              <Link href="/dashboard/inventory" className={pathname.startsWith('/dashboard/inventory') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#D9F927] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+              <Link href="/dashboard/inventory" className={pathname.startsWith('/dashboard/inventory') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#10B981] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
                 Inventory
               </Link>
             )}
             {hasPermission('manage_staff') && (
-              <Link href="/dashboard/staff" className={pathname.startsWith('/dashboard/staff') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#D9F927] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+              <Link href="/dashboard/staff" className={pathname.startsWith('/dashboard/staff') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#10B981] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
                 Staff
               </Link>
             )}

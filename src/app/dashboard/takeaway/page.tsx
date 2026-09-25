@@ -195,7 +195,7 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
                     onClick={() => setActiveCategory(cat)}
                     className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                       activeCategory === cat
-                        ? 'bg-slate-900 text-[#D9F927]'
+                        ? 'bg-slate-900 text-[#10B981]'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
@@ -212,7 +212,7 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
                   placeholder="Search menu..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 pr-4 py-1.5 border border-slate-200 rounded-full focus:ring-2 focus:ring-[#D9F927] focus:border-[#D9F927] outline-none text-sm w-48 bg-slate-50"
+                  className="pl-9 pr-4 py-1.5 border border-slate-200 rounded-full focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none text-sm w-48 bg-slate-50"
                 />
               </div>
             </div>
@@ -227,7 +227,7 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
                     <div 
                       key={item.id} 
                       onClick={() => addToCart(item)}
-                      className="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:border-[#D9F927] hover:shadow-md transition-all cursor-pointer p-4 flex items-center justify-between group"
+                      className="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:border-[#10B981] hover:shadow-md transition-all cursor-pointer p-4 flex items-center justify-between group"
                     >
                       <div className="flex items-center gap-4 flex-1">
                          <div className="w-14 h-14 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 shrink-0">
@@ -240,7 +240,7 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
                       </div>
                       <div className="flex items-center gap-4 shrink-0 pl-4">
                         <span className="font-black text-lg text-slate-900">₹{item.price}</span>
-                        <button className="bg-slate-100 text-slate-600 w-10 h-10 rounded-full flex items-center justify-center font-bold group-hover:bg-[#D9F927] group-hover:text-slate-900 transition-colors">
+                        <button className="bg-slate-100 text-slate-600 w-10 h-10 rounded-full flex items-center justify-center font-bold group-hover:bg-[#10B981] group-hover:text-slate-900 transition-colors">
                           +
                         </button>
                       </div>
@@ -258,10 +258,10 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
           <div className="w-[380px] bg-white border-l border-slate-200 flex flex-col shadow-xl shrink-0 z-10">
             <div className="px-6 py-5 border-b border-slate-200 bg-slate-900 text-white flex items-center justify-between">
               <h2 className="text-lg font-bold flex items-center gap-2">
-                <svg className="w-5 h-5 text-[#D9F927]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                <svg className="w-5 h-5 text-[#10B981]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                 Current Parcel
               </h2>
-              <span className="bg-[#D9F927] text-slate-900 text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm">
+              <span className="bg-[#10B981] text-white text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm">
                 {cart.reduce((s, i) => s + i.qty, 0)} Items
               </span>
             </div>
@@ -311,7 +311,7 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
               <button
                 onClick={handlePlaceOrder}
                 disabled={cart.length === 0 || isSubmitting}
-                className={`w-full py-4 rounded-xl font-bold text-lg shadow-md transition-all flex justify-center items-center gap-2 ${cart.length === 0 || isSubmitting ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none' : 'bg-[#D9F927] text-slate-900 hover:bg-[#c9e815] hover:shadow-lg'}`}
+                className={`w-full py-4 rounded-xl font-bold text-lg shadow-md transition-all flex justify-center items-center gap-2 ${cart.length === 0 || isSubmitting ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none' : 'bg-[#10B981] text-white hover:bg-[#059669] hover:shadow-lg'}`}
               >
                 Place Parcel Order
               </button>
@@ -329,7 +329,7 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
                  <svg className="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                  <h2 className="text-lg font-bold text-slate-700">No active parcel orders</h2>
                  <p className="text-sm text-slate-500 mt-1">When you place a takeaway order, it will appear here.</p>
-                 <button onClick={() => setActiveTab('new')} className="mt-6 bg-[#D9F927] text-slate-900 px-6 py-2.5 rounded-xl font-bold hover:bg-[#c9e815] transition-colors">Start New Order</button>
+                 <button onClick={() => setActiveTab('new')} className="mt-6 bg-[#10B981] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#059669] transition-colors">Start New Order</button>
                </div>
             ) : (
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
