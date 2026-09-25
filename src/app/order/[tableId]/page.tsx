@@ -73,7 +73,11 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       localStorage.setItem('deviceId', stored);
     }
     setDeviceId(stored);
-  }, []);
+    
+    if (sessionStorage.getItem(`closed_table_${tableId}`)) {
+      setJustPaid(true);
+    }
+  }, [tableId]);
 
   useEffect(() => {
     if (tableOrders.length > 0) {
@@ -91,6 +95,8 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     
     if (userPaid || staffCleared) {
       setJustPaid(true);
+      setCart([]);
+      sessionStorage.setItem(`closed_table_${tableId}`, 'true');
     }
     
     prevAwaitingRef.current = isAwaiting;
