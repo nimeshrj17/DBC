@@ -212,9 +212,14 @@ export default function DashboardLayout({
               </Link>
             )}
             {hasPermission('manage_staff') && (
-              <Link href="/dashboard/staff" className={pathname.startsWith('/dashboard/staff') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#10B981] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
-                Staff
-              </Link>
+              <>
+                <Link href="/dashboard/staff" className={pathname.startsWith('/dashboard/staff') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#10B981] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+                  Staff
+                </Link>
+                <Link href="/dashboard/settings" className={pathname.startsWith('/dashboard/settings') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#10B981] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+                  Settings
+                </Link>
+              </>
             )}
           </nav>
         </div>
@@ -248,16 +253,26 @@ export default function DashboardLayout({
               <h1 className="text-2xl font-black text-slate-900 tracking-tight">Hi, {user?.name}!</h1>
               <p className="text-xs text-slate-500 mt-0.5 font-medium uppercase tracking-wider">{user?.role}</p>
             </div>
-            <button 
-              onClick={() => {
-                if (window.confirm("Are you sure you want to log out?")) {
-                  logout();
-                }
-              }}
-              className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-none text-xs font-bold border border-rose-100"
-            >
-              Logout
-            </button>
+            <div className="flex items-center gap-2">
+              {hasPermission('manage_staff') && (
+                <Link 
+                  href="/dashboard/settings"
+                  className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-none text-xs font-bold border border-slate-200"
+                >
+                  Settings
+                </Link>
+              )}
+              <button 
+                onClick={() => {
+                  if (window.confirm("Are you sure you want to log out?")) {
+                    logout();
+                  }
+                }}
+                className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-none text-xs font-bold border border-rose-100"
+              >
+                Logout
+              </button>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3" data-purpose="quick-metrics">
             <div className="bg-white border border-slate-150 rounded-none p-3.5 shadow-sm hover:border-slate-300 transition-colors">
