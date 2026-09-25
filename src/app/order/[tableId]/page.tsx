@@ -5,6 +5,7 @@ import { useMenu, MenuItem } from '@/lib/hooks/useMenu';
 import { Table } from '@/lib/hooks/useTables';
 import { Order, createOrderTransaction } from '@/lib/hooks/useOrders';
 import { useCustomers } from '@/lib/hooks/useCustomers';
+import { useSettings } from '@/lib/hooks/useSettings';
 import { db } from '@/lib/firebase';
 import { collection, doc, updateDoc, Timestamp, onSnapshot, query, where, runTransaction } from 'firebase/firestore';
 import { toast } from 'sonner';
@@ -18,6 +19,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const tableId = resolvedParams.tableId;
 
   const { menuItems: rawMenuItems, loading: menuLoading } = useMenu();
+  const { settings } = useSettings();
   const menuItems = rawMenuItems.filter(i => {
     const isSoftDrink = i.category && (
       i.category.toLowerCase().includes('soft drink') || 
@@ -142,7 +144,9 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const total = subtotal;
   const grandTotal = tableOrders.reduce((sum, order) => sum + order.total, 0);
 
-  const upiLink = `upi://pay?pa=rakhabhai@icici&pn=Rakha%20Bhai%20Ki%20Chai&am=${grandTotal.toFixed(2)}&cu=INR`;
+  const targetUpiId = settings?.upiId || '{targetUpiId}';
+  const targetUpiName = encodeURIComponent('Rakha Bhai Ki Chai');
+  const upiLink = `upi://pay?pa=${targetUpiId}&pn=${targetUpiName}&am=${grandTotal.toFixed(2)}&cu=INR`;
     const executePlaceOrder = async () => {
     if (!table || cart.length === 0 || isSubmittingRef.current) return;
     
@@ -603,12 +607,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               Waiting for cafe to confirm payment…
             </div>
           ) : (
-            <button onClick={() => setIsPaymentModalOpen(true)} className="w-full py-3 px-4 rounded-xl border-2 border-[#5a3829]/30 text-[#5a3829] hover:bg-stone-50 font-bold text-sm tracking-wide active:scale-[0.98] transition-all flex items-center justify-center space-x-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
-              </svg>
-              <span>Pay Bill • ₹{grandTotal.toFixed(2)}</span>
-            </button>
+            null
           )}
         </div>
       </footer>
@@ -669,7 +668,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                       <div className="flex items-center justify-center w-36 h-36 mx-auto"><QRCodeSVG value={upiLink} size={144} fgColor="#1c110b" bgColor="transparent" /></div>
                     </div>
                     <p className="text-xs font-semibold text-stone-700">Scan using any UPI Payment App</p>
-                    <p className="text-[11px] text-stone-400 mt-0.5">UPI ID: <span className="font-mono text-stone-600 font-medium">rakhabhai@icici</span></p>
+                    <p className="text-[11px] text-stone-400 mt-0.5">UPI ID: <span className="font-mono text-stone-600 font-medium">{targetUpiId}</span></p>
                   </div>
                 )}
               </div>
@@ -812,11 +811,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               </div>
               <span className="font-bold text-stone-900">₹{grandTotal.toFixed(2)}</span>
             </div>
-            {!isAwaitingConfirmation && (
-              <button onClick={() => setIsPaymentModalOpen(true)} className="w-full mt-1 bg-[#26150e] hover:bg-[#382117] active:scale-[0.99] text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 shadow-md transition">
-                <span>Pay Bill • ₹{grandTotal.toFixed(2)}</span>
-              </button>
-            )}
+            null
           </div>
         </section>
       )}
@@ -1074,17 +1069,17 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                 <div className="mt-3">
                   <p className="text-[11px] font-medium text-stone-500 mb-2 px-0.5">Or open your installed UPI App</p>
                   <div className="grid grid-cols-4 gap-2">
-                    <a href={`gpay://upi/pay?pa=rakhabhai@icici&pn=Rakha%20Bhai%20Ki%20Chai&am=${grandTotal.toFixed(2)}&cu=INR`} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition">
+                    <a href={`gpay://upi/pay?pa=${targetUpiId}&pn=${targetUpiName}&am=${grandTotal.toFixed(2)}&cu=INR`} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition">
                       <div className="w-7 h-7 flex items-center justify-center font-bold text-sm text-blue-600 font-display tracking-tighter">
                         <span className="text-blue-500">G</span><span className="text-red-500">P</span><span className="text-yellow-500">a</span><span className="text-green-500">y</span>
                       </div>
                       <span className="text-[10px] font-semibold text-stone-700 mt-1">GPay</span>
                     </a>
-                    <a href={`phonepe://pay?pa=rakhabhai@icici&pn=Rakha%20Bhai%20Ki%20Chai&am=${grandTotal.toFixed(2)}&cu=INR`} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition">
+                    <a href={`phonepe://pay?pa=${targetUpiId}&pn=${targetUpiName}&am=${grandTotal.toFixed(2)}&cu=INR`} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition">
                       <div className="w-7 h-7 bg-[#5f259f] rounded-full flex items-center justify-center text-white font-bold text-xs">पे</div>
                       <span className="text-[10px] font-semibold text-stone-700 mt-1">PhonePe</span>
                     </a>
-                    <a href={`paytmmp://pay?pa=rakhabhai@icici&pn=Rakha%20Bhai%20Ki%20Chai&am=${grandTotal.toFixed(2)}&cu=INR`} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition">
+                    <a href={`paytmmp://pay?pa=${targetUpiId}&pn=${targetUpiName}&am=${grandTotal.toFixed(2)}&cu=INR`} className="flex flex-col items-center justify-center py-2 px-1 bg-white border border-stone-200 rounded-xl hover:border-stone-300 shadow-sm active:scale-95 transition">
                       <div className="w-7 h-7 flex items-center justify-center font-extrabold text-[11px] text-[#00b9f5] tracking-tight">pay<span className="text-[#002e6e]">tm</span></div>
                       <span className="text-[10px] font-semibold text-stone-700 mt-1">Paytm</span>
                     </a>
@@ -1105,7 +1100,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                     <div className="flex items-center justify-center w-36 h-36 mx-auto"><QRCodeSVG value={upiLink} size={144} fgColor="#1c110b" bgColor="transparent" /></div>
                   </div>
                   <p className="text-xs font-semibold text-stone-700">Scan using any UPI Payment App</p>
-                  <p className="text-[11px] text-stone-400 mt-0.5">UPI ID: <span className="font-mono text-stone-600 font-medium">rakhabhai@icici</span></p>
+                  <p className="text-[11px] text-stone-400 mt-0.5">UPI ID: <span className="font-mono text-stone-600 font-medium">{targetUpiId}</span></p>
                 </div>
               )}
             </section>
