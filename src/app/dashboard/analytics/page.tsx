@@ -433,7 +433,7 @@ export default function AnalyticsPage() {
                 {orders.length} Orders
               </div>
             </div>
-            <div className="overflow-x-auto max-h-[600px] custom-scroll">
+            <div className="overflow-auto h-[calc(100vh-220px)] custom-scroll">
               <table className="w-full text-sm text-left">
                 <thead className="text-xs text-slate-500 bg-white sticky top-0 border-b border-slate-100 uppercase z-10 shadow-sm">
                   <tr>
@@ -449,7 +449,7 @@ export default function AnalyticsPage() {
                 <tbody className="divide-y divide-slate-100">
                   {orders.map((order, idx) => {
                     const date = order.createdAt?.toDate ? order.createdAt.toDate() : new Date(order.createdAt || Date.now());
-                    const itemCount = order.items ? order.items.reduce((sum: number, i: any) => sum + i.quantity, 0) : 0;
+                    const itemCount = order.items ? order.items.reduce((sum: number, i: any) => sum + (i.qty || 0), 0) : 0;
                     
                     return (
                       <tr key={order.id || idx} className="hover:bg-slate-50 transition-colors">
