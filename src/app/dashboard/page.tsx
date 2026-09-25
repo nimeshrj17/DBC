@@ -138,7 +138,7 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
             <button onClick={(e) => { e.stopPropagation(); setSelectedTableId(table.id); }} className="flex-1 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors border-r border-slate-200">
               Add Item
             </button>
-            <button onClick={(e) => { e.stopPropagation(); onClearTable(table); }} className="flex-1 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors">
+            <button onClick={(e) => { e.stopPropagation(); onClearTable(table.id); }} className="flex-1 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors">
               Clear Table
             </button>
           </>
