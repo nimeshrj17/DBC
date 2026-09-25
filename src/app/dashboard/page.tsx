@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import { useMenu, MenuItem } from '@/lib/hooks/useMenu';
 import { useOrders, OrderItem, Order } from '@/lib/hooks/useOrders';
 import { useInventory } from '@/lib/hooks/useInventory';
+import DownloadAllQRsButton from '@/components/dashboard/DownloadAllQRsButton';
+
 import { useSettings } from '@/lib/hooks/useSettings';
 import { useCustomers } from '@/lib/hooks/useCustomers';
 import { useAuth } from '@/lib/context/AuthContext';
@@ -769,6 +771,7 @@ export default function DashboardPage() {
                 <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round"></path>
               </svg>
             </div>
+            <DownloadAllQRsButton tables={tables} />
             <button onClick={() => setIsAddTableOpen(true)} className="inline-flex items-center gap-2 px-4 py-2 rounded-none bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-sm shadow-sm transition" type="button">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round"></path>
@@ -820,6 +823,7 @@ export default function DashboardPage() {
             <p className="text-xs text-slate-400 font-medium">Overview of all dining tables at a glance</p>
           </div>
           <div className="flex items-center space-x-2">
+            <DownloadAllQRsButton tables={tables} />
             <button onClick={() => setIsQuickSaleOpen(true)} className="bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold px-3 py-2 rounded-xl text-xs shadow-sm mx-1" type="button">
               Sale
             </button>
