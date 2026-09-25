@@ -107,28 +107,6 @@ export default function TakeawayPage() {
   };
 
   
-  const pushToPaytmBox = async (orderId: string, amount: number) => {
-    try {
-      const toastId = toast.loading('Pushing to Paytm Smart Box...');
-      const res = await fetch('/api/paytm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId,
-          amount,
-          tableId: 'takeaway'
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        toast.success('Amount pushed to Smart Box!', { id: toastId });
-      } else {
-        throw new Error(data.error);
-      }
-    } catch (e: any) {
-      toast.error('Failed to connect to Paytm: ' + e.message);
-    }
-  };
 
 const handleStatusUpdate = async (orderId: string, newStatus: string) => {
     try {
@@ -371,7 +349,7 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
                        ) : (order.status === 'prepared' || order.status === 'served') ? (
                          <>
                            <button onClick={() => handlePayment(order.id, 'cash')} className="bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold py-2.5 rounded-xl hover:bg-emerald-100 transition-colors">Collect Cash</button>
-                           <button onClick={() => pushToPaytmBox(order.id, order.total)} className="bg-sky-50 text-sky-700 border border-sky-200 font-bold py-2.5 rounded-xl hover:bg-sky-100 transition-colors">Push Paytm</button>
+                           
                            <button onClick={() => handlePayment(order.id, 'upi')} className="col-span-2 bg-blue-50 text-blue-700 border border-blue-200 font-bold py-2.5 rounded-xl hover:bg-blue-100 transition-colors">Manual UPI Success</button>
                          </>
                        ) : (

@@ -86,31 +86,6 @@ export default function OrdersPage() {
   useEffect(() => {
     const interval = setInterval(() => setTick(t => t + 1), 60000);
     
-  const pushToPaytmBox = async (order: Order) => {
-    try {
-      const toastId = toast.loading('Pushing to Paytm Smart Box...');
-      const res = await fetch('/api/paytm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId: order.id,
-          amount: order.total,
-          tableId: order.tableId
-        })
-      });
-      const data = await res.json();
-      
-      if (data.success) {
-        toast.success('Amount pushed to Smart Box! Waiting for payment...', { id: toastId });
-        // Optionally update status to awaiting_payment
-        await updateOrder(order.id, { paymentStatus: 'awaiting_confirmation' });
-      } else {
-        throw new Error(data.error);
-      }
-    } catch (e: any) {
-      toast.error('Failed to connect to Paytm: ' + e.message);
-    }
-  };
 
   return () => clearInterval(interval);
   }, []);
