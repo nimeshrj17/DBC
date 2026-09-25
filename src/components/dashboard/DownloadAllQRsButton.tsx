@@ -82,10 +82,6 @@ export default function DownloadAllQRsButton({ tables }: { tables: Table[] }) {
         // Text: Table Number
         pdf.setFontSize(subtitleFontSize);
         pdf.text(`Table ${table.number}`, x + cellWidth / 2, qrY + qrSize + (cellHeight * 0.12), { align: "center" });
-        if (table.name) {
-          pdf.setFontSize(titleFontSize * 0.8);
-          pdf.text(`(${table.name})`, x + cellWidth / 2, qrY + qrSize + (cellHeight * 0.12) + (titleFontSize * 0.4), { align: "center" });
-        }
         
         // Draw a light border for cutting
         pdf.setDrawColor(200, 200, 200);
