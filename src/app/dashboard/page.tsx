@@ -968,7 +968,7 @@ export default function DashboardPage() {
                     key={table.id} 
                     table={table} 
                     orders={orders} 
-                    setSelectedTableId={setSelectedTableId} 
+                    setSelectedTableId={(id: string) => { setSelectedTableId(id); setIsMenuOpen(true); }} 
                     onClearTable={handleClearTable}
                     setIsAddTableOpen={setIsAddTableOpen}
                     onQuickAssign={handleQuickAssignAndMenu}
@@ -999,7 +999,7 @@ export default function DashboardPage() {
                   key={table.id} 
                   table={table} 
                   orders={orders} 
-                  setSelectedTableId={setSelectedTableId} 
+                  setSelectedTableId={(id: string) => { setSelectedTableId(id); setIsMenuOpen(true); }} 
                   onClearTable={handleClearTable}
                   setIsAddTableOpen={setIsAddTableOpen}
                   onQuickAssign={handleQuickAssignAndMenu}
@@ -1209,14 +1209,7 @@ export default function DashboardPage() {
                     </div>
                   )}
 
-                  {selectedTable.status !== 'awaiting_payment' && (
-                    <button onClick={() => setIsMenuOpen(true)} className="w-full mt-4 py-3.5 px-4 rounded-xl border border-blue-200 bg-blue-50/60 hover:bg-blue-100/70 text-blue-600 font-semibold text-sm transition-all duration-150 flex items-center justify-center gap-2 group shadow-xs">
-                      <svg className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"></path>
-                      </svg>
-                      Add items from menu
-                    </button>
-                  )}
+
                 </div>
 
                 {/* Quick Suggestions block */}
