@@ -91,3 +91,8 @@ body {
   0% { transform: translateY(0) scaleY(1); opacity: 0.6; }
   100% { transform: translateY(-2px) scaleY(1.15); opacity: 0.9; }
 }
+
+/* Global override to ensure sharp corners everywhere as requested */
+* {
+  border-radius: 0 !important;
+}

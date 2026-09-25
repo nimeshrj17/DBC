@@ -218,7 +218,8 @@ export function useAnalytics(daysToFetch = 30) {
         topByQty: topItemsByQty,
         topByRevenue: topItemsByRevenue,
         categoryBreakdown: categoryData,
-        attachRate
+        attachRate,
+        allItemPerformance: itemPerformance
       },
       customers: {
         top: topCustomers,
