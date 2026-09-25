@@ -276,10 +276,22 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     </div>
   );
 
-  if (table.currentSessionId && table.currentSessionId !== deviceId && table.status !== 'empty') return (
+  // Block access if table is active (not empty) and this device doesn't own the session
+  if (table.status !== 'empty' && table.currentSessionId && table.currentSessionId !== deviceId) return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FCFAFA] text-center">
       <h1 className="text-2xl font-bold text-[#A04010] mb-2">Table In Use</h1>
-      <p className="text-gray-600 font-medium">This table is currently locked to another device.</p>
+      <p className="text-gray-600 font-medium">This table is currently being served.<br/>Please ask the staff for assistance.</p>
+    </div>
+  );
+
+  // Block access if table was activated from dashboard (no session ID) and is not empty
+  if (table.status !== 'empty' && !table.currentSessionId) return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FCFAFA] text-center">
+      <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
+      </div>
+      <h1 className="text-2xl font-bold text-[#A04010] mb-2">Table Occupied</h1>
+      <p className="text-gray-600 font-medium">This table is currently active.<br/>The staff will clear it when ready.</p>
     </div>
   );
 

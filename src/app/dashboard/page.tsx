@@ -104,7 +104,8 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
       <div className="p-4 flex-1 flex flex-col">
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center gap-2">
-            <h4 className="text-lg font-bold text-slate-900 leading-none">{table.name || `Table ${table.number}`}</h4>
+            <h4 className="text-lg font-bold text-slate-900 leading-none">{table.name || `Table ${table.number || table.id.slice(-3)}`}</h4>
+            {table.name && table.number ? <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">#{table.number}</span> : null}
             <div className="flex items-center gap-1 text-slate-700 bg-slate-200/70 border-none px-2 py-1 rounded-none text-[10px] font-bold">
               <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round"></path>
