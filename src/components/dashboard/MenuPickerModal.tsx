@@ -210,9 +210,7 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
             <span className="mx-2 text-gray-300">|</span>
             <span className="text-gray-900 font-bold text-lg">₹{totalCost.toFixed(2)}</span>
           </div>
-          <Button onClick={onClose} className="px-8 font-bold bg-[#D2F801] text-black hover:bg-[#c2e600]">
-            Done
-          </Button>
+
         </div>
       </div>
     </div>
