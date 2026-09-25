@@ -232,5 +232,5 @@ export function useAnalytics(daysToFetch = 30) {
     };
   }, [orders]);
 
-  return { loading, analytics, orderCount: orders.length };
+  return { loading, analytics, orderCount: orders.length, orders };
 }
