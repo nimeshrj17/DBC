@@ -332,7 +332,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           </div>
         </div>
         <div className="mt-2.5 pt-2.5 border-t border-[#F0E7DD]">
-          <button className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-none bg-[#FAF7F2] hover:bg-[#F3ECE5] text-[#2b1a13] text-xs font-bold transition-colors" type="button">
+          <button className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-[#FAF7F2] hover:bg-[#F3ECE5] text-[#2b1a13] text-xs font-bold transition-colors" type="button">
             <svg className="w-4 h-4 text-[#9A3412]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
             </svg>
@@ -612,7 +612,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       </main>
       <footer className="bg-white border-t border-stone-200/80 px-4 pt-3 pb-6 sticky bottom-0 z-20 shadow-[0_-8px_20px_rgba(0,0,0,0.03)]">
         <div className="max-w-md mx-auto space-y-2.5">
-          <button onClick={() => setViewingOrders(false)} className="w-full py-3.5 px-4 rounded-none bg-[#5a3829] hover:bg-[#382117] text-white font-bold text-sm tracking-wide shadow-md active:scale-[0.98] transition-all flex items-center justify-center space-x-2">
+          <button onClick={() => setViewingOrders(false)} className="w-full py-3.5 px-4 rounded-2xl bg-[#5a3829] hover:bg-[#382117] text-white font-bold text-sm tracking-wide shadow-md active:scale-[0.98] transition-all flex items-center justify-center space-x-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
 </svg>
@@ -654,7 +654,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                 <h1 className="text-xl font-bold tracking-tight text-[#1c110b] leading-tight">राखा भाई की चाय</h1>
                 <p className="text-xs text-stone-700 font-black tracking-widest uppercase mt-0.5">Payment for Table {table.number}</p>
               </div>
-              <button aria-label="Close payment modal" onClick={() => setIsPaymentModalOpen(false)} className="p-2 rounded-none hover:bg-stone-200/80 active:scale-95 transition-all text-stone-600">
+              <button aria-label="Close payment modal" onClick={() => setIsPaymentModalOpen(false)} className="p-2 rounded-full hover:bg-stone-200/80 active:scale-95 transition-all text-stone-600">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
@@ -704,8 +704,8 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
             </section>
             <footer className="p-5 bg-white border-t border-[#F3ECE5] flex flex-col gap-2.5">
               <div className="flex items-center gap-3">
-                <button onClick={() => setIsPaymentModalOpen(false)} className="w-1/3 py-3.5 px-4 rounded-none border border-stone-300 font-semibold text-stone-700 text-sm hover:bg-stone-50 active:bg-stone-100 transition text-center" type="button">Back</button>
-                <button onClick={handleCustomerCheckout} className="w-2/3 py-3.5 px-4 bg-[#2b1a13] hover:bg-[#1c110b] active:scale-[0.98] text-white rounded-none font-bold text-sm tracking-wide shadow-md shadow-[#1c110b]/20 flex items-center justify-center gap-2 transition duration-150" type="button">
+                <button onClick={() => setIsPaymentModalOpen(false)} className="w-1/3 py-3.5 px-4 rounded-xl border border-stone-300 font-semibold text-stone-700 text-sm hover:bg-stone-50 active:bg-stone-100 transition text-center" type="button">Back</button>
+                <button onClick={handleCustomerCheckout} className="w-2/3 py-3.5 px-4 bg-[#2b1a13] hover:bg-[#1c110b] active:scale-[0.98] text-white rounded-xl font-bold text-sm tracking-wide shadow-md shadow-[#1c110b]/20 flex items-center justify-center gap-2 transition duration-150" type="button">
                   <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path></svg>
                   <span>Request Bill Confirmation</span>
                 </button>
@@ -739,7 +739,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
             </div>
             
             <div className="mt-6 flex gap-3">
-              <button onClick={() => setIsCustomerModalOpen(false)} className="flex-1 py-3 bg-stone-200 hover:bg-stone-300 rounded-none font-bold text-stone-700 text-sm">Cancel</button>
+              <button onClick={() => setIsCustomerModalOpen(false)} className="flex-1 py-3 bg-stone-200 hover:bg-stone-300 rounded-xl font-bold text-stone-700 text-sm">Cancel</button>
               <button onClick={() => {
                 if (!custName.trim()) {
                   toast.error("Please enter your name");
@@ -856,7 +856,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 
       <main className="px-4 pt-3 flex-1 flex flex-col gap-4">
         <div className="relative w-full mb-2">
-          <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white text-stone-800 placeholder-stone-400 text-sm rounded-none py-3 px-4 border border-stone-200 shadow-xs focus:ring-2 outline-none" placeholder="Search by name..." type="text"/>
+          <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white text-stone-800 placeholder-stone-400 text-sm rounded-xl py-3 px-4 border border-stone-200 shadow-xs focus:ring-2 outline-none" placeholder="Search by name..." type="text"/>
         </div>
         <section className="flex flex-col gap-3.5">
           {menuItems.filter(i => {
@@ -884,7 +884,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                       <button onClick={() => updateQty(item.id, 1)} className="px-2.5 py-1.5 text-amber-200 hover:bg-black/30 font-bold active:scale-95">+</button>
                     </div>
                   ) : (
-                    <button onClick={() => addToCart(item)} className="bg-[#26150e] text-white px-5 py-2 rounded-none text-xs font-bold hover:bg-[#3c2217] active:scale-95 shadow transition">+ Add</button>
+                    <button onClick={() => addToCart(item)} className="bg-[#26150e] text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-[#3c2217] active:scale-95 shadow transition">+ Add</button>
                   )}
                 </div>
               </article>
@@ -918,7 +918,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                 <p className="text-base font-extrabold text-white">₹{total.toFixed(2)}</p>
               </div>
             </div>
-            <button onClick={() => setIsCartOpen(true)} className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 active:scale-95 text-stone-950 font-extrabold text-xs rounded-none shadow transition flex items-center gap-1.5">
+            <button onClick={() => setIsCartOpen(true)} className="px-5 py-3 bg-[#2b1a13] hover:bg-[#1c110b] active:scale-95 text-white font-bold text-sm rounded-full shadow-[0_8px_20px_rgba(43,26,19,0.3)] shadow transition flex items-center gap-1.5">
               <span>View Cart</span>
             </button>
           </div>
@@ -935,7 +935,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                 <p className="text-base font-extrabold text-white">₹{grandTotal.toFixed(2)}</p>
               </div>
             </div>
-            <button onClick={() => setViewingOrders(true)} className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 active:scale-95 text-stone-950 font-extrabold text-xs rounded-none shadow transition flex items-center gap-1.5">
+            <button onClick={() => setViewingOrders(true)} className="px-5 py-3 bg-[#2b1a13] hover:bg-[#1c110b] active:scale-95 text-white font-bold text-sm rounded-full shadow-[0_8px_20px_rgba(43,26,19,0.3)] shadow transition flex items-center gap-1.5">
               <span>View Orders</span>
             </button>
           </div>
@@ -979,14 +979,14 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                       {item.description && item.description !== 'null' && <p className="text-xs text-stone-700 leading-relaxed mb-1">{item.description}</p>}
                       <p className="text-xs text-stone-700">Unit price: ₹{item.price.toFixed(2)}</p>
                       <p className="text-base font-extrabold text-[#9c4c2d] pt-0.5">₹{(item.price * item.qty).toFixed(2)}</p>
-                      <input type="text" placeholder="Add special instructions (e.g. less spicy)..." className="mt-2 w-full text-xs p-2 bg-stone-50 border border-stone-200 rounded-none focus:outline-none focus:border-stone-400 focus:bg-white transition-colors" value={item.notes || ''} onChange={(e) => {
+                      <input type="text" placeholder="Add special instructions (e.g. less spicy)..." className="mt-2 w-full text-xs p-2 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-stone-400 focus:bg-white transition-colors" value={item.notes || ''} onChange={(e) => {
                         setCart(prev => prev.map(i => i.id === item.id ? { ...i, notes: e.target.value } : i));
                       }} />
                     </div>
                     <div className="flex items-center bg-[#F3ECE5] rounded-full p-1 border border-[#e5dcd2]">
-                      <button onClick={() => updateQty(item.id, -1)} className="w-8 h-8 rounded-none bg-white border border-stone-300 flex items-center justify-center text-stone-600 font-bold text-base shadow-sm hover:bg-stone-50 hover:text-red-600 active:scale-90 transition-all">{item.qty === 1 ? <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> : "−"}</button>
+                      <button onClick={() => updateQty(item.id, -1)} className="w-8 h-8 rounded-full bg-white border border-stone-300 flex items-center justify-center text-stone-600 font-bold text-base shadow-sm hover:bg-stone-50 hover:text-red-600 active:scale-90 transition-all">{item.qty === 1 ? <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> : "−"}</button>
                       <span className="w-8 text-center font-bold text-[#2c1f17] text-sm">{item.qty}</span>
-                      <button onClick={() => updateQty(item.id, 1)} className="w-8 h-8 rounded-none bg-[#2c1f17] flex items-center justify-center text-white font-bold text-base shadow-sm hover:bg-black active:scale-90 transition-transform">+</button>
+                      <button onClick={() => updateQty(item.id, 1)} className="w-8 h-8 rounded-full bg-[#2c1f17] flex items-center justify-center text-white font-bold text-base shadow-sm hover:bg-black active:scale-90 transition-transform">+</button>
                     </div>
                   </div>
                 </section>
@@ -1001,7 +1001,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               </section>
             </div>
             <footer className="p-5 pt-3 bg-white border-t border-stone-200/80 shrink-0 space-y-2">
-              <button disabled={isSubmitting || cart.length === 0} onClick={() => setIsConfirmModalOpen(true)} className="w-full bg-[#2b1a13] hover:bg-[#1c110b] text-white py-3.5 px-6 rounded-none font-bold text-base shadow-lg flex items-center justify-center gap-2.5 transition-all">
+              <button disabled={isSubmitting || cart.length === 0} onClick={() => setIsConfirmModalOpen(true)} className="w-full bg-[#2b1a13] hover:bg-[#1c110b] text-white py-3.5 px-6 rounded-2xl font-bold text-base shadow-lg flex items-center justify-center gap-2.5 transition-all">
                 {isSubmitting ? (
                   <>
                   <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
@@ -1045,7 +1045,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                 <h1 className="text-xl font-bold tracking-tight text-[#1c110b] leading-tight">राखा भाई की चाय</h1>
                 <p className="text-xs text-stone-700 font-black tracking-widest uppercase mt-0.5">Payment for Table {table.number}</p>
               </div>
-              <button aria-label="Close payment modal" onClick={() => setIsPaymentModalOpen(false)} className="p-2 rounded-none hover:bg-stone-200/80 active:scale-95 transition-all text-stone-600">
+              <button aria-label="Close payment modal" onClick={() => setIsPaymentModalOpen(false)} className="p-2 rounded-full hover:bg-stone-200/80 active:scale-95 transition-all text-stone-600">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
@@ -1139,8 +1139,8 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
             </section>
             <footer className="p-5 bg-white border-t border-[#F3ECE5] flex flex-col gap-2.5">
               <div className="flex items-center gap-3">
-                <button onClick={() => setIsPaymentModalOpen(false)} className="w-1/3 py-3.5 px-4 rounded-none border border-stone-300 font-semibold text-stone-700 text-sm hover:bg-stone-50 active:bg-stone-100 transition text-center" type="button">Back</button>
-                <button onClick={handleCustomerCheckout} className="w-2/3 py-3.5 px-4 bg-[#2b1a13] hover:bg-[#1c110b] active:scale-[0.98] text-white rounded-none font-bold text-sm tracking-wide shadow-md shadow-[#1c110b]/20 flex items-center justify-center gap-2 transition duration-150" type="button">
+                <button onClick={() => setIsPaymentModalOpen(false)} className="w-1/3 py-3.5 px-4 rounded-xl border border-stone-300 font-semibold text-stone-700 text-sm hover:bg-stone-50 active:bg-stone-100 transition text-center" type="button">Back</button>
+                <button onClick={handleCustomerCheckout} className="w-2/3 py-3.5 px-4 bg-[#2b1a13] hover:bg-[#1c110b] active:scale-[0.98] text-white rounded-xl font-bold text-sm tracking-wide shadow-md shadow-[#1c110b]/20 flex items-center justify-center gap-2 transition duration-150" type="button">
                   <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"></path>
                   </svg>
@@ -1171,8 +1171,8 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
               Please double check that you are seated at <strong className="text-stone-800">Table {table.number}</strong>. Orders cannot be easily canceled once sent to the kitchen.
             </p>
             <div className="flex gap-3">
-              <button onClick={() => setIsConfirmModalOpen(false)} className="flex-1 py-3 px-4 rounded-none font-bold text-stone-600 bg-stone-100 hover:bg-stone-200 transition-colors">Cancel</button>
-              <button onClick={() => { setIsConfirmModalOpen(false); executePlaceOrder(); }} className="flex-1 py-3 px-4 rounded-none font-bold text-white bg-[#2b1a13] hover:bg-[#1c110b] transition-colors shadow-md">Confirm Order</button>
+              <button onClick={() => setIsConfirmModalOpen(false)} className="flex-1 py-3 px-4 rounded-xl font-bold text-stone-600 bg-stone-100 hover:bg-stone-200 transition-colors">Cancel</button>
+              <button onClick={() => { setIsConfirmModalOpen(false); executePlaceOrder(); }} className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-[#2b1a13] hover:bg-[#1c110b] transition-colors shadow-md">Confirm Order</button>
             </div>
           </div>
         </div>
