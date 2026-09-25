@@ -170,7 +170,7 @@ export default function OrdersPage() {
   });
 
   const filteredOrders = activeOrders.filter(order => {
-    if (order.status === 'completed' || order.status === 'cancelled') return false;
+    if (order.status === 'completed') return false;
     if (statusFilter !== 'all' && order.status !== statusFilter) return false;
     
     const searchLower = searchQuery.toLowerCase();
@@ -184,6 +184,7 @@ export default function OrdersPage() {
   const readyCount = activeOrders.filter(o => o.status === 'prepared').length;
   const servedCount = activeOrders.filter(o => o.status === 'served').length;
   const billedCount = activeOrders.filter(o => o.status === 'billed').length;
+  const cancelledCount = activeOrders.filter(o => o.status === 'cancelled').length;
 
 
   return (
@@ -201,12 +202,13 @@ export default function OrdersPage() {
           
           {/* Order Stage Filter Tabs (Desktop) */}
           <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-xl ml-4 border border-slate-200/80 text-xs font-semibold overflow-x-auto hide-scrollbar">
-            <button onClick={() => setStatusFilter('all')} className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${statusFilter === 'all' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>All ({activeOrders.filter(o => o.status !== 'completed' && o.status !== 'cancelled').length})</button>
+            <button onClick={() => setStatusFilter('all')} className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${statusFilter === 'all' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>All ({activeOrders.filter(o => o.status !== 'completed').length})</button>
             <button onClick={() => setStatusFilter('pending')} className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${statusFilter === 'pending' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>Waiting ({pendingCount})</button>
             <button onClick={() => setStatusFilter('preparing')} className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${statusFilter === 'preparing' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>Preparing ({prepCount})</button>
             <button onClick={() => setStatusFilter('prepared')} className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${statusFilter === 'prepared' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>Prepared ({readyCount})</button>
             <button onClick={() => setStatusFilter('served')} className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${statusFilter === 'served' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>Served ({servedCount})</button>
             <button onClick={() => setStatusFilter('billed')} className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${statusFilter === 'billed' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>Billed ({billedCount})</button>
+            <button onClick={() => setStatusFilter('cancelled')} className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${statusFilter === 'cancelled' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-red-600'}`}>Cancelled ({cancelledCount})</button>
           </div>
         </div>
         
@@ -233,6 +235,7 @@ export default function OrdersPage() {
             <option value="prepared">Prepared ({readyCount})</option>
             <option value="served">Served ({servedCount})</option>
             <option value="billed">Billed ({billedCount})</option>
+            <option value="cancelled">Cancelled ({cancelledCount})</option>
           </select>
         </div>
       </div>
@@ -336,11 +339,11 @@ export default function OrdersPage() {
                       </div>
                       <div className="max-h-48 overflow-y-auto custom-scroll divide-y divide-slate-100 text-xs flex-1">
                         {order.items.map((item, idx) => (
-                          <div key={idx} className="py-2 flex items-center justify-between font-medium">
-                            <span className="text-slate-800 truncate pr-2">{item.name}</span>
+                          <div key={idx} className={`py-2 flex items-center justify-between font-medium ${order.status === 'cancelled' ? 'text-slate-400 line-through' : ''}`}>
+                            <span className={`truncate pr-2 ${order.status === 'cancelled' ? 'text-slate-500' : 'text-slate-800'}`}>{item.name}</span>
                             <div className="flex items-center gap-4 shrink-0">
-                              <span className="w-6 text-center text-slate-500 bg-slate-100 rounded text-[11px] font-semibold">{item.qty}</span>
-                              <span className="w-14 text-right tabular-nums text-slate-900 font-semibold">₹{(item.price * item.qty).toFixed(0)}</span>
+                              <span className={`w-6 text-center rounded text-[11px] font-semibold ${order.status === 'cancelled' ? 'text-slate-400 bg-slate-50' : 'text-slate-500 bg-slate-100'}`}>{item.qty}</span>
+                              <span className={`w-14 text-right tabular-nums font-semibold ${order.status === 'cancelled' ? 'text-slate-400' : 'text-slate-900'}`}>₹{(item.price * item.qty).toFixed(0)}</span>
                             </div>
                           </div>
                         ))}
