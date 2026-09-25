@@ -580,6 +580,7 @@ export default function DashboardPage() {
       });
       
       setSelectedTableId(null);
+      setIsMenuOpen(false);
       toast.success(`Payment of ₹${grandTotal.toFixed(2)} received via ${method === 'cash' ? 'Cash' : 'QR/Card'}. Table cleared successfully!`);
     } catch (error) {
       console.error(error);
@@ -624,6 +625,7 @@ export default function DashboardPage() {
     });
     if (selectedTableId === tableId) {
       setSelectedTableId(null);
+      setIsMenuOpen(false);
     }
     setClearTablePrompt(null);
     } finally {
@@ -1032,7 +1034,7 @@ export default function DashboardPage() {
       {selectedTable && (
         <>
           {/* Mobile Backdrop */}
-          <div className="md:hidden fixed inset-0 bg-black/40 z-[40] backdrop-blur-[2px]" onClick={() => setSelectedTableId(null)}></div>
+          <div className="md:hidden fixed inset-0 bg-black/40 z-[40] backdrop-blur-[2px]" onClick={() => { setSelectedTableId(null); setIsMenuOpen(false); }}></div>
           
           <aside className="fixed md:absolute inset-x-0 bottom-0 md:inset-y-0 md:left-auto md:right-0 h-[85vh] md:h-full w-full md:w-[430px] max-w-full flex-shrink-0 bg-white md:border-l border-slate-200 shadow-2xl flex flex-col justify-between transform transition-transform duration-300 z-[50] slideover-shadow rounded-t-[28px] md:rounded-none" data-purpose="table-detail-drawer">
             {/* Drag Handle for Mobile */}
@@ -1080,7 +1082,7 @@ export default function DashboardPage() {
               <span className={`text-xs font-semibold px-3 py-1 rounded-full ${getStatusColor(selectedTable.status)}`}>
                 {getStatusBadge(selectedTable.status)}
               </span>
-              <button onClick={() => setSelectedTableId(null)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors" title="Close Drawer">
+              <button onClick={() => { setSelectedTableId(null); setIsMenuOpen(false); }} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors" title="Close Drawer">
                 <X className="w-4 h-4" strokeWidth={2.5} />
               </button>
             </div>
@@ -1341,7 +1343,7 @@ export default function DashboardPage() {
 
       <MenuPickerModal 
         isOpen={isMenuOpen} 
-        onClose={() => setIsMenuOpen(false)} 
+        onClose={() => { setIsMenuOpen(false); setSelectedTableId(null); }} 
         onAddItem={handleAddItem} 
         currentDraftItems={currentDraftItems}
       />
@@ -1423,6 +1425,7 @@ export default function DashboardPage() {
                           setIsAddTableOpen(false);
                           setEditingTableId(null);
                           setSelectedTableId(null);
+                          setIsMenuOpen(false);
                         } catch (e) {
                           toast.error("Failed to delete table");
                         }

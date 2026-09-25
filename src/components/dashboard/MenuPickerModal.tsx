@@ -73,7 +73,7 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
         {/* Header */}
         <div className="p-5 md:p-6 border-b border-gray-100 flex justify-between items-start bg-white flex-shrink-0">
           <h2 className="text-xl font-bold">Add Item to Order</h2>
-          <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition-colors">
+          <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition-colors md:hidden">
             <X className="w-5 h-5" />
           </button>
         </div>
