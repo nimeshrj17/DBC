@@ -916,17 +916,24 @@ export default function DashboardPage() {
           );
         })()}
 
-        <div className="columns-1 xl:columns-2 gap-x-6 gap-y-0">
+        <div className="columns-1 xl:columns-2 gap-x-6 gap-y-0 mt-4">
           {Array.from(new Set(tables.filter(t => t.status === 'empty' && (activeZone === 'All' || activeZone === 'Active' || (t.section || 'Main Hall') === activeZone)).map(t => String(t.section || 'Main Hall')))).map(section => (
-            <section key={section} className="break-inside-avoid mb-8">
-              <div className="flex items-center justify-between mb-3 md:mb-4 mt-4">
-              <div className="flex items-center gap-2 md:gap-2.5">
+            <section key={section} className="break-inside-avoid inline-block w-full mb-8">
+              <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+              <div className="flex items-center gap-1.5 md:gap-2">
                 <span className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-slate-300"></span>
                 <h4 className="text-sm md:text-base font-bold text-slate-900 tracking-tight">{section}</h4>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200/80 text-slate-700">
-                  {tables.filter(t => t.status === 'empty' && (t.section || 'Main Hall') === section).length} Available
-                </span>
               </div>
+              <span className="text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full bg-slate-200/80 text-slate-700">
+                {tables.filter(t => t.status === 'empty' && (t.section || 'Main Hall') === section).length} Available
+              </span>
+              <button 
+                onClick={() => { setNewTableSection(section); setIsAddTableOpen(true); }}
+                className="flex items-center gap-1 text-[10px] font-bold text-slate-500 hover:text-slate-900 bg-slate-50 hover:bg-slate-200 px-2 py-1 rounded-md transition-colors border border-slate-200"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"></path></svg>
+                Add Table
+              </button>
             </div>
             <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-2 2xl:grid-cols-3 gap-3.5 md:gap-5" : "flex flex-col gap-3 md:gap-4"}>
               {tables
