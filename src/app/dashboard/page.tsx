@@ -93,7 +93,7 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
       if (isVacant && onQuickAssign) {
         onQuickAssign(table.id);
       }
-    }} className={`bg-white rounded-2xl ${borderColor} shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-md transition group cursor-pointer h-full min-h-[180px] md:min-h-[250px]`}>
+    }} className={`bg-white rounded-none ${borderColor} shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-md transition group cursor-pointer h-full min-h-[180px] md:min-h-[250px]`}>
       <div className="p-3.5 md:p-5 md:pb-4">
         <div className="flex items-start justify-between">
           <div>
@@ -112,7 +112,7 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
         </div>
 
         {isVacant ? (
-          <div className="my-5 py-4 border border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-center bg-slate-50/50">
+          <div className="my-5 py-4 border border-dashed border-slate-200 rounded-none flex flex-col items-center justify-center text-center bg-slate-50/50">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold bg-emerald-50 text-emerald-700 text-xs mb-1">
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Empty / Ready
             </span>
@@ -120,7 +120,7 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
           </div>
         ) : isAwaitingPayment ? (
           <>
-            <div className="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-200">
+            <div className="mt-4 p-3 bg-amber-50 rounded-none border border-amber-200">
               <div className="flex items-center justify-between text-xs mb-1">
                 <span className="font-semibold text-amber-900">Bill Requested</span>
                 <span className="font-extrabold text-amber-950 text-sm">₹ {tableTotal.toFixed(2)}</span>
@@ -136,7 +136,7 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
           </>
         ) : (
           <>
-            <div className="mt-4 p-3 bg-blue-50/60 rounded-xl border border-blue-100/80">
+            <div className="mt-4 p-3 bg-blue-50/60 rounded-none border border-blue-100/80">
               <div className="flex items-center justify-between text-xs mb-1">
                 <span className="font-semibold text-blue-900">{itemsCount > 0 ? `${itemsCount} items` : 'No items yet'}</span>
                 <span className="font-bold text-blue-700">₹ {tableTotal.toFixed(2)}</span>
@@ -156,7 +156,7 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
       <div className="p-3.5 md:p-4 pt-0 space-y-2 mt-auto">
         {isVacant ? (
           <>
-            <button className="w-full py-2 px-3 rounded-xl bg-[#B4D318] hover:bg-[#9FBD10] text-[#111315] font-bold text-xs tracking-wide shadow-sm transition" type="button" onClick={(e) => { e.stopPropagation(); setSelectedTableId(table.id); }}>
+            <button className="w-full py-2 px-3 rounded-none bg-[#B4D318] hover:bg-[#9FBD10] text-[#111315] font-bold text-xs tracking-wide shadow-sm transition" type="button" onClick={(e) => { e.stopPropagation(); setSelectedTableId(table.id); }}>
               + Assign Guests / Order
             </button>
             <QRCodeGenerator 
@@ -176,7 +176,7 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
           </>
         ) : isAwaitingPayment ? (
           <>
-            <button className="w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-[#111315] font-bold text-xs tracking-wide shadow-sm transition" type="button" onClick={(e) => { e.stopPropagation(); setSelectedTableId(table.id); }}>
+            <button className="w-full py-2 px-3 rounded-none bg-amber-500 hover:bg-amber-600 text-[#111315] font-bold text-xs tracking-wide shadow-sm transition" type="button" onClick={(e) => { e.stopPropagation(); setSelectedTableId(table.id); }}>
               Settle &amp; Print Invoice
             </button>
             <div className="grid grid-cols-2 gap-2">
@@ -1006,7 +1006,7 @@ export default function DashboardPage() {
                 />
               ))}
               {/* Quick Add Table Card Prompt */}
-              <div onClick={() => { setNewTableSection(section); setIsAddTableOpen(true); }} className="border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-4 md:p-6 text-center hover:border-[#B4D318] hover:bg-lime-50/20 transition cursor-pointer min-h-[160px] md:min-h-[250px] group">
+              <div onClick={() => { setNewTableSection(section); setIsAddTableOpen(true); }} className="border-2 border-dashed border-slate-200 rounded-none flex flex-col items-center justify-center p-4 md:p-6 text-center hover:border-[#B4D318] hover:bg-lime-50/20 transition cursor-pointer min-h-[160px] md:min-h-[250px] group">
                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-slate-100 group-hover:bg-[#B4D318] flex items-center justify-center text-slate-500 group-hover:text-[#111315] transition shadow-sm mb-2 md:mb-3">
                   <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round"></path>
