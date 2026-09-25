@@ -83,7 +83,7 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
   const isVacant = table.status === 'empty';
   const isAwaitingPayment = table.status === 'awaiting_payment';
   
-  let borderColor = 'border-slate-200/90';
+  let borderColor = 'border-slate-200';
   if (isAwaitingPayment) borderColor = 'border-amber-400 border-2';
   else if (!isVacant) borderColor = 'border-blue-500 border-2';
 
@@ -93,131 +93,67 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
       if (isVacant && onQuickAssign) {
         onQuickAssign(table.id);
       }
-    }} className={`bg-white rounded-none ${borderColor} shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-md transition group cursor-pointer h-full min-h-[180px] md:min-h-[250px]`}>
-      <div className="p-3.5 md:p-5 md:pb-4">
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <h4 className="text-base md:text-lg font-black md:font-bold text-slate-900 leading-none md:leading-normal">{table.name || `Table ${table.number}`}</h4>
-              <span className="px-2 py-0.5 text-[10px] md:text-[11px] font-semibold rounded-md bg-slate-100 text-slate-600 border border-slate-200 uppercase md:normal-case">Table {table.number}</span>
+    }} className={`bg-white rounded-none ${borderColor} shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-md transition group cursor-pointer h-full min-h-[140px]`}>
+      <div className="p-4 flex-1 flex flex-col">
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <h4 className="text-lg font-bold text-slate-900 leading-none">{table.name || `Table ${table.number}`}</h4>
+            <div className="flex items-center gap-1 text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded-none text-[10px] font-bold">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round"></path>
+              </svg>
+              <span>{table.seats}</span>
             </div>
-            <span className="text-[11px] md:text-xs font-semibold md:font-medium text-slate-600 md:text-slate-400 mt-1 bg-slate-100 md:bg-transparent px-2 py-0.5 md:p-0 rounded-md md:rounded-none inline-block md:block">Zone: {table.section || 'Main'}</span>
           </div>
-          <div className="flex items-center gap-1 text-slate-500 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-lg text-xs font-medium">
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round"></path>
-            </svg>
-            <span>{table.seats} Seats</span>
-          </div>
+          {isVacant ? (
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 font-bold text-slate-500 text-[10px] uppercase tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-slate-300"></span> Available
+            </span>
+          ) : isAwaitingPayment ? (
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 font-bold text-amber-700 text-[10px] uppercase tracking-wider bg-amber-50">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span> Bill Req
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 font-bold text-blue-700 text-[10px] uppercase tracking-wider bg-blue-50">
+              <span className="w-2 h-2 rounded-full bg-blue-500"></span> Occupied
+            </span>
+          )}
         </div>
 
-        {isVacant ? (
-          <div className="my-5 py-4 border border-dashed border-slate-200 rounded-none flex flex-col items-center justify-center text-center bg-slate-50/50">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold bg-emerald-50 text-emerald-700 text-xs mb-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Empty / Ready
-            </span>
-            <p className="text-xs text-slate-400">Ready for walk-in or booking</p>
+        {!isVacant && (
+          <div className="mt-auto pt-3 border-t border-slate-100 flex flex-col gap-1">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-slate-700">{itemsCount > 0 ? `${itemsCount} items` : 'No items yet'}</span>
+              <span className="font-black text-slate-900">₹ {tableTotal.toFixed(2)}</span>
+            </div>
+            <p className="text-[10px] text-slate-500 truncate">{firstItems || '...'}</p>
           </div>
-        ) : isAwaitingPayment ? (
-          <>
-            <div className="mt-4 p-3 bg-amber-50 rounded-none border border-amber-200">
-              <div className="flex items-center justify-between text-xs mb-1">
-                <span className="font-semibold text-amber-900">Bill Requested</span>
-                <span className="font-extrabold text-amber-950 text-sm">₹ {tableTotal.toFixed(2)}</span>
-              </div>
-              <p className="text-[11px] text-amber-700 truncate">Payment Pending</p>
-            </div>
-            <div className="flex items-center justify-between mt-3 pt-2 text-xs">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold bg-amber-100 text-amber-800 text-[11px]">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-600 animate-ping"></span> Settle Payment
-              </span>
-              <span className="text-slate-400 font-medium">Occupied</span>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="mt-4 p-3 bg-blue-50/60 rounded-none border border-blue-100/80">
-              <div className="flex items-center justify-between text-xs mb-1">
-                <span className="font-semibold text-blue-900">{itemsCount > 0 ? `${itemsCount} items` : 'No items yet'}</span>
-                <span className="font-bold text-blue-700">₹ {tableTotal.toFixed(2)}</span>
-              </div>
-              <p className="text-[11px] text-blue-600/90 truncate">{firstItems || '...'}</p>
-            </div>
-            <div className="flex items-center justify-between mt-3 pt-2 text-xs">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold bg-blue-100 text-blue-700 text-[11px]">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span> {getStatusBadge(table.status)}
-              </span>
-              <span className="text-slate-400 font-medium">Occupied</span>
-            </div>
-          </>
         )}
       </div>
 
-      <div className="p-3.5 md:p-4 pt-0 space-y-2 mt-auto">
-        {isVacant ? (
+      {/* Card Actions (Simplified) */}
+      <div className="flex bg-slate-50 border-t border-slate-100">
+        {!isVacant && (
           <>
-            <button className="w-full py-2 px-3 rounded-none bg-[#B4D318] hover:bg-[#9FBD10] text-[#111315] font-bold text-xs tracking-wide shadow-sm transition" type="button" onClick={(e) => { e.stopPropagation(); setSelectedTableId(table.id); }}>
-              + Assign Guests / Order
+            <button onClick={(e) => { e.stopPropagation(); setSelectedTableId(table.id); }} className="flex-1 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors border-r border-slate-200">
+              Add Item
             </button>
-            <QRCodeGenerator 
-              tableId={table.id} 
-              tableNumber={table.number} 
-              tableName={table.name}
-              buttonClassName="w-full py-1.5 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 font-medium text-xs transition flex items-center justify-center gap-1.5 disabled:opacity-50"
-              buttonContent={
-                <>
-                  <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round"></path>
-                  </svg>
-                  <span>Download QR PDF</span>
-                </>
-              }
-            />
-          </>
-        ) : isAwaitingPayment ? (
-          <>
-            <button className="w-full py-2 px-3 rounded-none bg-amber-500 hover:bg-amber-600 text-[#111315] font-bold text-xs tracking-wide shadow-sm transition" type="button" onClick={(e) => { e.stopPropagation(); setSelectedTableId(table.id); }}>
-              Settle &amp; Print Invoice
+            <button onClick={(e) => { e.stopPropagation(); onClearTable(table); }} className="flex-1 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors">
+              Clear Table
             </button>
-            <div className="grid grid-cols-2 gap-2">
-              <button className="py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs transition" type="button" onClick={(e) => { e.stopPropagation(); onClearTable(table.id); }}>
-                Clear Table
-              </button>
-              <button className="py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs transition" type="button" onClick={(e) => e.stopPropagation()}>
-                QR Code
-              </button>
-            </div>
           </>
-        ) : (
-          <>
-            <QRCodeGenerator 
-              tableId={table.id} 
-              tableNumber={table.number} 
-              tableName={table.name}
-              buttonClassName="w-full py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs tracking-wide shadow-sm transition flex items-center justify-center gap-1.5 disabled:opacity-50"
-              buttonContent={
-                <>
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round"></path>
-                  </svg>
-                  <span>Download QR PDF</span>
-                </>
-              }
-            />
-            <div className="grid grid-cols-2 gap-2">
-              <button className="py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs transition" type="button" onClick={(e) => { e.stopPropagation(); setSelectedTableId(table.id); }}>
-                Add Item
-              </button>
-              <button className="py-1.5 px-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-medium text-xs border border-rose-200/50 transition" type="button" onClick={(e) => { e.stopPropagation(); onClearTable(table.id); }}>
-                Clear Table
-              </button>
-            </div>
-          </>
+        )}
+        {isVacant && (
+          <button onClick={(e) => { e.stopPropagation(); onQuickAssign(table.id); }} className="flex-1 py-2 text-xs font-bold text-slate-700 hover:bg-[#D9F927] transition-colors flex items-center justify-center gap-1.5">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"></path></svg>
+            Open Table
+          </button>
         )}
       </div>
     </div>
   );
 };
+
 export default function DashboardPage() {
   const { menuItems } = useMenu();
   const { tables, loading, updateTableStatus, addTable, updateTableDetails, deleteTable, transferTable, updateTablePosition } = useTables();
@@ -814,64 +750,49 @@ export default function DashboardPage() {
   return (
     <>
       {/* Desktop Controls */}
-      <section className="hidden md:block px-8 py-6 space-y-5">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <section className="hidden md:block px-6 py-5 border-b border-slate-200 bg-white">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
           <div>
             <h3 className="text-xl font-bold font-display text-slate-900 tracking-tight">Table Dashboard</h3>
-            <p className="text-xs text-slate-500">Real-time occupancy, guest count, and instant billing controls.</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="relative w-64">
-              <input className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-xl placeholder-slate-400 focus:ring-2 focus:ring-[#D9F927] focus:border-[#D9F927] outline-none" placeholder="Search table # or guest..." type="text"/>
+              <input className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-none placeholder-slate-400 focus:ring-2 focus:ring-[#D9F927] focus:border-[#D9F927] outline-none" placeholder="Search tables..." type="text"/>
               <svg className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round"></path>
               </svg>
             </div>
-            <button onClick={() => setIsAddTableOpen(true)} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#D9F927] hover:bg-[#c9e81f] text-slate-950 font-bold text-sm shadow-sm transition" type="button">
+            <button onClick={() => setIsAddTableOpen(true)} className="inline-flex items-center gap-2 px-4 py-2 rounded-none bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-sm shadow-sm transition" type="button">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round"></path>
               </svg>
               <span>Add Table</span>
             </button>
-            <button onClick={() => setIsQuickSaleOpen(true)} className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold text-sm shadow-sm transition" type="button">
+            <button onClick={() => setIsQuickSaleOpen(true)} className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-none bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm shadow-sm transition" type="button">
               <span>Quick Sale</span>
             </button>
-            <div className="inline-flex p-1 bg-white border border-slate-200 rounded-xl shadow-xs">
-              <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-lg ${viewMode === 'grid' ? 'bg-slate-100 text-slate-800' : 'text-slate-400 hover:text-slate-700'}`} title="Grid View" type="button">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-                </svg>
-              </button>
-              <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-lg ${viewMode === 'list' ? 'bg-slate-100 text-slate-800' : 'text-slate-400 hover:text-slate-700'}`} title="List View" type="button">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" strokeLinejoin="round"></path>
-                </svg>
-              </button>
-              <button onClick={() => setViewMode('floor')} className={`p-1.5 rounded-lg ${viewMode === 'floor' ? 'bg-slate-100 text-slate-800' : 'text-slate-400 hover:text-slate-700'}`} title="Floor Map" type="button">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M4 4h16v16H4z"></path>
-                  <path d="M9 4v16M15 4v16M4 9h16M4 15h16" opacity="0.3"></path>
-                </svg>
-              </button>
-            </div>
           </div>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
-          <div className="inline-flex gap-1.5 p-1 bg-slate-100/80 rounded-xl text-xs font-semibold">
-            <button onClick={() => setActiveZone('All')} className={`px-3.5 py-1.5 rounded-lg transition ${activeZone === 'All' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>All Zones ({tables.length})</button>
+        
+        <div className="flex flex-wrap items-center gap-6">
+          <div className="inline-flex gap-1 p-1 bg-slate-100/80 rounded-none text-xs font-bold">
+            <button onClick={() => setActiveZone('All')} className={`px-4 py-1.5 rounded-none transition ${activeZone === 'All' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}>All Zones ({tables.length})</button>
             {Array.from(new Set(tables.map(t => String(t.section || 'Main Hall')))).map(z => (
-              <button key={z} onClick={() => setActiveZone(z)} className={`px-3.5 py-1.5 rounded-lg transition ${activeZone === z ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>{z} ({tables.filter(t => (t.section || 'Main Hall') === z).length})</button>
+              <button key={z} onClick={() => setActiveZone(z)} className={`px-4 py-1.5 rounded-none transition ${activeZone === z ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}>{z} ({tables.filter(t => (t.section || 'Main Hall') === z).length})</button>
             ))}
           </div>
-          <div className="flex items-center gap-3 text-xs font-medium text-slate-500">
-            <span className="inline-flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Occupied ({tables.filter(t => t.status !== 'empty' && t.status !== 'awaiting_payment').length})
+          
+          <div className="h-4 w-px bg-slate-200"></div>
+
+          <div className="flex items-center gap-4 text-xs font-bold">
+            <span className={`inline-flex items-center gap-1.5 ${tables.filter(t => t.status !== 'empty' && t.status !== 'awaiting_payment').length === 0 ? 'text-slate-300' : 'text-slate-600'}`}>
+              <span className={`w-2.5 h-2.5 rounded-full ${tables.filter(t => t.status !== 'empty' && t.status !== 'awaiting_payment').length === 0 ? 'bg-slate-300' : 'bg-blue-500'}`}></span> Occupied ({tables.filter(t => t.status !== 'empty' && t.status !== 'awaiting_payment').length})
             </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Bill Requested ({tables.filter(t => t.status === 'awaiting_payment').length})
+            <span className={`inline-flex items-center gap-1.5 ${tables.filter(t => t.status === 'awaiting_payment').length === 0 ? 'text-slate-300' : 'text-slate-600'}`}>
+              <span className={`w-2.5 h-2.5 rounded-full ${tables.filter(t => t.status === 'awaiting_payment').length === 0 ? 'bg-slate-300' : 'bg-amber-500'}`}></span> Bill Requested ({tables.filter(t => t.status === 'awaiting_payment').length})
             </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Available ({tables.filter(t => t.status === 'empty').length})
+            <span className={`inline-flex items-center gap-1.5 ${tables.filter(t => t.status === 'empty').length === 0 ? 'text-slate-300' : 'text-slate-600'}`}>
+              <span className={`w-2.5 h-2.5 rounded-full ${tables.filter(t => t.status === 'empty').length === 0 ? 'bg-slate-300' : 'bg-slate-400'}`}></span> Available ({tables.filter(t => t.status === 'empty').length})
             </span>
           </div>
         </div>

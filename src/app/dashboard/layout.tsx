@@ -186,33 +186,33 @@ export default function DashboardLayout({
           </div>
           
           <nav className="flex items-center gap-1">
-            <Link href="/dashboard" className={pathname === '/dashboard' ? 'flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-900 font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+            <Link href="/dashboard" className={pathname === '/dashboard' ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#D9F927] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
               Dashboard
             </Link>
-            <Link href="/dashboard/orders" className={pathname.startsWith('/dashboard/orders') ? 'flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-900 font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+            <Link href="/dashboard/orders" className={pathname.startsWith('/dashboard/orders') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#D9F927] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
               Live Orders
               {liveOrdersCount > 0 && <span className="bg-rose-500 text-white px-1.5 py-0.5 rounded-none text-[10px] font-bold">{liveOrdersCount}</span>}
             </Link>
-            <Link href="/dashboard/takeaway" className={pathname.startsWith('/dashboard/takeaway') ? 'flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-900 font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+            <Link href="/dashboard/takeaway" className={pathname.startsWith('/dashboard/takeaway') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#D9F927] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
               Takeaway
             </Link>
             {hasPermission('view_revenue') && (
-              <Link href="/dashboard/analytics" className={pathname.startsWith('/dashboard/analytics') ? 'flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-900 font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+              <Link href="/dashboard/analytics" className={pathname.startsWith('/dashboard/analytics') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#D9F927] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
                 Analytics
               </Link>
             )}
             {hasPermission('manage_menu') && (
-              <Link href="/dashboard/menu" className={pathname.startsWith('/dashboard/menu') ? 'flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-900 font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+              <Link href="/dashboard/menu" className={pathname.startsWith('/dashboard/menu') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#D9F927] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
                 Menu
               </Link>
             )}
             {hasPermission('manage_inventory') && (
-              <Link href="/dashboard/inventory" className={pathname.startsWith('/dashboard/inventory') ? 'flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-900 font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+              <Link href="/dashboard/inventory" className={pathname.startsWith('/dashboard/inventory') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#D9F927] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
                 Inventory
               </Link>
             )}
             {hasPermission('manage_staff') && (
-              <Link href="/dashboard/staff" className={pathname.startsWith('/dashboard/staff') ? 'flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-900 font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+              <Link href="/dashboard/staff" className={pathname.startsWith('/dashboard/staff') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#D9F927] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
                 Staff
               </Link>
             )}
@@ -222,14 +222,19 @@ export default function DashboardLayout({
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <span className="text-sm font-bold text-slate-900">{user?.name}</span>
-            <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase rounded-none">{user?.role}</span>
+            <span className="px-1.5 py-0.5 bg-slate-200/50 text-slate-600 text-[9px] font-bold tracking-widest uppercase rounded-none border border-slate-300/50">{user?.role}</span>
           </div>
-          <div className="h-6 w-px bg-slate-200"></div>
+          <div className="h-4 w-px bg-slate-300"></div>
           <button 
             onClick={() => window.confirm("Are you sure you want to log out?") && logout()}
-            className="text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-3 py-1.5 transition-colors rounded-none"
+            className="text-slate-400 hover:text-slate-800 transition-colors rounded-none"
+            title="Log Out"
           >
-            LOGOUT
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" x2="9" y1="12" y2="12"></line>
+            </svg>
           </button>
         </div>
       </header>
