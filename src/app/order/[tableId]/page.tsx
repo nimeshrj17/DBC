@@ -62,6 +62,8 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 
   const [viewingOrders, setViewingOrders] = useState(false);
   const [justPaid, setJustPaid] = useState(false);
+  const [sessionConfirmed, setSessionConfirmed] = useState(false);
+  const [sessionDenied, setSessionDenied] = useState(false);
   const prevAwaitingRef = useRef(false);
   const prevOrdersRef = useRef(0);
   const [deviceId, setDeviceId] = useState<string>('');
@@ -276,24 +278,100 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     </div>
   );
 
-  // Block access if table is active (not empty) and this device doesn't own the session
-  if (table.status !== 'empty' && table.currentSessionId && table.currentSessionId !== deviceId) return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FCFAFA] text-center">
-      <h1 className="text-2xl font-bold text-[#A04010] mb-2">Table In Use</h1>
-      <p className="text-gray-600 font-medium">This table is currently being served.<br/>Please ask the staff for assistance.</p>
-    </div>
-  );
-
-  // Block access if table was activated from dashboard (no session ID) and is not empty
-  if (table.status !== 'empty' && !table.currentSessionId) return (
+  // If customer already denied ownership, show wait screen
+  if (sessionDenied) return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FCFAFA] text-center">
       <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
         <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
       </div>
       <h1 className="text-2xl font-bold text-[#A04010] mb-2">Table Occupied</h1>
-      <p className="text-gray-600 font-medium">This table is currently active.<br/>The staff will clear it when ready.</p>
+      <p className="text-gray-600 font-medium">This table is currently being served.<br/>Please wait for the staff to clear it, or ask for assistance.</p>
     </div>
   );
+
+  // Show order confirmation screen if table is active and this device doesn't own the session
+  if (table.status !== 'empty' && !sessionConfirmed && table.currentSessionId !== deviceId) {
+    const confirmItems = tableOrders.flatMap(o => o.items);
+    const confirmTotal = tableOrders.reduce((s, o) => s + o.total, 0);
+
+    return (
+      <div className="min-h-screen bg-[#FDFBF7] flex flex-col">
+        <header className="bg-[#2e1c14] px-5 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <svg className="w-6 h-6 text-[#d4a87a]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M6 2v2m4-2v2m4-2v2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span className="text-xs tracking-wider uppercase font-bold text-[#d4a87a]">राखा भाई की चाय</span>
+          </div>
+          <span className="bg-amber-500/20 text-amber-300 border border-amber-400/30 px-2.5 py-1 rounded-full text-[11px] font-bold">
+            {table.name || `Table ${table.number || ''}`}
+          </span>
+        </header>
+
+        <div className="flex-1 px-5 py-6 space-y-5">
+          <div className="text-center space-y-2">
+            <div className="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center mx-auto">
+              <svg className="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" /></svg>
+            </div>
+            <h2 className="text-xl font-black text-[#2e1c14]">This table has an active order</h2>
+            <p className="text-sm text-stone-500 font-medium">Please confirm if this is your order</p>
+          </div>
+
+          {confirmItems.length > 0 ? (
+            <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+              <div className="px-4 py-3 bg-stone-50 border-b border-stone-100">
+                <p className="text-xs font-bold text-stone-500 uppercase tracking-wider">Current Order — {confirmItems.length} item{confirmItems.length !== 1 ? 's' : ''}</p>
+              </div>
+              <div className="divide-y divide-stone-100 max-h-[45vh] overflow-y-auto">
+                {confirmItems.map((item, idx) => (
+                  <div key={idx} className="px-4 py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="w-7 h-7 bg-stone-100 rounded-lg flex items-center justify-center text-xs font-black text-stone-600">{item.qty}x</span>
+                      <div>
+                        <p className="font-semibold text-stone-800 text-sm">{item.name}</p>
+                        {item.notes && <p className="text-[11px] text-stone-400 italic">{item.notes}</p>}
+                      </div>
+                    </div>
+                    <span className="font-bold text-stone-700 text-sm">₹{(item.price * item.qty).toFixed(0)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="px-4 py-3 bg-stone-50 border-t border-stone-200 flex justify-between items-center">
+                <span className="font-bold text-stone-600 text-sm">Total</span>
+                <span className="font-black text-lg text-[#2e1c14]">₹{confirmTotal.toFixed(0)}</span>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-6 text-center">
+              <p className="text-stone-500 font-medium text-sm">Table is occupied but no items ordered yet.</p>
+            </div>
+          )}
+
+          <div className="space-y-3 pt-2">
+            <button
+              onClick={() => {
+                setSessionConfirmed(true);
+                // Claim the session for this device
+                if (table) {
+                  updateDoc(doc(db, 'tables', table.id), { currentSessionId: deviceId }).catch(() => {});
+                }
+              }}
+              className="w-full py-4 bg-[#2e1c14] text-white font-bold text-base rounded-2xl shadow-lg active:scale-[0.98] transition-transform"
+            >
+              Yes, this is my order
+            </button>
+            <button
+              onClick={() => setSessionDenied(true)}
+              className="w-full py-3.5 bg-white text-stone-600 font-bold text-sm rounded-2xl border-2 border-stone-200 active:scale-[0.98] transition-transform"
+            >
+              No, this isn't mine
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (justPaid) return (
     <div className="w-full max-w-md mx-auto flex-1 min-h-screen bg-[#FDFBF7] flex flex-col px-5 pt-8 pb-7">
