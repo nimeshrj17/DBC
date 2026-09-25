@@ -289,7 +289,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         <h1 className="text-2xl sm:text-3xl font-extrabold text-[#2b1a13] tracking-tight leading-snug">Thank You for Visiting!</h1>
         <p className="text-base text-[#9A3412] font-medium mt-0.5">राखा भाई की चाय AND CAFÉ</p>
         <p className="text-xs sm:text-sm text-stone-500 mt-2 max-w-[280px] leading-relaxed">
-          Payment of <span className="font-bold text-[#2b1a13]">₹{(finalReceiptData?.total || 0).toFixed(2)}</span> was successful. We hope you enjoyed your time at <span className="font-semibold text-[#2b1a13]">{table.name || `Table ${table.number}`}</span>.
+          Payment of <span className="font-bold text-[#2b1a13]">₹{(finalReceiptData?.total || 0).toFixed(2)}</span> was successful. We hope you enjoyed your time at <span className="font-semibold text-[#2b1a13]">{`Table ${table.number}`}</span>.
         </p>
       </section>
       
@@ -490,7 +490,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           </div>
           <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold tracking-wide text-white">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>{table.name || `Table ${table.number}`}</span>
+            <span>{`Table ${table.number}`}</span>
           </div>
         </div>
       </header>
@@ -502,7 +502,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
             </div>
           </div>
           <h2 className="text-2xl font-black text-[#5a3829] tracking-tight mb-2">Order Sent to Kitchen!</h2>
-          <p className="text-sm font-medium text-stone-600 px-4 leading-relaxed max-w-xs mx-auto">We're preparing your freshly made food and will deliver it right to <span className="font-bold text-[#2A1A14]">{table.name || `Table ${table.number}`}</span>.</p>
+          <p className="text-sm font-medium text-stone-600 px-4 leading-relaxed max-w-xs mx-auto">We're preparing your freshly made food and will deliver it right to <span className="font-bold text-[#2A1A14]">{`Table ${table.number}`}</span>.</p>
         </section>
         <section className="bg-white rounded-2xl p-5 shadow-sm border border-stone-200/70">
           <div className="flex items-center justify-between mb-4 border-b border-stone-100 pb-3">
@@ -598,6 +598,11 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 </svg>
 <span>Order More Items</span>
           </button>
+          <div className="mt-4 text-center px-2">
+            <p className="text-xs text-stone-500 leading-relaxed font-medium">
+              Pay at counter for final bill.<br/>Soft drinks, cigarettes, and biscuits can be purchased from the counter.
+            </p>
+          </div>
           {isAwaitingConfirmation ? (
             <div className="w-full py-3 px-4 rounded-xl bg-amber-50 border-2 border-amber-300 text-amber-800 font-bold text-sm flex items-center justify-center gap-2">
               <span className="relative flex h-2.5 w-2.5">
@@ -623,7 +628,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
             <header className="px-6 pt-2 pb-3 flex items-start justify-between border-b border-[#e5dcd2]">
               <div>
                 <h1 className="text-xl font-bold tracking-tight text-[#1c110b] leading-tight">राखा भाई की चाय</h1>
-                <p className="text-xs text-stone-500 font-medium">Payment for {table.name || `Table ${table.number}`}</p>
+                <p className="text-xs text-stone-500 font-medium">Payment for {`Table ${table.number}`}</p>
               </div>
               <button aria-label="Close payment modal" onClick={() => setIsPaymentModalOpen(false)} className="p-2 rounded-full hover:bg-stone-200/80 active:scale-95 transition-all text-stone-600">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -730,7 +735,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 <div className="flex items-center justify-between gap-2 mb-4 relative z-10">
 <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/15 px-3 py-1.5 rounded-full text-xs font-medium tracking-wide">
 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-<span>{table.name || `Table ${table.number}`}</span>
+<span>{`Table ${table.number}`}</span>
 </div>
 <div className="text-[11px] text-amber-200/80 tracking-wider uppercase font-semibold">
           Digital QR Order
@@ -927,7 +932,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                     <svg className="w-3 h-3 text-[#9c4c2d]" fill="currentColor" viewBox="0 0 20 20">
 <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"></path>
 </svg>
-                    {table.name || `Table ${table.number}`}
+                    {`Table ${table.number}`}
                   </span>
                 </div>
                 <button onClick={() => setIsCartOpen(false)} className="w-7 h-7 rounded-full bg-stone-200/70 hover:bg-stone-300/80 active:scale-95 flex items-center justify-center text-stone-600 transition-all">
@@ -1010,7 +1015,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
             <header className="px-6 pt-2 pb-3 flex items-start justify-between border-b border-[#e5dcd2]">
               <div>
                 <h1 className="text-xl font-bold tracking-tight text-[#1c110b] leading-tight">राखा भाई की चाय</h1>
-                <p className="text-xs text-stone-500 font-medium">Payment for {table.name || `Table ${table.number}`}</p>
+                <p className="text-xs text-stone-500 font-medium">Payment for {`Table ${table.number}`}</p>
               </div>
               <button aria-label="Close payment modal" onClick={() => setIsPaymentModalOpen(false)} className="p-2 rounded-full hover:bg-stone-200/80 active:scale-95 transition-all text-stone-600">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
