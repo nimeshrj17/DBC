@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Rozha+One&family=Noto+Sans+Devanagari:wght@600;700;800&display=swap');
+      .brand-title {
+        font-family: 'Rozha One', 'Noto Sans Devanagari', serif, sans-serif;
+        font-size: 34px;
+        font-weight: 700;
+        fill: #271406;
+        letter-spacing: 0.5px;
+      }
+      .brand-subtitle {
+        font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        fill: #C2410C;
+        letter-spacing: 6px;
+      }
+      .minimal-stroke {
+        stroke: #C2410C;
+        stroke-width: 3.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+      }
+      .minimal-stroke-subtle {
+        stroke: #EA580C;
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+      }
+    </style>
+  </defs>
+
+  <!-- Clean Minimalist Background Canvas -->
+  <rect width="600" height="600" rx="36" fill="#FDFBF7" />
+
+  <!-- Ultra-minimal subtle framing ring with generous whitespace -->
+  <circle cx="300" cy="300" r="248" fill="none" stroke="#F1E8DF" stroke-width="1.5" />
+
+  <!-- Centerpiece Minimal Chai Emblem -->
+  <g id="chai-emblem" transform="translate(0, -10)">
+    <!-- Minimal Gentle Steam Curls (clean geometry, 2 paths) -->
+    <path class="minimal-stroke-subtle" d="M 285 168 C 280 150 292 136 288 120" opacity="0.85" />
+    <path class="minimal-stroke" d="M 300 164 C 308 144 294 130 302 110" />
+    <path class="minimal-stroke-subtle" d="M 315 168 C 320 150 308 136 312 120" opacity="0.85" />
+
+    <!-- Minimal Kulhad / Chai Cup Silhouette -->
+    <!-- Cup Rim -->
+    <ellipse cx="300" cy="180" rx="42" ry="7" class="minimal-stroke" />
+
+    <!-- Pure geometric cup contour -->
+    <path d="M 260 181 L 273 246 C 274 254 282 260 291 260 L 309 260 C 318 260 326 254 327 246 L 340 181" 
+          class="minimal-stroke" />
+
+    <!-- Minimal modern handle -->
+    <path d="M 334 195 C 354 198 354 228 327 232" 
+          class="minimal-stroke" />
+
+    <!-- Single horizontal earthen accent slit -->
+    <line x1="272" y1="214" x2="328" y2="214" stroke="#F39C12" stroke-width="2.5" stroke-linecap="round" opacity="0.75" />
+
+    <!-- Clean floating saucer line -->
+    <path d="M 248 274 C 274 282 326 282 352 274" class="minimal-stroke" />
+  </g>
+
+  <!-- Brand Typography -->
+  <!-- Primary Devanagari Title -->
+  <text x="300" y="364" text-anchor="middle" class="brand-title">राखा भाई की चाय</text>
+
+  <!-- Balanced Minimal Accent Separator -->
+  <g transform="translate(300, 392)">
+    <line x1="-50" y1="0" x2="-14" y2="0" stroke="#E5D5C5" stroke-width="1.5" stroke-linecap="round" />
+    <circle cx="0" cy="0" r="3" fill="#C2410C" />
+    <line x1="14" y1="0" x2="50" y2="0" stroke="#E5D5C5" stroke-width="1.5" stroke-linecap="round" />
+  </g>
+
+  <!-- Secondary English Subtitle -->
+  <text x="303" y="428" text-anchor="middle" class="brand-subtitle">&amp; CAFÉ</text>
+  
+  <text x="302" y="454" text-anchor="middle" 
+        font-family="'Plus Jakarta Sans', sans-serif" 
+        font-size="10.5" 
+        font-weight="600" 
+        fill="#8C7360" 
+        letter-spacing="3.5">
+    AUTHENTIC SIPS
+  </text>
+</svg>

@@ -9,6 +9,7 @@ import { useSettings } from '@/lib/hooks/useSettings';
 import { db } from '@/lib/firebase';
 import { collection, doc, updateDoc, Timestamp, onSnapshot, query, where, runTransaction } from 'firebase/firestore';
 import { toast } from 'sonner';
+import CustomerLogo from '@/components/ui/CustomerLogo';
 
 interface CartItem extends MenuItem {
   qty: number;
@@ -298,10 +299,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       <div className="min-h-screen bg-[#FDFBF7] flex flex-col">
         <header className="bg-[#2e1c14] px-5 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <svg className="w-6 h-6 text-[#d4a87a]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M6 2v2m4-2v2m4-2v2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <div className="w-8 h-8 rounded-full overflow-hidden bg-white"><CustomerLogo /></div>
             <span className="text-xs tracking-wider uppercase font-bold text-[#d4a87a]">राखा भाई की चाय</span>
           </div>
           <span className="bg-amber-500/20 text-amber-300 border border-amber-400/30 px-2.5 py-1 rounded-full text-[11px] font-bold">
@@ -378,11 +376,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       <header className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#EFE4D8] text-[#9c4c2d] text-sm">
-            <svg className="w-7 h-7 text-[#2e1c14]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M6 2v2m4-2v2m4-2v2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
+            <div className="w-8 h-8 rounded-full overflow-hidden bg-[#FDFBF7]"><CustomerLogo /></div></span>
           <span className="text-xs tracking-wider uppercase font-bold text-stone-700">राखा भाई की चाय</span>
         </div>
         <div className="flex items-center space-x-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2.5 py-1 rounded-full text-xs font-semibold">
@@ -592,10 +586,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       <header className="bg-[#5a3829] text-white pt-6 pb-5 px-5 rounded-b-[2rem] shadow-lg sticky top-0 z-30">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-none bg-white/20 border border-white/30 flex items-center justify-center text-amber-200"><svg className="w-7 h-7 text-[#2e1c14] tea-steam-anim" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-<path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" strokeLinecap="round" strokeLinejoin="round" />
-<path d="M6 2v2m4-2v2m4-2v2" strokeLinecap="round" strokeLinejoin="round" />
-</svg></div>
+            <div className="w-10 h-10 rounded-full overflow-hidden bg-[#FDFBF7] shadow-sm"><CustomerLogo /></div>
             <div>
               <h1 className="text-base font-bold tracking-tight leading-snug">राखा भाई की चाय</h1>
               <p className="text-[11px] font-medium tracking-wider text-amber-200/80 uppercase">AND CAFÉ</p>
@@ -862,12 +853,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         </div>
 </div>
 <div className="flex items-center gap-3.5 mb-4 relative z-10">
-<div className="w-14 h-14 rounded-none bg-gradient-to-tr from-amber-100 to-[#f5dbca] flex items-center justify-center text-[#26150e] shadow-md shadow-black/20 flex-shrink-0 border border-amber-200/50">
-<svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-<path d="M4 19h14a2 2 0 0 0 2-2v-1h1.5A3.5 3.5 0 0 0 25 12.5v-1A3.5 3.5 0 0 0 21.5 8H20V5H4v14zm16-9h1.5a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5H20v-4zM6 7h12v10H6V7z"></path>
-<path d="M7 2h2v3H7zm4-1h2v4h-2zm4 1h2v3h-2z" opacity="0.75"></path>
-</svg>
-</div>
+<div className="w-16 h-16 rounded-full overflow-hidden bg-[#FDFBF7] shadow-lg border-2 border-[#FDFBF7]"><CustomerLogo /></div>
 <div>
 <h1 className="text-2xl font-extrabold tracking-tight text-white font-['Mukta'] leading-tight">राखा भाई की चाय</h1>
 <p className="text-xs uppercase tracking-[0.25em] font-bold text-amber-200/90 flex items-center gap-1.5">
