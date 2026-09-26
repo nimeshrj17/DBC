@@ -95,18 +95,18 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
         </div>
 
         {/* Menu Layout */}
-        <div className="flex flex-1 overflow-hidden bg-gray-50/50">
+        <div className="flex flex-col md:flex-row flex-1 overflow-hidden bg-gray-50/50">
           
-          {/* Left Sidebar - Categories */}
-          <div className="w-[110px] md:w-[140px] bg-white border-r border-gray-200 overflow-y-auto hide-scrollbar flex-shrink-0">
+          {/* Categories Row (Mobile) / Sidebar (Desktop) */}
+          <div className="flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto hide-scrollbar bg-white border-b md:border-b-0 md:border-r border-gray-200 w-full md:w-[140px] flex-shrink-0 md:h-full">
             {categories.map(category => (
               <button 
                 key={category}
                 onClick={() => setActiveCategory(category)}
-                className={`w-full text-left px-3 py-3.5 border-b border-gray-100 text-xs md:text-sm transition-all ${
+                className={`flex-shrink-0 whitespace-nowrap text-center md:text-left px-4 py-3 md:py-3.5 border-b-2 md:border-b md:border-b-gray-100 md:border-l-4 text-xs md:text-sm transition-all ${
                   activeCategory === category 
-                    ? 'font-bold bg-slate-900 text-white border-l-4 border-l-[#10B981]' 
-                    : 'font-medium text-gray-600 hover:bg-gray-50'
+                    ? 'font-bold bg-slate-900 text-white border-b-slate-900 md:border-l-[#10B981]' 
+                    : 'font-medium text-gray-600 hover:bg-gray-50 border-b-transparent md:border-l-transparent'
                 }`}
               >
                 {category}
@@ -119,7 +119,7 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
             {menuLoading || invLoading ? (
               <div className="flex justify-center items-center h-full text-gray-500">Loading menu...</div>
             ) : (
-              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
               {filteredItems.map(item => {
                 const draftItem = currentDraftItems.find(d => d.menuItemId === item.id);
                 const qty = draftItem ? draftItem.qty : 0;
