@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useCustomers, Customer } from '@/lib/hooks/useCustomers';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import { Users, Search, Phone, Calendar, IndianRupee } from 'lucide-react';
+
 import { format } from 'date-fns';
 
 export default function CustomersPage() {
@@ -19,14 +19,14 @@ export default function CustomersPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-            <Users className="w-8 h-8 text-primary" />
+            <i className="w-8 h-8 text-primary las la-users"></i>
             Customers
           </h1>
           <p className="text-muted-foreground mt-1">Manage and track your valuable customers.</p>
         </div>
         
         <div className="relative w-full sm:w-64">
-          <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <i className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground las la-search"></i>
           <input 
             type="text" 
             placeholder="Search name or phone..."
@@ -80,7 +80,7 @@ export default function CustomersPage() {
                     </td>
                     <td className="px-4 md:px-6 py-4 text-muted-foreground whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <Phone className="w-3 h-3" />
+                        <i className="w-3 h-3 las la-phone"></i>
                         {customer.phone}
                       </div>
                     </td>

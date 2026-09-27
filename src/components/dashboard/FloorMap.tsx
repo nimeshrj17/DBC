@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Table } from '@/lib/hooks/useTables';
-import { Edit3, CheckCircle2, Lock } from 'lucide-react';
+
 
 interface FloorMapProps {
   tables: Table[];
@@ -89,9 +89,9 @@ export function FloorMap({ tables, activeZone, onSelectTable, onUpdatePosition }
           className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${editMode ? 'bg-[#10B981] text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
         >
           {editMode ? (
-            <><CheckCircle2 className="w-3.5 h-3.5" /> <span>Done Editing</span></>
+            <><i className="w-3.5 h-3.5 las la-check-circle"></i> <span>Done Editing</span></>
           ) : (
-            <><Edit3 className="w-3.5 h-3.5" /> <span>Edit Layout</span></>
+            <><i className="w-3.5 h-3.5 las la-edit"></i> <span>Edit Layout</span></>
           )}
         </button>
       </div>
@@ -124,7 +124,7 @@ export function FloorMap({ tables, activeZone, onSelectTable, onUpdatePosition }
               <span className="font-black text-lg">T{table.number}</span>
               {table.seats > 0 && (
                 <span className="text-[9px] font-bold uppercase tracking-wider opacity-60 flex items-center gap-1 mt-1">
-                  <Lock className="w-2.5 h-2.5" /> {table.seats} seats
+                  <i className="w-2.5 h-2.5 las la-lock"></i> {table.seats} seats
                 </span>
               )}
             </div>

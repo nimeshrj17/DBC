@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useOwnerInventory, InventoryItem } from '@/lib/hooks/useOwnerInventory';
-import { AlertCircle, Plus, Edit2, CheckCircle2, TrendingDown, ClipboardList, Database, Save, Trash2, X } from 'lucide-react';
+
 import { toast } from 'sonner';
 
 export default function InventoryOwnerPage() {
@@ -31,19 +31,19 @@ export default function InventoryOwnerPage() {
             onClick={() => setActiveTab('master')}
             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'master' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500'}`}
           >
-            <Database className="w-4 h-4" /> Master List
+            <i className="w-4 h-4 las la-database"></i> Master List
           </button>
           <button 
             onClick={() => setActiveTab('movement')}
             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'movement' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500'}`}
           >
-            <ClipboardList className="w-4 h-4" /> Daily Entry
+            <i className="w-4 h-4 las la-clipboard-list"></i> Daily Entry
           </button>
           <button 
             onClick={() => setActiveTab('variance')}
             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'variance' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500'}`}
           >
-            <TrendingDown className="w-4 h-4" /> Variance Report
+            <i className="w-4 h-4 las la-chart-line"></i> Variance Report
           </button>
         </div>
       </div>
@@ -51,7 +51,7 @@ export default function InventoryOwnerPage() {
       {alerts.length > 0 && activeTab === 'master' && (
         <div className="bg-rose-50 border border-rose-200 rounded-2xl p-5 shadow-sm">
           <h3 className="font-bold text-rose-800 flex items-center gap-2 mb-3">
-            <AlertCircle className="w-5 h-5" /> Low Stock Alerts ({alerts.length})
+            <i className="w-5 h-5 las la-exclamation-circle"></i> Low Stock Alerts ({alerts.length})
           </h3>
           <div className="flex flex-wrap gap-3">
             {alerts.map(item => (
@@ -110,7 +110,7 @@ function MasterListTab({ items, onSave, onDelete }: any) {
       <div className="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
         <h3 className="font-bold text-slate-800">Inventory Items ({items.length})</h3>
         <button onClick={handleNew} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1.5 transition-colors shadow-sm">
-          <Plus className="w-4 h-4" /> Add Item
+          <i className="w-4 h-4 las la-plus"></i> Add Item
         </button>
       </div>
       
@@ -150,8 +150,8 @@ function MasterListTab({ items, onSave, onDelete }: any) {
                 </td>
                 <td className="px-6 py-3 text-right">
                   <div className="flex justify-end gap-2">
-                    <button onClick={handleSave} className="p-1.5 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200"><CheckCircle2 className="w-4 h-4" /></button>
-                    <button onClick={() => setEditingId(null)} className="p-1.5 bg-slate-200 text-slate-600 rounded-lg hover:bg-slate-300"><X className="w-4 h-4" /></button>
+                    <button onClick={handleSave} className="p-1.5 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200"><i className="w-4 h-4 las la-check-circle"></i></button>
+                    <button onClick={() => setEditingId(null)} className="p-1.5 bg-slate-200 text-slate-600 rounded-lg hover:bg-slate-300"><i className="w-4 h-4 las la-times"></i></button>
                   </div>
                 </td>
               </tr>
@@ -180,8 +180,8 @@ function MasterListTab({ items, onSave, onDelete }: any) {
                   </td>
                   <td className="px-6 py-3 text-right">
                     <div className="flex justify-end gap-2">
-                      <button onClick={handleSave} className="p-1.5 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200"><CheckCircle2 className="w-4 h-4" /></button>
-                      <button onClick={() => setEditingId(null)} className="p-1.5 bg-slate-200 text-slate-600 rounded-lg hover:bg-slate-300"><X className="w-4 h-4" /></button>
+                      <button onClick={handleSave} className="p-1.5 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200"><i className="w-4 h-4 las la-check-circle"></i></button>
+                      <button onClick={() => setEditingId(null)} className="p-1.5 bg-slate-200 text-slate-600 rounded-lg hover:bg-slate-300"><i className="w-4 h-4 las la-times"></i></button>
                     </div>
                   </td>
                 </tr>
@@ -199,8 +199,8 @@ function MasterListTab({ items, onSave, onDelete }: any) {
                   <td className="px-4 py-4 text-center text-slate-600 font-medium">{item.maxPar}</td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
-                      <button onClick={() => handleEdit(item)} className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
-                      <button onClick={() => { if(confirm('Are you sure?')) onDelete(item.id); }} className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                      <button onClick={() => handleEdit(item)} className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><i className="w-4 h-4 las la-edit"></i></button>
+                      <button onClick={() => { if(confirm('Are you sure?')) onDelete(item.id); }} className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"><i className="w-4 h-4 las la-trash-alt"></i></button>
                     </div>
                   </td>
                 </tr>
@@ -324,7 +324,7 @@ function DailyEntryTab({ items, onRecord }: any) {
           disabled={!selectedItem}
           className="w-full py-3 bg-indigo-600 disabled:bg-slate-300 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-sm transition-colors flex items-center justify-center gap-2"
         >
-          <Save className="w-5 h-5" /> Record Movement & Update Stock
+          <i className="w-5 h-5 las la-save"></i> Record Movement & Update Stock
         </button>
       </div>
     </div>

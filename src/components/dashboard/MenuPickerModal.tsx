@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Search, Plus } from 'lucide-react';
+
 import { useMenu, MenuItem } from '@/lib/hooks/useMenu';
 import { useInventory } from '@/lib/hooks/useInventory';
 import { Button } from '@/components/ui/Button';
@@ -74,7 +74,7 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
         <div className="p-5 md:p-6 border-b border-gray-100 flex justify-between items-start bg-white flex-shrink-0">
           <h2 className="text-xl font-bold">Add Item to Order</h2>
           <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition-colors md:hidden">
-            <X className="w-5 h-5" />
+            <i className="w-5 h-5 las la-times"></i>
           </button>
         </div>
         
@@ -82,7 +82,7 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
         <div className="px-5 pt-3 pb-3 flex-shrink-0 border-b border-gray-100 bg-white">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-              <Search className="w-4 h-4" />
+              <i className="w-4 h-4 las la-search"></i>
             </div>
             <input 
               type="search" 
@@ -185,7 +185,7 @@ export function MenuPickerModal({ isOpen, onClose, onAddItem, currentDraftItems 
                           <div className={`w-6 h-6 rounded-md flex items-center justify-center transition-transform ${
                             (!item.available || outOfStock) ? 'bg-gray-100 text-gray-400' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                           }`}>
-                            <Plus className="w-4 h-4" strokeWidth={3} />
+                            <i className="w-4 h-4 las la-plus"></i>
                           </div>
                         )}
                       </div>

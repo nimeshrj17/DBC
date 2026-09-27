@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Package, Search, Trash2, Edit, PlusCircle, Plus, X, Coffee, ShoppingBag, Store } from 'lucide-react';
+
 import { useInventory, InventoryItem } from '@/lib/hooks/useInventory';
 import { useMenu } from '@/lib/hooks/useMenu';
 import { Timestamp } from 'firebase/firestore';
@@ -312,7 +312,7 @@ export default function InventoryPage() {
             }}
             className="md:hidden bg-brand-lime hover:bg-[#b5de10] active:scale-95 transition-all text-black font-extrabold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm border border-lime-400"
           >
-            <Plus className="w-4 h-4" strokeWidth={2.8} />
+            <i className="w-4 h-4 las la-plus"></i>
             <span>Add Stock</span>
           </button>
         </div>
@@ -321,7 +321,7 @@ export default function InventoryPage() {
           {/* Search */}
           <div className="relative flex-1 min-w-[260px]">
             <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-              <Search className="w-4 h-4 md:w-4 md:h-4" strokeWidth={2.2} />
+              <i className="w-4 h-4 md:w-4 md:h-4 las la-search"></i>
             </span>
             <input 
               type="text" 
@@ -345,7 +345,7 @@ export default function InventoryPage() {
             }}
             className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-lime hover:bg-[#b5de10] text-slate-950 text-sm font-bold shadow-sm transition transform active:scale-95 whitespace-nowrap"
           >
-            <Plus className="w-4 h-4" strokeWidth={2.5} />
+            <i className="w-4 h-4 las la-plus"></i>
             <span>Add Stock</span>
           </button>
         </div>
@@ -358,7 +358,7 @@ export default function InventoryPage() {
             onClick={() => setActiveTab('raw')}
             className={`flex items-center gap-2 md:gap-2.5 pb-2 md:pb-3 border-b-2 transition-all ${activeTab === 'raw' ? 'border-brand-lime md:border-slate-950 text-slate-900 md:text-slate-950 font-extrabold' : 'border-transparent text-slate-400 hover:text-slate-600 font-medium'}`}
           >
-            <Coffee className={`w-4 h-4 ${activeTab === 'raw' ? 'text-slate-700 md:text-slate-900' : 'text-slate-400'}`} strokeWidth={2} />
+            <i className={`las la-coffee w-4 h-4 ${activeTab === 'raw' ? 'text-slate-700 md:text-slate-900' : 'text-slate-400'}`}></i>
             <span>Raw Materials</span>
             <span className={`${activeTab === 'raw' ? 'bg-slate-100 md:bg-brand-lime text-slate-700 md:text-slate-950' : 'bg-slate-100 text-slate-400'} text-[11px] font-extrabold px-1.5 md:px-2 py-0.5 rounded-full`}>
               {rawMaterials.length}
@@ -368,7 +368,7 @@ export default function InventoryPage() {
             onClick={() => setActiveTab('retail')}
             className={`flex items-center gap-2 md:gap-2.5 pb-2 md:pb-3 border-b-2 transition-all ${activeTab === 'retail' ? 'border-brand-lime md:border-slate-950 text-slate-900 md:text-slate-950 font-extrabold' : 'border-transparent text-slate-400 hover:text-slate-600 font-medium'}`}
           >
-            <ShoppingBag className={`w-4 h-4 ${activeTab === 'retail' ? 'text-slate-700 md:text-slate-900' : 'text-slate-400'}`} strokeWidth={2} />
+            <i className={`las la-shopping-bag w-4 h-4 ${activeTab === 'retail' ? 'text-slate-700 md:text-slate-900' : 'text-slate-400'}`}></i>
             <span>Retail Products</span>
             <span className={`${activeTab === 'retail' ? 'bg-slate-100 md:bg-brand-lime text-slate-700 md:text-slate-950' : 'bg-slate-100 text-slate-400'} text-[11px] font-extrabold px-1.5 md:px-2 py-0.5 rounded-full`}>
               {retailProducts.length}
@@ -416,7 +416,7 @@ export default function InventoryPage() {
                           isLow ? 'bg-orange-50 text-orange-500 border-orange-100' : 
                           'bg-slate-50 text-slate-500 border-slate-100'
                         }`}>
-                          <Package className="w-5 h-5" strokeWidth={2} />
+                          <i className="w-5 h-5 las la-box"></i>
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
@@ -459,13 +459,13 @@ export default function InventoryPage() {
                     <td className="py-4 px-6 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={() => handleRestockClick(item)} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition" title="Quick Add Stock">
-                          <PlusCircle className="w-5 h-5" strokeWidth={2} />
+                          <i className="w-5 h-5 las la-plus-circle"></i>
                         </button>
                         <button onClick={() => handleEditClick(item)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Edit Item">
-                          <Edit className="w-5 h-5" strokeWidth={2} />
+                          <i className="w-5 h-5 las la-edit"></i>
                         </button>
                         <button onClick={() => deleteInventoryItem(item.id)} className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition" title="Delete Item">
-                          <Trash2 className="w-5 h-5" strokeWidth={2} />
+                          <i className="w-5 h-5 las la-trash-alt"></i>
                         </button>
                       </div>
                     </td>
@@ -492,7 +492,7 @@ export default function InventoryPage() {
                     isLow ? 'bg-orange-50 text-orange-500 border-orange-100' : 
                     'bg-slate-50 text-slate-500 border-slate-100'
                   }`}>
-                    <Package className="w-5 h-5" strokeWidth={2} />
+                    <i className="w-5 h-5 las la-box"></i>
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
@@ -521,14 +521,14 @@ export default function InventoryPage() {
                     aria-label="Restock" 
                     className="h-8 px-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 active:scale-95 text-emerald-700 flex items-center gap-1 transition border border-emerald-200/70 font-bold text-xs"
                   >
-                    <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
+                    <i className="w-3.5 h-3.5 las la-plus"></i>
                     <span>Restock</span>
                   </button>
                   <button onClick={() => handleEditClick(item)} aria-label="Edit item" className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 text-blue-600 flex items-center justify-center transition border border-slate-200/60">
-                    <Edit className="w-3.5 h-3.5" strokeWidth={2} />
+                    <i className="w-3.5 h-3.5 las la-edit"></i>
                   </button>
                   <button onClick={() => deleteInventoryItem(item.id)} aria-label="Delete item" className="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 flex items-center justify-center transition border border-rose-100">
-                    <Trash2 className="w-3.5 h-3.5" strokeWidth={2} />
+                    <i className="w-3.5 h-3.5 las la-trash-alt"></i>
                   </button>
                 </div>
               </div>
@@ -550,7 +550,7 @@ export default function InventoryPage() {
                 onClick={() => setIsAddModalOpen(false)}
                 className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition"
               >
-                <X className="w-4 h-4" strokeWidth={2.5} />
+                <i className="w-4 h-4 las la-times"></i>
               </button>
             </div>
             
@@ -714,7 +714,7 @@ export default function InventoryPage() {
                       <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
                     ) : (
                       <>
-                        <Plus className="w-5 h-5" strokeWidth={2.5} />
+                        <i className="w-5 h-5 las la-plus"></i>
                         Save Item
                       </>
                     )}
@@ -739,7 +739,7 @@ export default function InventoryPage() {
                 onClick={() => setIsRestockModalOpen(false)}
                 className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition"
               >
-                <X className="w-4 h-4" strokeWidth={2.5} />
+                <i className="w-4 h-4 las la-times"></i>
               </button>
             </div>
             
@@ -785,7 +785,7 @@ export default function InventoryPage() {
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     ) : (
                       <>
-                        <Plus className="w-5 h-5" strokeWidth={2.5} />
+                        <i className="w-5 h-5 las la-plus"></i>
                         Restock
                       </>
                     )}

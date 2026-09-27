@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
-import { Search, Filter, MoreHorizontal, CheckCircle2, Clock, Check, ChefHat, QrCode, Banknote, X } from 'lucide-react';
+
 import { useOrders, Order } from '@/lib/hooks/useOrders';
 import { useTables } from '@/lib/hooks/useTables';
 import { doc, runTransaction } from 'firebase/firestore';
@@ -12,19 +12,19 @@ import PaymentModal from '@/components/dashboard/PaymentModal';
 const getStatusBadge = (status: string) => {
   switch(status) {
     case 'pending': 
-      return <span className="flex items-center w-fit px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700"><Clock className="w-3 h-3 mr-1" />Pending</span>;
+      return <span className="flex items-center w-fit px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700"><i className="w-3 h-3 mr-1 las la-clock"></i>Pending</span>;
     case 'preparing': 
-      return <span className="flex items-center w-fit px-2.5 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700"><ChefHat className="w-3 h-3 mr-1" />Preparing</span>;
+      return <span className="flex items-center w-fit px-2.5 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700"><i className="w-3 h-3 mr-1 las la-utensils"></i>Preparing</span>;
     case 'prepared': 
-      return <span className="flex items-center w-fit px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700"><CheckCircle2 className="w-3 h-3 mr-1" />Prepared</span>;
+      return <span className="flex items-center w-fit px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700"><i className="w-3 h-3 mr-1 las la-check-circle"></i>Prepared</span>;
     case 'served': 
-      return <span className="flex items-center w-fit px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700"><Check className="w-3 h-3 mr-1" />Served</span>;
+      return <span className="flex items-center w-fit px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700"><i className="w-3 h-3 mr-1 las la-check"></i>Served</span>;
     case 'billed': 
-      return <span className="flex items-center w-fit px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700"><Banknote className="w-3 h-3 mr-1" />Billed</span>;
+      return <span className="flex items-center w-fit px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700"><i className="w-3 h-3 mr-1 las la-banknote"></i>Billed</span>;
     case 'completed': 
-      return <span className="flex items-center w-fit px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700"><Check className="w-3 h-3 mr-1" />Completed</span>;
+      return <span className="flex items-center w-fit px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700"><i className="w-3 h-3 mr-1 las la-check"></i>Completed</span>;
     case 'cancelled':
-      return <span className="flex items-center w-fit px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700"><X className="w-3 h-3 mr-1" />Voided</span>;
+      return <span className="flex items-center w-fit px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700"><i className="w-3 h-3 mr-1 las la-times"></i>Voided</span>;
     default: 
       return <span className="px-2.5 py-1 rounded-full w-fit text-xs font-semibold bg-gray-100 text-gray-600">{status}</span>;
   }
@@ -199,7 +199,7 @@ export default function OrdersPage() {
           {/* Search Input */}
           <div className="relative flex-1 min-w-[200px] md:min-w-[240px]">
             <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-              <Search className="w-4 h-4" />
+              <i className="w-4 h-4 las la-search"></i>
             </span>
             <input 
               type="text" 
@@ -245,33 +245,33 @@ export default function OrdersPage() {
               let statusBg = 'bg-slate-50';
               let statusText = 'text-slate-700';
               let statusBorder = 'border-slate-200';
-              let Icon = Clock;
+              let Icon = 'la-clock';
               
               if (order.status === 'pending') {
                 statusBg = isStale ? 'bg-red-50' : 'bg-orange-50';
                 statusText = isStale ? 'text-red-700' : 'text-amber-700';
                 statusBorder = isStale ? 'border-red-200' : 'border-amber-200';
-                Icon = Clock;
+                Icon = 'la-clock';
               } else if (order.status === 'preparing') {
                 statusBg = 'bg-blue-50';
                 statusText = 'text-blue-700';
                 statusBorder = 'border-blue-200';
-                Icon = ChefHat;
+                Icon = 'la-utensils';
               } else if (order.status === 'prepared') {
                 statusBg = 'bg-emerald-50';
                 statusText = 'text-emerald-700';
                 statusBorder = 'border-emerald-200';
-                Icon = CheckCircle2;
+                Icon = 'la-check-circle';
               } else if (order.status === 'served') {
                 statusBg = 'bg-emerald-50';
                 statusText = 'text-emerald-700';
                 statusBorder = 'border-emerald-100';
-                Icon = Check;
+                Icon = 'la-check';
               } else if (order.status === 'billed') {
                 statusBg = 'bg-purple-50';
                 statusText = 'text-purple-700';
                 statusBorder = 'border-purple-200';
-                Icon = Banknote;
+                Icon = 'la-money-bill';
               }
 
               return (
@@ -303,7 +303,7 @@ export default function OrdersPage() {
                       </div>
                       <div className="text-right shrink-0">
                         <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${statusBg} ${statusText} border ${statusBorder}`}>
-                          <Icon className="w-3 h-3" strokeWidth={2.5} />
+                          <i className={`las ${Icon} w-3 h-3`}  ></i>
                           {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                         </span>
                         <span className="block text-[11px] text-slate-400 font-medium mt-1">{time}</span>
@@ -374,7 +374,7 @@ export default function OrdersPage() {
                         )}
                         {order.status === 'billed' && (
                           <button onClick={(e) => { e.stopPropagation(); setOrderToPay(order) }} className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95">
-                            <Banknote className="w-4 h-4" />
+                            <i className="w-4 h-4 las la-banknote"></i>
                             Pay Bill / Settle
                           </button>
                         )}

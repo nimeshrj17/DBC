@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
-import { Settings, Percent, Receipt, Info, QrCode } from 'lucide-react';
+
 import { useSettings } from '@/lib/hooks/useSettings';
 import { toast } from 'sonner';
 
@@ -44,7 +44,7 @@ export default function SettingsPage() {
         <Card className="rounded-2xl border-border shadow-sm overflow-hidden">
           <div className="p-4 bg-muted/20 border-b border-border flex items-center space-x-3">
             <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
-              <Receipt className="w-4 h-4" />
+              <i className="w-4 h-4 las la-receipt"></i>
             </div>
             <h3 className="font-semibold">Billing & Taxes</h3>
           </div>
@@ -69,7 +69,7 @@ export default function SettingsPage() {
               <label className="block text-sm font-medium mb-2">Tax Percentage (%)</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Percent className="h-4 w-4 text-muted-foreground" />
+                  <i className="h-4 w-4 text-muted-foreground las la-percent"></i>
                 </div>
                 <input
                   type="number"
@@ -82,7 +82,7 @@ export default function SettingsPage() {
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-2 flex items-start">
-                <Info className="w-3 h-3 mr-1 mt-0.5 shrink-0" />
+                <i className="w-3 h-3 mr-1 mt-0.5 shrink-0 las la-info-circle"></i>
                 This rate will be applied to the subtotal of all new orders. Existing orders will not be affected.
               </p>
             </div>
@@ -92,7 +92,7 @@ export default function SettingsPage() {
         <Card className="rounded-2xl border-border shadow-sm overflow-hidden">
           <div className="p-4 bg-muted/20 border-b border-border flex items-center space-x-3">
             <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
-              <QrCode className="w-4 h-4" />
+              <i className="w-4 h-4 las la-qrcode"></i>
             </div>
             <h3 className="font-semibold">Payments & UPI</h3>
           </div>
@@ -109,7 +109,7 @@ export default function SettingsPage() {
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-2 flex items-start">
-                <Info className="w-3 h-3 mr-1 mt-0.5 shrink-0" />
+                <i className="w-3 h-3 mr-1 mt-0.5 shrink-0 las la-info-circle"></i>
                 This UPI ID will be used to generate dynamic payment QR codes for customers.
               </p>
             </div>

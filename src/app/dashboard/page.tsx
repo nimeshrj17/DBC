@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Users, LayoutGrid, Trash2, List, X, Plus, Minus, QrCode, Banknote } from 'lucide-react';
+
 import { useTables, Table } from '@/lib/hooks/useTables';
 import { MenuPickerModal } from '@/components/dashboard/MenuPickerModal';
 import { toast } from 'sonner';
@@ -1026,7 +1026,7 @@ export default function DashboardPage() {
                 {getStatusBadge(selectedTable.status)}
               </span>
               <button onClick={() => { setSelectedTableId(null); setIsMenuOpen(false); }} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors" title="Close Drawer">
-                <X className="w-4 h-4" strokeWidth={2.5} />
+                <i className="w-4 h-4 las la-times"></i>
               </button>
             </div>
           </div>
@@ -1039,7 +1039,7 @@ export default function DashboardPage() {
                   {/* Empty State Visual Icon */}
                   <div className="relative mb-6">
                     <div className="w-20 h-20 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
-                      <LayoutGrid className="w-10 h-10" />
+                      <i className="w-10 h-10 las la-layout-grid"></i>
                     </div>
                   </div>
                   {/* Empty State Text */}
@@ -1076,7 +1076,7 @@ export default function DashboardPage() {
                   </button>
                   {/* Secondary Action CTA */}
                   <button disabled={isAssigning} onClick={() => setAssignCustomerModalOpen(true)} className="w-full py-3.5 px-5 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800 font-semibold text-sm rounded-xl transition-colors shadow-sm flex items-center justify-center gap-2">
-                    <Users className="w-4 h-4 text-slate-500" />
+                    <i className="w-4 h-4 text-slate-500 las la-users"></i>
                     <span>Add Customer Details</span>
                   </button>
                   
@@ -1131,13 +1131,13 @@ export default function DashboardPage() {
                           <div className="flex items-center gap-4">
                             {item.isDraft ? (
                               <div className="flex items-center space-x-2 bg-slate-50 rounded-lg p-1 border border-slate-200">
-                                <button onClick={() => updateDraftItemQty(item.menuItemId, -1)} className="w-6 h-6 flex items-center justify-center text-slate-600 hover:bg-slate-200 rounded-md transition-colors"><Minus className="w-3 h-3" strokeWidth={3} /></button>
+                                <button onClick={() => updateDraftItemQty(item.menuItemId, -1)} className="w-6 h-6 flex items-center justify-center text-slate-600 hover:bg-slate-200 rounded-md transition-colors"><i className="w-3 h-3 las la-minus"></i></button>
                                 <span className="font-bold text-sm w-4 text-center text-slate-800">{item.qty}</span>
-                                <button onClick={() => updateDraftItemQty(item.menuItemId, 1)} className="w-6 h-6 flex items-center justify-center text-slate-600 hover:bg-slate-200 rounded-md transition-colors"><Plus className="w-3 h-3" strokeWidth={3} /></button>
+                                <button onClick={() => updateDraftItemQty(item.menuItemId, 1)} className="w-6 h-6 flex items-center justify-center text-slate-600 hover:bg-slate-200 rounded-md transition-colors"><i className="w-3 h-3 las la-plus"></i></button>
                               </div>
                             ) : (
                               <div className="flex items-center space-x-2 bg-slate-50/50 rounded-lg p-1 border border-slate-200/60 opacity-90">
-                                <button disabled={isRemoving} onClick={() => handleRemoveSentItem(item.menuItemId, item.notes)} className="w-6 h-6 flex items-center justify-center text-rose-500 hover:bg-rose-100 rounded-md transition-colors disabled:opacity-50"><Minus className="w-3 h-3" strokeWidth={3} /></button>
+                                <button disabled={isRemoving} onClick={() => handleRemoveSentItem(item.menuItemId, item.notes)} className="w-6 h-6 flex items-center justify-center text-rose-500 hover:bg-rose-100 rounded-md transition-colors disabled:opacity-50"><i className="w-3 h-3 las la-minus"></i></button>
                                 <span className="font-bold text-sm w-4 text-center text-slate-700">{item.qty}</span>
                                 <div className="w-6 h-6"></div>
                               </div>
@@ -1244,7 +1244,7 @@ export default function DashboardPage() {
                           onClick={() => setIsPaymentModalOpen(true)} 
                           className="w-full py-4 px-4 rounded-xl bg-slate-900 hover:bg-black text-white font-bold text-[15px] transition shadow-md flex items-center justify-center gap-2"
                         >
-                          <Banknote className="w-5 h-5 text-[#10B981]" />
+                          <i className="w-5 h-5 text-[#10B981] las la-banknote"></i>
                           Settle Bill / Payment
                         </button>
                       </div>
@@ -1290,7 +1290,7 @@ export default function DashboardPage() {
                 setNewTableSection('Inner Hall');
                 setNewTableSeats('');
               }} className="p-2 hover:bg-muted rounded-full transition-colors">
-                <X className="w-5 h-5" />
+                <i className="w-5 h-5 las la-times"></i>
               </button>
             </div>
             
@@ -1472,7 +1472,7 @@ export default function DashboardPage() {
             <div className="p-6 border-b border-border flex justify-between items-center bg-card/50">
               <h2 className="text-xl font-bold">Transfer Table</h2>
               <button onClick={() => setIsTransferModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
-                <X className="w-5 h-5" />
+                <i className="w-5 h-5 las la-times"></i>
               </button>
             </div>
             
@@ -1516,7 +1516,7 @@ export default function DashboardPage() {
           <div className="bg-background w-full max-w-sm rounded-3xl p-6 shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-200">
             <div className="flex flex-col items-center text-center mb-6">
               <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
-                <Trash2 className="w-8 h-8 text-red-600" />
+                <i className="w-8 h-8 text-red-600 las la-trash-alt"></i>
               </div>
               <h3 className="text-xl font-black text-foreground">Clear Table?</h3>
               {clearTablePrompt.hasUnpaid ? (

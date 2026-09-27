@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useStaff, Staff } from '@/lib/hooks/useStaff';
 import { useAuth } from '@/lib/context/AuthContext';
-import { Plus, X, Edit2, ShieldAlert } from 'lucide-react';
+
 import { toast } from 'sonner';
 
 export default function StaffPage() {
@@ -37,7 +37,7 @@ export default function StaffPage() {
   if (!hasPermission('manage_staff')) {
     return (
       <div className="p-8 flex flex-col items-center justify-center h-full">
-        <ShieldAlert className="w-12 h-12 text-red-500 mb-4" />
+        <i className="w-12 h-12 text-red-500 mb-4 las la-shield-alt"></i>
         <h2 className="text-xl font-bold text-slate-900">Access Denied</h2>
         <p className="text-slate-500 mt-2">You do not have permission to view this page.</p>
       </div>
@@ -121,7 +121,7 @@ export default function StaffPage() {
           onClick={handleOpenAdd}
           className="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-slate-800 transition flex items-center gap-2"
         >
-          <Plus className="w-4 h-4" /> Add Staff
+          <i className="w-4 h-4 las la-plus"></i> Add Staff
         </button>
       </div>
 
@@ -164,7 +164,7 @@ export default function StaffPage() {
                       onClick={() => handleOpenEdit(member)}
                       className="p-1.5 text-slate-400 hover:text-indigo-600 bg-slate-50 hover:bg-indigo-50 rounded-lg transition"
                     >
-                      <Edit2 className="w-4 h-4" />
+                      <i className="w-4 h-4 las la-edit"></i>
                     </button>
                   </td>
                 </tr>
@@ -187,7 +187,7 @@ export default function StaffPage() {
             <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
               <h2 className="text-xl font-bold">{editingId ? 'Edit Staff' : 'Add Staff'}</h2>
               <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-200 rounded-full transition text-slate-500">
-                <X className="w-5 h-5" />
+                <i className="w-5 h-5 las la-times"></i>
               </button>
             </div>
             

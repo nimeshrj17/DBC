@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useChecklists, ChecklistRun } from '@/lib/hooks/useChecklists';
-import { FileText, ClipboardCheck, BookOpen, AlertCircle } from 'lucide-react';
+
 
 export default function SOPsOwnerPage() {
   const { runs, loading, rules } = useChecklists();
@@ -25,13 +25,13 @@ export default function SOPsOwnerPage() {
             onClick={() => setActiveTab('runs')}
             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'runs' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500'}`}
           >
-            <ClipboardCheck className="w-4 h-4" /> Checklist Logs
+            <i className="w-4 h-4 las la-clipboard-check"></i> Checklist Logs
           </button>
           <button 
             onClick={() => setActiveTab('sops')}
             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'sops' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500'}`}
           >
-            <BookOpen className="w-4 h-4" /> SOP Documents
+            <i className="w-4 h-4 las la-book-open"></i> SOP Documents
           </button>
         </div>
       </div>
@@ -93,7 +93,7 @@ export default function SOPsOwnerPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-rose-50 border border-rose-200 rounded-2xl overflow-hidden shadow-sm">
             <div className="p-4 border-b border-rose-200 bg-rose-100 flex items-center gap-2 text-rose-900">
-              <AlertCircle className="w-5 h-5" />
+              <i className="w-5 h-5 las la-exclamation-circle"></i>
               <h3 className="font-black">12 Non-Negotiable Rules</h3>
             </div>
             <div className="p-5 space-y-3">
@@ -108,7 +108,7 @@ export default function SOPsOwnerPage() {
           <div className="space-y-6">
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex items-center gap-4 group cursor-pointer hover:border-indigo-300 hover:shadow-md transition-all">
               <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <FileText className="w-6 h-6" />
+                <i className="w-6 h-6 las la-file-alt"></i>
               </div>
               <div>
                 <h3 className="font-bold text-slate-900">Upselling SOP</h3>
@@ -117,7 +117,7 @@ export default function SOPsOwnerPage() {
             </div>
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex items-center gap-4 group cursor-pointer hover:border-indigo-300 hover:shadow-md transition-all">
               <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <FileText className="w-6 h-6" />
+                <i className="w-6 h-6 las la-file-alt"></i>
               </div>
               <div>
                 <h3 className="font-bold text-slate-900">Customer Complaint Handling</h3>

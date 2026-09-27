@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/context/AuthContext';
 import { useAttendance } from '@/lib/hooks/useAttendance';
-import { Clock, CheckCircle, AlertTriangle } from 'lucide-react';
+
 
 export default function AttendancePage() {
   const { user } = useAuth();
@@ -26,7 +26,7 @@ export default function AttendancePage() {
     <div className="p-4 max-w-lg mx-auto space-y-6 pb-24 pt-8">
       <div className="text-center space-y-2">
         <h2 className="text-3xl font-black text-slate-900 flex items-center justify-center gap-2">
-          <Clock className="w-8 h-8 text-indigo-600" /> Time Clock
+          <i className="w-8 h-8 text-indigo-600 las la-clock"></i> Time Clock
         </h2>
         <p className="text-slate-500">Log your daily attendance</p>
       </div>
@@ -46,7 +46,7 @@ export default function AttendancePage() {
 
         {hasCheckedInToday ? (
           <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-2xl flex items-center justify-center gap-2 font-bold">
-            <CheckCircle className="w-5 h-5" /> You are checked in for today.
+            <i className="w-5 h-5 las la-check-circle"></i> You are checked in for today.
           </div>
         ) : (
           <button 
@@ -68,7 +68,7 @@ export default function AttendancePage() {
                 <p className="text-xs text-slate-500">{log.arrivalTime}</p>
               </div>
               <span className={`px-2.5 py-1 rounded-md text-xs font-bold ${log.status === 'on-time' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700 flex items-center gap-1'}`}>
-                {log.status === 'late' && <AlertTriangle className="w-3 h-3" />}
+                {log.status === 'late' && <i className="w-3 h-3 las la-exclamation-triangle"></i>}
                 {log.status.toUpperCase()}
               </span>
             </div>

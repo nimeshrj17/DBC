@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { Coffee, Pointer } from 'lucide-react';
+
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
@@ -114,7 +114,7 @@ export default function QRCodeGenerator({ tableId, tableNumber, tableName, butto
             justifyContent: 'center',
             zIndex: 10
           }}>
-            <Coffee style={{ color: '#D4C1B3', width: '24px', height: '24px' }} />
+            <i style={{ color: '#D4C1B3', width: '24px', height: '24px' }} className="las la-coffee"></i>
           </div>
         </div>
 
@@ -164,7 +164,7 @@ export default function QRCodeGenerator({ tableId, tableNumber, tableName, butto
 
         {/* Bottom Text */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'auto' }}>
-          <Pointer style={{ width: '16px', height: '16px', color: '#2A1A14' }} />
+          <i style={{ width: '16px', height: '16px', color: '#2A1A14' }} className="las la-mouse-pointer"></i>
           <p style={{ fontSize: '13px', color: '#2A1A14', fontWeight: 500, margin: 0 }}>
             Browse menu, order, and pay seamlessly.
           </p>

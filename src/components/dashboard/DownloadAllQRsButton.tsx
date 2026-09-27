@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import QRCode from 'qrcode';
 import jsPDF from 'jspdf';
-import { Download } from 'lucide-react';
+
 import { Table } from '@/lib/hooks/useTables';
 
 export default function DownloadAllQRsButton({ tables }: { tables: Table[] }) {
@@ -110,7 +110,7 @@ export default function DownloadAllQRsButton({ tables }: { tables: Table[] }) {
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
       ) : (
-        <Download className="w-4 h-4" />
+        <i className="w-4 h-4 las la-download"></i>
       )}
       {isGenerating ? 'Generating PDF...' : 'All QRs PDF'}
     </button>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Search } from 'lucide-react';
+
 import { useMenu, MenuItem } from '@/lib/hooks/useMenu';
 import { useOrders } from '@/lib/hooks/useOrders';
 import { toast } from 'sonner';
@@ -70,7 +70,7 @@ export function QuickSaleModal({ isOpen, onClose }: { isOpen: boolean, onClose: 
             Quick Retail Sale
           </h2>
           <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
-            <X className="w-5 h-5" />
+            <i className="w-5 h-5 las la-times"></i>
           </button>
         </div>
 
@@ -108,7 +108,7 @@ export function QuickSaleModal({ isOpen, onClose }: { isOpen: boolean, onClose: 
           <>
             <div className="p-4 border-b border-gray-100">
               <div className="relative">
-                <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <i className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 las la-search"></i>
                 <input 
                   type="text" 
                   placeholder="Search cigarettes, lighters, etc..."

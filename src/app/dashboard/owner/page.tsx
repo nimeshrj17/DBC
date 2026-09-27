@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useOwnerMetrics } from '@/lib/hooks/useOwnerMetrics';
-import { TrendingUp, Receipt, Users, Clock, AlertCircle } from 'lucide-react';
+
 
 export default function OwnerDashboardPage() {
   const { metrics, loading } = useOwnerMetrics();
@@ -28,7 +28,7 @@ export default function OwnerDashboardPage() {
             <h2 className="text-3xl font-black text-slate-900">₹ {metrics.totalSales.toFixed(0)}</h2>
           </div>
           <div className="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600">
-            <TrendingUp strokeWidth={2.5} />
+            <i className="las la-chart-line"></i>
           </div>
         </div>
         
@@ -38,7 +38,7 @@ export default function OwnerDashboardPage() {
             <h2 className="text-3xl font-black text-slate-900">{metrics.totalBills}</h2>
           </div>
           <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600">
-            <Receipt strokeWidth={2.5} />
+            <i className="las la-receipt"></i>
           </div>
         </div>
 
@@ -48,7 +48,7 @@ export default function OwnerDashboardPage() {
             <h2 className="text-3xl font-black text-slate-900">₹ {metrics.avgBill.toFixed(0)}</h2>
           </div>
           <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600">
-            <Users strokeWidth={2.5} />
+            <i className="las la-users"></i>
           </div>
         </div>
       </div>
@@ -58,7 +58,7 @@ export default function OwnerDashboardPage() {
         {/* Hourly Chart */}
         <div className="col-span-1 md:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
           <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-            <Clock className="w-5 h-5 text-slate-400" /> Hourly Sales Heatmap
+            <i className="w-5 h-5 text-slate-400 las la-clock"></i> Hourly Sales Heatmap
           </h3>
           <div className="flex items-end gap-2 h-48">
             {metrics.hourlySales.map((h, idx) => {
@@ -111,7 +111,7 @@ export default function OwnerDashboardPage() {
 
           <div className="bg-rose-50 rounded-2xl border border-rose-100 p-6">
             <h3 className="text-lg font-bold text-rose-800 mb-2 flex items-center gap-2">
-              <AlertCircle className="w-5 h-5" /> Pending Actions
+              <i className="w-5 h-5 las la-exclamation-circle"></i> Pending Actions
             </h3>
             <p className="text-sm text-rose-600 mb-4">You have not generated the End of Day Report for today.</p>
             <button className="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-sm transition-colors">

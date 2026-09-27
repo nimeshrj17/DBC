@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useStaff, Staff } from '@/lib/hooks/useStaff';
 import { useAttendance } from '@/lib/hooks/useAttendance';
-import { Users, Clock, Edit2, ShieldCheck, CheckCircle2, X } from 'lucide-react';
+
 import { toast } from 'sonner';
 
 export default function OwnerStaffPage() {
@@ -30,13 +30,13 @@ export default function OwnerStaffPage() {
             onClick={() => setActiveTab('roster')}
             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'roster' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500'}`}
           >
-            <Users className="w-4 h-4" /> Roster & Shifts
+            <i className="w-4 h-4 las la-users"></i> Roster & Shifts
           </button>
           <button 
             onClick={() => setActiveTab('attendance')}
             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'attendance' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500'}`}
           >
-            <Clock className="w-4 h-4" /> Attendance Logs
+            <i className="w-4 h-4 las la-clock"></i> Attendance Logs
           </button>
         </div>
       </div>
@@ -156,8 +156,8 @@ function StaffRosterTable({ staff, onUpdate }: { staff: Staff[], onUpdate: any }
                 </td>
                 <td className="px-6 py-3 text-right">
                   <div className="flex justify-end gap-2">
-                    <button onClick={() => handleSave(s.id)} className="p-1.5 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200"><CheckCircle2 className="w-4 h-4" /></button>
-                    <button onClick={() => setEditingId(null)} className="p-1.5 bg-slate-200 text-slate-600 rounded-lg hover:bg-slate-300"><X className="w-4 h-4" /></button>
+                    <button onClick={() => handleSave(s.id)} className="p-1.5 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200"><i className="w-4 h-4 las la-check-circle"></i></button>
+                    <button onClick={() => setEditingId(null)} className="p-1.5 bg-slate-200 text-slate-600 rounded-lg hover:bg-slate-300"><i className="w-4 h-4 las la-times"></i></button>
                   </div>
                 </td>
               </tr>
@@ -172,7 +172,7 @@ function StaffRosterTable({ staff, onUpdate }: { staff: Staff[], onUpdate: any }
                       {s.name} {!s.isActive && <span className="text-[9px] bg-rose-100 text-rose-600 px-1 rounded uppercase">Inactive</span>}
                     </div>
                     <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1">
-                      {s.role === 'admin' && <ShieldCheck className="w-3 h-3 text-indigo-500" />} {s.role}
+                      {s.role === 'admin' && <i className="w-3 h-3 text-indigo-500 las la-shield-alt"></i>} {s.role}
                     </div>
                   </div>
                 </td>
@@ -180,7 +180,7 @@ function StaffRosterTable({ staff, onUpdate }: { staff: Staff[], onUpdate: any }
                 <td className="px-6 py-4 text-center font-medium text-slate-600">{s.shiftEnd || '-'}</td>
                 <td className="px-6 py-4 text-right font-bold text-slate-900">{s.salary ? `₹${s.salary.toLocaleString()}` : '-'}</td>
                 <td className="px-6 py-4 text-right">
-                  <button onClick={() => handleEdit(s)} className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
+                  <button onClick={() => handleEdit(s)} className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><i className="w-4 h-4 las la-edit"></i></button>
                 </td>
               </tr>
             )

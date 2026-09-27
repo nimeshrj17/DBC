@@ -1,9 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { 
-  TrendingUp, TrendingDown, IndianRupee, ShoppingBag, Clock, 
-  Users, CreditCard, Coffee, LayoutDashboard
-} from 'lucide-react';
+
 import { useAnalytics } from '@/lib/hooks/useAnalytics';
 import { useMenu } from '@/lib/hooks/useMenu';
 import { 
@@ -55,12 +52,12 @@ export default function AnalyticsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
               <div className="flex items-center gap-2 text-slate-500 mb-2 font-semibold text-sm">
-                <IndianRupee className="w-4 h-4" /> Today's Revenue
+                <i className="w-4 h-4 las la-indian-rupee"></i> Today's Revenue
               </div>
               <div className="text-2xl font-black text-slate-900">₹ {today.revenue.toLocaleString()}</div>
               {today.revenueGrowth !== null && (
                 <div className={`mt-auto pt-3 text-xs font-bold flex items-center gap-1 ${today.revenueGrowth >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                  {today.revenueGrowth >= 0 ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                  {today.revenueGrowth >= 0 ? <i className="w-3.5 h-3.5 las la-chart-line"></i> : <i className="w-3.5 h-3.5 las la-chart-line"></i>}
                   {Math.abs(today.revenueGrowth).toFixed(1)}% vs same day last week
                 </div>
               )}
@@ -68,7 +65,7 @@ export default function AnalyticsPage() {
 
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
               <div className="flex items-center gap-2 text-slate-500 mb-2 font-semibold text-sm">
-                <ShoppingBag className="w-4 h-4" /> Orders & AOV
+                <i className="w-4 h-4 las la-shopping-bag"></i> Orders & AOV
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-black text-slate-900">{today.orders}</span>
@@ -81,7 +78,7 @@ export default function AnalyticsPage() {
 
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
               <div className="flex items-center gap-2 text-slate-500 mb-2 font-semibold text-sm">
-                <LayoutDashboard className="w-4 h-4" /> Live Operations
+                <i className="w-4 h-4 las la-tachometer-alt"></i> Live Operations
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-black text-blue-600">{today.liveOrders}</span>
@@ -94,7 +91,7 @@ export default function AnalyticsPage() {
 
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
               <div className="flex items-center gap-2 text-slate-500 mb-2 font-semibold text-sm">
-                <Clock className="w-4 h-4" /> 30-Day Peak Hour
+                <i className="w-4 h-4 las la-clock"></i> 30-Day Peak Hour
               </div>
               <div className="text-2xl font-black text-amber-600">{today.peakHourString}</div>
               <div className="mt-auto pt-3 text-xs font-bold text-slate-600 border-t border-slate-100">

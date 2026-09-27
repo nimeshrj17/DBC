@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { X, Banknote, QrCode, CheckCircle2 } from 'lucide-react';
+
 import { QRCodeSVG } from 'qrcode.react';
 import { useSettings } from '@/lib/hooks/useSettings';
 
@@ -93,7 +93,7 @@ export default function PaymentModal({ orderId, displayId, total, tableId, onClo
             <p className="text-sm text-muted-foreground mt-1">Order {displayId}</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition-colors">
-            <X className="w-5 h-5" />
+            <i className="w-5 h-5 las la-times"></i>
           </button>
         </div>
         
@@ -111,7 +111,7 @@ export default function PaymentModal({ orderId, displayId, total, tableId, onClo
                 className="flex flex-col items-center justify-center p-4 border-2 border-border rounded-2xl hover:border-primary hover:bg-primary/5 transition-all group disabled:opacity-50"
               >
                 <div className="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                  <Banknote className="w-5 h-5" />
+                  <i className="w-5 h-5 las la-banknote"></i>
                 </div>
                 <span className="font-bold text-sm text-center leading-tight">Cash<br/>Payment</span>
               </button>
@@ -123,7 +123,7 @@ export default function PaymentModal({ orderId, displayId, total, tableId, onClo
                 className="flex flex-col items-center justify-center p-4 border-2 border-border rounded-2xl hover:border-primary hover:bg-primary/5 transition-all group disabled:opacity-50"
               >
                 <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                  <QrCode className="w-5 h-5" />
+                  <i className="w-5 h-5 las la-qrcode"></i>
                 </div>
                 <span className="font-bold text-sm text-center leading-tight">Scan<br/>Phone</span>
               </button>

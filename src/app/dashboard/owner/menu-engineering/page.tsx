@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { useMenu, MenuItem, CostingData } from '@/lib/hooks/useMenu';
 import { useMenuEngineering } from '@/lib/hooks/useMenuEngineering';
-import { Settings2, Tag, TrendingUp, AlertCircle, Plus, Trash2 } from 'lucide-react';
+
 import { toast } from 'sonner';
 
 export default function MenuEngineeringPage() {
@@ -64,7 +64,7 @@ export default function MenuEngineeringPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
              <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-               <TrendingUp className="w-5 h-5 text-indigo-500" /> BCG Menu Matrix
+               <i className="w-5 h-5 text-indigo-500 las la-chart-line"></i> BCG Menu Matrix
              </h3>
              <div className="relative w-full aspect-square max-w-2xl mx-auto bg-slate-50 border-2 border-slate-200 rounded-xl overflow-hidden">
                 {/* Quadrant Lines */}
@@ -111,7 +111,7 @@ export default function MenuEngineeringPage() {
           <div className="space-y-4">
              <div className="bg-rose-50 border border-rose-100 rounded-2xl p-5 shadow-sm">
                 <h3 className="font-bold text-rose-800 flex items-center gap-2 mb-2">
-                  <AlertCircle className="w-5 h-5" /> Low Margin Alert
+                  <i className="w-5 h-5 las la-exclamation-circle"></i> Low Margin Alert
                 </h3>
                 <p className="text-xs text-rose-600 mb-3">These items have a contribution margin below 40%.</p>
                 <div className="space-y-2 max-h-64 overflow-y-auto custom-scroll pr-2">
@@ -209,7 +209,7 @@ function CostingEditorModal({ item, onClose, onSave }: { item: MenuItem, onClose
             <p className="text-xs text-slate-500 font-medium">Selling Price: ₹{item.price}</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full text-slate-500">
-            <Settings2 className="w-5 h-5" />
+            <i className="w-5 h-5 las la-settings2"></i>
           </button>
         </div>
         
@@ -220,7 +220,7 @@ function CostingEditorModal({ item, onClose, onSave }: { item: MenuItem, onClose
               onClick={() => setIngredients([...ingredients, { name: '', qty: 1, unit: 'g', unitCost: 0, lineCost: 0 }])}
               className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors"
             >
-              <Plus className="w-3.5 h-3.5" /> Add Row
+              <i className="w-3.5 h-3.5 las la-plus"></i> Add Row
             </button>
           </div>
           
@@ -280,7 +280,7 @@ function CostingEditorModal({ item, onClose, onSave }: { item: MenuItem, onClose
                   ₹{ing.lineCost.toFixed(1)}
                 </div>
                 <button onClick={() => setIngredients(ingredients.filter((_, i) => i !== idx))} className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
-                  <Trash2 className="w-4 h-4" />
+                  <i className="w-4 h-4 las la-trash-alt"></i>
                 </button>
               </div>
             ))}

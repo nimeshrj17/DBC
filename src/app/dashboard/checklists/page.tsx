@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useChecklists, ChecklistTemplate } from '@/lib/hooks/useChecklists';
-import { CheckSquare, ListTodo, ShieldAlert, ArrowLeft, Send } from 'lucide-react';
+
 import Link from 'next/link';
 
 export default function StaffChecklistPage() {
@@ -49,7 +49,7 @@ export default function StaffChecklistPage() {
     return (
       <div className="p-4 max-w-3xl mx-auto space-y-4 pb-24">
         <button onClick={() => setActiveTemplate(null)} className="flex items-center gap-2 text-slate-500 font-semibold mb-4 px-2 py-1 hover:bg-slate-100 rounded-lg">
-          <ArrowLeft className="w-4 h-4" /> Back to Checklists
+          <i className="w-4 h-4 las la-arrow-left"></i> Back to Checklists
         </button>
         
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -88,7 +88,7 @@ export default function StaffChecklistPage() {
               disabled={progress < 100}
               className="w-full py-3.5 bg-indigo-600 disabled:bg-slate-300 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-sm transition-colors flex items-center justify-center gap-2"
             >
-              <Send className="w-5 h-5" /> Submit Checklist
+              <i className="w-5 h-5 las la-send"></i> Submit Checklist
             </button>
           </div>
         </div>
@@ -100,7 +100,7 @@ export default function StaffChecklistPage() {
     <div className="p-4 max-w-4xl mx-auto space-y-6 pb-24">
       <div>
         <h2 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-          <ListTodo className="w-6 h-6 text-indigo-600" /> Daily Checklists
+          <i className="w-6 h-6 text-indigo-600 las la-list-todo"></i> Daily Checklists
         </h2>
         <p className="text-sm text-slate-500 mt-1">Select a checklist to begin your shift duties.</p>
       </div>
@@ -113,7 +113,7 @@ export default function StaffChecklistPage() {
             className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-300 hover:shadow-md transition-all text-left flex flex-col items-start gap-4"
           >
             <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center">
-              <CheckSquare className="w-6 h-6" />
+              <i className="w-6 h-6 las la-check-square"></i>
             </div>
             <div>
               <h3 className="font-bold text-slate-900">{t.name}</h3>
@@ -125,7 +125,7 @@ export default function StaffChecklistPage() {
 
       <div className="mt-8 bg-rose-50 border border-rose-200 rounded-2xl overflow-hidden shadow-sm">
         <div className="p-4 border-b border-rose-200 bg-rose-100 flex items-center gap-2 text-rose-900">
-          <ShieldAlert className="w-5 h-5" />
+          <i className="w-5 h-5 las la-shield-alt"></i>
           <h3 className="font-black">12 Non-Negotiable Rules</h3>
         </div>
         <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">

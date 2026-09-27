@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Coffee } from 'lucide-react';
+
 import { GlobalPaymentAlert } from '@/components/dashboard/GlobalPaymentAlert';
 import { useOrders } from '@/lib/hooks/useOrders';
 import { useAuth } from '@/lib/context/AuthContext';
@@ -124,7 +124,7 @@ export default function DashboardLayout({
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 font-sans">
         <div className="bg-slate-800 p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center animate-in zoom-in-95">
-          <Coffee className="w-16 h-16 mx-auto mb-6 text-[#10B981]" />
+          <i className="w-16 h-16 mx-auto mb-6 text-[#10B981] las la-coffee"></i>
           <h1 className="text-2xl font-bold mb-2 text-white">Admin Dashboard</h1>
           <p className="text-slate-400 mb-8 text-sm">Enter the 4-digit PIN to access</p>
           

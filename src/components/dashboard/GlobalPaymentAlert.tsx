@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useOrders } from '@/lib/hooks/useOrders';
 import { useTables } from '@/lib/hooks/useTables';
-import { X, BellRing, Check, CreditCard, Receipt } from 'lucide-react';
+
 import { playNotificationSound } from '@/lib/audio';
 import { doc, runTransaction } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -128,7 +128,7 @@ export function GlobalPaymentAlert() {
         
         <div className="bg-rose-500 p-5 flex items-start gap-4">
           <div className="w-12 h-12 rounded-full bg-white text-rose-500 flex items-center justify-center shrink-0 shadow-lg animate-pulse">
-            <BellRing className="w-6 h-6" strokeWidth={2.5} />
+            <i className="w-6 h-6 las la-bell-ring"></i>
           </div>
           <div className="text-white pt-1">
             <h2 className="text-lg font-black tracking-tight leading-tight">Payment Confirmation</h2>
@@ -141,7 +141,7 @@ export function GlobalPaymentAlert() {
             <div className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1">Total Bill</div>
             <div className="text-4xl font-black text-slate-900">₹{activeAlert.total.toFixed(2)}</div>
             <div className="mt-3 px-3 py-1 rounded-md bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold flex items-center gap-1.5 uppercase tracking-wide">
-              {activeAlert.paymentMethod === 'cash' ? <CreditCard className="w-3.5 h-3.5" /> : <Receipt className="w-3.5 h-3.5" />}
+              {activeAlert.paymentMethod === 'cash' ? <i className="w-3.5 h-3.5 las la-credit-card"></i> : <i className="w-3.5 h-3.5 las la-receipt"></i>}
               {activeAlert.paymentMethod || 'UPI/QR'}
             </div>
           </div>
@@ -156,7 +156,7 @@ export function GlobalPaymentAlert() {
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
               ) : (
                 <>
-                  <Check className="w-6 h-6" strokeWidth={3} />
+                  <i className="w-6 h-6 las la-check"></i>
                   Confirm Received
                 </>
               )}

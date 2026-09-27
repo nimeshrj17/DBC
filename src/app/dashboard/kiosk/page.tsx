@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/Card';
 import { useMenu, MenuItem } from '@/lib/hooks/useMenu';
 import { useOrders } from '@/lib/hooks/useOrders';
 import { useSettings } from '@/lib/hooks/useSettings';
-import { ShoppingBag, Plus, Minus, ArrowRight } from 'lucide-react';
+
 import { toast } from 'sonner';
 
 interface CartItem extends MenuItem {
@@ -125,7 +125,7 @@ export default function KioskPage() {
         <Card className="rounded-3xl border-border shadow-sm flex flex-col h-full overflow-hidden bg-card">
           <div className="p-6 border-b border-border bg-primary/5 flex justify-between items-center shrink-0">
             <h2 className="text-xl font-bold flex items-center">
-              <ShoppingBag className="w-5 h-5 mr-2 text-primary" />
+              <i className="w-5 h-5 mr-2 text-primary las la-shopping-bag"></i>
               Your Order
             </h2>
             <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-bold">
@@ -136,7 +136,7 @@ export default function KioskPage() {
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {cart.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-muted-foreground opacity-50">
-                <ShoppingBag className="w-16 h-16 mb-4" />
+                <i className="w-16 h-16 mb-4 las la-shopping-bag"></i>
                 <p>Your cart is empty</p>
                 <p className="text-xs mt-2">Tap items on the left to add them</p>
               </div>
@@ -149,11 +149,11 @@ export default function KioskPage() {
                   </div>
                   <div className="flex items-center space-x-2 shrink-0">
                     <button onClick={() => removeFromCart(item.id)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center hover:bg-red-100 hover:text-red-600 transition-colors">
-                      <Minus className="w-3 h-3" />
+                      <i className="w-3 h-3 las la-minus"></i>
                     </button>
                     <span className="font-bold text-sm w-4 text-center">{item.qty}</span>
                     <button onClick={() => addToCart(item)} className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:opacity-80 transition-opacity">
-                      <Plus className="w-3 h-3" />
+                      <i className="w-3 h-3 las la-plus"></i>
                     </button>
                   </div>
                 </div>
@@ -182,7 +182,7 @@ export default function KioskPage() {
               onClick={() => setIsCheckingOut(true)}
               className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-bold text-lg hover:shadow-[0_0_20px_rgba(204,255,0,0.4)] transition-all disabled:opacity-50 disabled:pointer-events-none flex justify-center items-center"
             >
-              Checkout <ArrowRight className="w-5 h-5 ml-2" />
+              Checkout <i className="w-5 h-5 ml-2 las la-arrow-right"></i>
             </button>
           </div>
         </Card>

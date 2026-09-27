@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Search, Plus, MoreHorizontal, X, Edit2 } from 'lucide-react';
+
 import { toast } from 'sonner';
 import { useMenu } from '@/lib/hooks/useMenu';
 import { useInventory } from '@/lib/hooks/useInventory';
@@ -128,7 +128,7 @@ export default function MenuPage() {
             className="shadow-[0_0_15px_rgba(204,255,0,0.3)] whitespace-nowrap"
             onClick={handleOpenAdd}
           >
-            <Plus className="w-4 h-4 mr-2" /> Add Item
+            <i className="w-4 h-4 mr-2 las la-plus"></i> Add Item
           </Button>
         </div>
       </div>
@@ -151,7 +151,7 @@ export default function MenuPage() {
         </div>
         
         <div className="relative w-full md:w-64">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <i className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 las la-search"></i>
           <input 
             type="text" 
             placeholder="Search menu items..." 
@@ -193,7 +193,7 @@ export default function MenuPage() {
                </div>
                <div className="flex items-center gap-2">
                  <Button size="sm" variant="outline" className="h-9 w-9 rounded-lg" onClick={() => handleOpenEdit(item)} title="Edit item">
-                   <Edit2 className="w-4 h-4" />
+                   <i className="w-4 h-4 las la-edit"></i>
                  </Button>
                  <button 
                     onClick={() => {
@@ -204,7 +204,7 @@ export default function MenuPage() {
                     className="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition-colors"
                     title="Delete item"
                   >
-                    <X className="w-4 h-4" />
+                    <i className="w-4 h-4 las la-times"></i>
                  </button>
                </div>
              </div>
@@ -225,7 +225,7 @@ export default function MenuPage() {
             <div className="p-6 border-b border-border flex justify-between items-center bg-card">
               <h2 className="text-xl font-bold">{editingItemId ? 'Edit Menu Item' : 'Add Menu Item'}</h2>
               <button onClick={() => setIsAddModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
-                <X className="w-5 h-5" />
+                <i className="w-5 h-5 las la-times"></i>
               </button>
             </div>
             
@@ -334,7 +334,7 @@ export default function MenuPage() {
                           }}
                           className="flex items-center px-2 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors border border-red-100"
                         >
-                          <X className="w-3.5 h-3.5 mr-1" /> Remove
+                          <i className="w-3.5 h-3.5 mr-1 las la-times"></i> Remove
                         </button>
                       </div>
                     </div>
@@ -353,7 +353,7 @@ export default function MenuPage() {
                   }}
                   className="w-full border-dashed"
                 >
-                  <Plus className="w-4 h-4 mr-2" /> Add Ingredient
+                  <i className="w-4 h-4 mr-2 las la-plus"></i> Add Ingredient
                 </Button>
               </div>
               
