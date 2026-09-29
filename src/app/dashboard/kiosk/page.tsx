@@ -102,7 +102,7 @@ export default function KioskPage() {
           subtotal: rSub,
           tax: rTax,
           total: rSub + rTax,
-          status: 'served', // Skip kitchen & KOT
+          status: 'pending', // Keeps it active to ring the alarm
           paymentMethod: null,
           paymentStatus: 'unpaid'
         });
