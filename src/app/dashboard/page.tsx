@@ -20,6 +20,7 @@ import QRCodeGenerator from '@/components/dashboard/QRCodeGenerator';
 import PaymentModal from '@/components/dashboard/PaymentModal';
 import { FloorMap } from '@/components/dashboard/FloorMap';
 import { QuickSaleModal } from '@/components/dashboard/QuickSaleModal';
+import { SwipeToConfirm } from '@/components/ui/SwipeToConfirm';
 
 const getStatusColor = (status: string) => {
   switch(status) {
@@ -74,7 +75,7 @@ const getIconColorClass = (status: string) => {
 };
 
 
-const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAddTableOpen, onQuickAssign }: any) => {
+const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAddTableOpen, onQuickAssign, onMarkServed }: any) => {
   const tableOrders = table.activeOrderIds 
     ? orders.filter((o: any) => table.activeOrderIds.includes(o.id)) 
     : [];
@@ -146,8 +147,11 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
             <button onClick={(e) => { e.stopPropagation(); setSelectedTableId(table.id); }} className="flex-1 py-2 text-[11px] sm:text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors border-b xl:border-b-0 xl:border-r border-slate-200">
               Add Item
             </button>
+            <button onClick={(e) => { e.stopPropagation(); onMarkServed(table.id, table.activeOrderIds || []); }} className="flex-1 py-2 text-[11px] sm:text-xs font-bold text-emerald-600 hover:bg-emerald-50 transition-colors border-b xl:border-b-0 xl:border-r border-slate-200">
+              Served
+            </button>
             <button onClick={(e) => { e.stopPropagation(); onClearTable(table.id); }} className="flex-1 py-2 text-[11px] sm:text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors">
-              Clear Table
+              Clear
             </button>
           </>
         )}
@@ -536,6 +540,19 @@ export default function DashboardPage() {
     }
   };
 
+
+  const handleMarkTableServed = async (tableId: string, orderIds: string[]) => {
+    if (!tableId || !orderIds || orderIds.length === 0) return;
+    try {
+      await Promise.all(orderIds.map(oId => updateOrderStatus(oId, 'served')));
+      await updateTableStatus(tableId, 'served', orderIds);
+      toast.success("Marked as served");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to mark served");
+    }
+  };
+
   const handleClearTable = (targetTableId?: string) => {
     const tid = typeof targetTableId === 'string' ? targetTableId : (selectedTable?.id);
     if (!tid) return;
@@ -914,6 +931,7 @@ export default function DashboardPage() {
                     orders={orders} 
                     setSelectedTableId={(id: string) => { setSelectedTableId(id); setIsMenuOpen(true); }} 
                     onClearTable={handleClearTable}
+                    onMarkServed={handleMarkTableServed}
                     setIsAddTableOpen={setIsAddTableOpen}
                     onQuickAssign={handleQuickAssignAndMenu}
                   />
@@ -953,6 +971,7 @@ export default function DashboardPage() {
                   orders={orders} 
                   setSelectedTableId={(id: string) => { setSelectedTableId(id); setIsMenuOpen(true); }} 
                   onClearTable={handleClearTable}
+                    onMarkServed={handleMarkTableServed}
                   setIsAddTableOpen={setIsAddTableOpen}
                   onQuickAssign={handleQuickAssignAndMenu}
                 />
@@ -1107,7 +1126,12 @@ export default function DashboardPage() {
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-sm font-bold text-slate-900 tracking-wide uppercase">Current Order</h4>
-                    <span className="text-xs text-slate-400">Order ID: #{selectedTable.activeOrderIds?.[0]?.slice(-6) || 'New'}</span>
+                    <div className="flex items-center gap-3">
+                      <button onClick={() => setIsMenuOpen(true)} className="text-xs font-bold text-[#10B981] bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg transition-colors border border-emerald-200">
+                        + Add Items
+                      </button>
+                      <span className="text-xs text-slate-400">#{selectedTable.activeOrderIds?.[0]?.slice(-6) || 'New'}</span>
+                    </div>
                   </div>
 
                   {displayItems.length === 0 ? (
@@ -1213,14 +1237,25 @@ export default function DashboardPage() {
                 ) : (
                   <>
                     {currentDraftItems.length > 0 && (
-                      <button 
-                        onClick={handleSendToKitchen}
-                        disabled={isSubmitting}
-                        className="w-full py-4 px-4 rounded-xl bg-[#10B981] hover:bg-[#059669] text-slate-950 font-bold text-[15px] transition shadow-sm flex items-center justify-center gap-2 disabled:opacity-70"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        {isSubmitting ? 'Sending...' : 'Place Order'}
-                      </button>
+                      <div className="w-full">
+                        <div className="md:hidden">
+                          <SwipeToConfirm 
+                            onConfirm={handleSendToKitchen}
+                            isLoading={isSubmitting}
+                            text="Slide to Place Order"
+                          />
+                        </div>
+                        <div className="hidden md:block">
+                          <button 
+                            onClick={handleSendToKitchen}
+                            disabled={isSubmitting}
+                            className="w-full py-4 px-4 rounded-xl bg-[#10B981] hover:bg-[#059669] text-slate-950 font-bold text-[15px] transition shadow-sm flex items-center justify-center gap-2 disabled:opacity-70"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            {isSubmitting ? 'Sending...' : 'Place Order'}
+                          </button>
+                        </div>
+                      </div>
                     )}
 
                     {currentDraftItems.length === 0 && selectedTable.status === 'preparing' && (
@@ -1272,7 +1307,7 @@ export default function DashboardPage() {
 
       <MenuPickerModal 
         isOpen={isMenuOpen} 
-        onClose={() => { setIsMenuOpen(false); setSelectedTableId(null); }} 
+        onClose={() => setIsMenuOpen(false)} 
         onAddItem={handleAddItem} 
         currentDraftItems={currentDraftItems}
       />
