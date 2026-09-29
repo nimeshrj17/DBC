@@ -6,9 +6,10 @@ export const SwipeToConfirm = ({ onConfirm, text, isLoading }: { onConfirm: () =
   const [isDragging, setIsDragging] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const hasFired = useRef(false);
 
   const handleDrag = (clientX: number) => {
-    if (!isDragging || isConfirmed || isLoading) return;
+    if (!isDragging || isConfirmed || isLoading || hasFired.current) return;
     if (!containerRef.current) return;
     
     const rect = containerRef.current.getBoundingClientRect();
@@ -21,6 +22,7 @@ export const SwipeToConfirm = ({ onConfirm, text, isLoading }: { onConfirm: () =
     setSliderWidth(newWidth);
     
     if (newWidth >= maxWidth * 0.95) {
+      hasFired.current = true;
       setIsConfirmed(true);
       setSliderWidth(maxWidth);
       setIsDragging(false);
@@ -60,6 +62,7 @@ export const SwipeToConfirm = ({ onConfirm, text, isLoading }: { onConfirm: () =
       const t = setTimeout(() => {
         setIsConfirmed(false);
         setSliderWidth(56);
+        hasFired.current = false;
       }, 2000);
       return () => clearTimeout(t);
     }
