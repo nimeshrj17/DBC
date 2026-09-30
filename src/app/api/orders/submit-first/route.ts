@@ -85,7 +85,7 @@ export async function POST(request: Request) {
 
       const newOrderData = {
         tableId,
-        tableNumber: parseInt(tableNumber) || 0,
+        tableNumber: tableNumber || tableId,
         sessionId,
         anonId, // Bind it to anonId for idempotency
         items: validatedItems,

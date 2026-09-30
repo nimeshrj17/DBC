@@ -698,11 +698,13 @@ export default function DashboardPage() {
     if (!clearTablePrompt) return;
     const { tableId, hasUnpaid } = clearTablePrompt;
     
-    if (hasUnpaid && forceClear) {
-      const targetTbl = tables.find(t => t.id === tableId);
-      if (targetTbl && targetTbl.activeOrderIds) {
-        const tblOrders = orders.filter(o => targetTbl.activeOrderIds.includes(o.id));
+    const targetTbl = tables.find(t => t.id === tableId);
+    if (targetTbl && targetTbl.activeOrderIds) {
+      const tblOrders = orders.filter(o => targetTbl.activeOrderIds.includes(o.id));
+      if (hasUnpaid && forceClear) {
         await Promise.all(tblOrders.map(o => updateOrder(o.id, { status: 'cancelled' })));
+      } else if (!hasUnpaid) {
+        await Promise.all(tblOrders.map(o => updateOrder(o.id, { status: 'completed' })));
       }
     }
     

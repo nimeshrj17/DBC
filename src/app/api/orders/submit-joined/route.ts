@@ -64,7 +64,7 @@ export async function POST(request: Request) {
 
       const newOrderData = {
         tableId,
-        tableNumber: tableDoc.data()?.number || 0,
+        tableNumber: tableDoc.data()?.number || tableId,
         sessionId: session.sessionId,
         items: validatedItems,
         subtotal: serverSubtotal,
