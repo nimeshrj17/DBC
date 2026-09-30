@@ -77,6 +77,14 @@ export async function POST(request: Request) {
       };
 
       t.set(orderRef, newOrderData);
+      
+      if (orderStatus === 'pending') {
+        const tableData = tableDoc.data();
+        const currentActiveIds = tableData?.activeOrderIds || [];
+        t.update(tableRef, {
+          activeOrderIds: Array.from(new Set([...currentActiveIds, orderDocId]))
+        });
+      }
       return { status: 201 };
     });
 
