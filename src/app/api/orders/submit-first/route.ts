@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const validatedItems: any[] = [];
     
     for (const clientItem of items) {
-      const serverItem = menuMap.get(clientItem.menuItemId);
+      const serverItem = menuMap.get(clientItem.menuItemId || clientItem.id);
       if (!serverItem) continue;
       
       const qty = Math.min(Math.max(1, clientItem.qty), 10); // cap qty at 10 per line
