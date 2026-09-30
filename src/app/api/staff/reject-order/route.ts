@@ -8,7 +8,7 @@ export async function POST(request: Request) {
 
     const tableRef = adminDb.collection('tables').doc(tableId);
 
-    await adminDb.runTransaction(async (t) => {
+    await adminDb.runTransaction(async (t: any) => {
       // Reject ALL orders associated with this sessionId (Batch Reject)
       const ordersSnap = await t.get(
         adminDb.collection('orders')
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       );
       
       let wasOnlyOrder = true;
-      ordersSnap.forEach((doc) => {
+      ordersSnap.forEach((doc: any) => {
         t.update(doc.ref, { status: 'rejected', rejectedAt: new Date() });
       });
 
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
           .where('status', 'in', ['needs_approval', 'pending', 'served'])
       );
       
-      const otherSessions = otherOrdersSnap.docs.filter(d => d.data().sessionId !== sessionId);
+      const otherSessions = otherOrdersSnap.docs.filter((d: any) => d.data().sessionId !== sessionId);
       
       if (otherSessions.length === 0) {
         t.update(tableRef, { status: 'empty' });

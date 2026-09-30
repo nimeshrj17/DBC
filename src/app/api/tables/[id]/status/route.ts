@@ -16,7 +16,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     const tableRef = adminDb.collection('tables').doc(tableId);
     
     // Lazy Sweep & Status read inside a transaction
-    const result = await adminDb.runTransaction(async (t) => {
+    const result = await adminDb.runTransaction(async (t: any) => {
       const doc = await t.get(tableRef);
       if (!doc.exists) return null;
       

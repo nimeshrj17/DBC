@@ -14,10 +14,10 @@ export async function POST(request: Request) {
     // Validate prices
     const menuSnap = await adminDb.collection('menuItems').get();
     const menuMap = new Map();
-    menuSnap.forEach(doc => menuMap.set(doc.id, { id: doc.id, ...doc.data() }));
+    menuSnap.forEach((doc: any) => menuMap.set(doc.id, { id: doc.id, ...doc.data() }));
 
     let serverSubtotal = 0;
-    const validatedItems = [];
+    const validatedItems: any[] = [];
     
     for (const clientItem of items) {
       const serverItem = menuMap.get(clientItem.menuItemId);
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     const orderRef = adminDb.collection('orders').doc(orderDocId);
     const tableRef = adminDb.collection('tables').doc(tableId);
 
-    const result = await adminDb.runTransaction(async (t) => {
+    const result = await adminDb.runTransaction(async (t: any) => {
       const tableDoc = await t.get(tableRef);
       if (!tableDoc.exists) throw new Error('Table not found');
       

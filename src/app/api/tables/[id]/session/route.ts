@@ -28,7 +28,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         .where('sessionId', '==', session.sessionId)
         .get();
         
-      orders = ordersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      orders = ordersSnap.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
 
       if (session.role === 'owner') {
         const secretDoc = await adminDb.collection('tables').doc(tableId).collection('secrets').doc('session').get();

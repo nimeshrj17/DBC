@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     const orderRef = adminDb.collection('orders').doc(orderId);
     const secretsRef = tableRef.collection('secrets').doc('session');
 
-    const result = await adminDb.runTransaction(async (t) => {
+    const result = await adminDb.runTransaction(async (t: any) => {
       const tableDoc = await t.get(tableRef);
       const orderDoc = await t.get(orderRef);
       

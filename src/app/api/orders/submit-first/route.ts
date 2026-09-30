@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     menuSnap.forEach(doc => menuMap.set(doc.id, { id: doc.id, ...doc.data() }));
 
     let serverSubtotal = 0;
-    const validatedItems = [];
+    const validatedItems: any[] = [];
     
     for (const clientItem of items) {
       const serverItem = menuMap.get(clientItem.menuItemId);

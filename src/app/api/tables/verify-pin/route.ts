@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     // Very simple rate limit tracking in Firestore (Production should use Redis)
     const rateLimitRef = adminDb.collection('security_logs').doc(`${tableId}_${ip}`);
     
-    const isLocked = await adminDb.runTransaction(async (t) => {
+    const isLocked = await adminDb.runTransaction(async (t: any) => {
       const rlDoc = await t.get(rateLimitRef);
       let attempts = 0;
       if (rlDoc.exists) {
