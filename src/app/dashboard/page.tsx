@@ -296,7 +296,8 @@ export default function DashboardPage() {
         body: JSON.stringify({ orderId, tableId })
       });
       if (!res.ok) throw new Error('Failed to accept');
-      toast.success('Order accepted');
+      const data = await res.json();
+      toast.success(`Order accepted! Table PIN: ${data.pin}`, { duration: 15000 });
     } catch (err) {
       toast.error('Failed to accept order');
     }
