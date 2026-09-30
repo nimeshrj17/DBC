@@ -230,7 +230,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   if (!tableLoading && !table) return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FCFAFA] text-center">
       <h1 className="text-2xl font-bold text-red-600 mb-2">Error Loading Table</h1>
-      <p className="text-gray-600 font-medium">We could not load the table data. Please make sure the QR code is valid, or ask a staff member for assistance.</p>
+      <p className="text-gray-600 font-medium">We could not load the table data. Please make sure the QR code is valid. {sessionError ? String(sessionError) : "No session error, data was empty?"}</p>
     </div>
   );
 
