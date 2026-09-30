@@ -7,7 +7,7 @@ import { Order, createOrderTransaction } from '@/lib/hooks/useOrders';
 import { useCustomers } from '@/lib/hooks/useCustomers';
 import { useSettings } from '@/lib/hooks/useSettings';
 import { db } from '@/lib/firebase';
-import { collection, doc, updateDoc, Timestamp, onSnapshot, query, where, runTransaction } from 'firebase/firestore';
+import { doc, updateDoc, Timestamp, runTransaction } from 'firebase/firestore';
 import { toast } from 'sonner';
 import CustomerLogo from '@/components/ui/CustomerLogo';
 
@@ -67,16 +67,8 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const [sessionDenied, setSessionDenied] = useState(false);
   const prevAwaitingRef = useRef(false);
   const prevOrdersRef = useRef(0);
-  const [deviceId, setDeviceId] = useState<string>('');
-
-  useEffect(() => {
-    let stored = localStorage.getItem('deviceId');
-    if (!stored) {
-      stored = 'dev_' + Math.random().toString(36).substring(2, 11);
-      localStorage.setItem('deviceId', stored);
-    }
-    setDeviceId(stored);
-    
+  
+    useEffect(() => {
     if (sessionStorage.getItem(`closed_table_${tableId}`)) {
       setJustPaid(true);
     }
@@ -106,43 +98,43 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     prevOrdersRef.current = tableOrders.length;
   }, [tableOrders, table]);
 
+    const [sessionData, setSessionData] = useState<any>(null);
+  const [sessionError, setSessionError] = useState<any>(null);
+
   useEffect(() => {
-    let unsubscribeTable: () => void;
-    let unsubscribeOrders: () => void;
+    if (!tableId) return;
     
-    const setupListeners = () => {
+    let isMounted = true;
+    const fetchSession = async () => {
       try {
-        const tableRef = doc(db, 'tables', tableId);
-        unsubscribeTable = onSnapshot(tableRef, (docSnap) => {
-          if (docSnap.exists()) {
-            setTable({ id: docSnap.id, ...docSnap.data() } as Table);
-          } else {
-            setTable(null);
+        const res = await fetch(`/api/tables/${tableId}/session`);
+        const data = await res.json();
+        if (isMounted) {
+          setSessionData(data);
+          setSessionError(null);
+          
+          if (data.status) {
+            setTable({ id: tableId, status: data.status, number: tableId } as any);
+          }
+          if (data.orders) {
+            setTableOrders(data.orders);
           }
           setTableLoading(false);
-        });
-        
-        const q = query(collection(db, 'orders'), where('tableId', '==', tableId));
-        unsubscribeOrders = onSnapshot(q, (snapshot) => {
-          const ordersData: Order[] = [];
-          snapshot.forEach((doc) => {
-            const data = doc.data() as Omit<Order, 'id'>;
-            if (data.status !== 'completed' && data.status !== 'cancelled' && data.paymentStatus !== 'paid') {
-              ordersData.push({ id: doc.id, ...data } as Order);
-            }
-          });
-          ordersData.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
-          setTableOrders(ordersData);
-        });
+        }
       } catch (err) {
-        console.error(err);
-        setTableLoading(false);
+        if (isMounted) {
+          setSessionError(err);
+          setTableLoading(false);
+        }
       }
     };
-    setupListeners();
+    
+    fetchSession();
+    const interval = setInterval(fetchSession, 3000);
+    
     return () => {
-      if (unsubscribeTable) unsubscribeTable();
-      if (unsubscribeOrders) unsubscribeOrders();
+      isMounted = false;
+      clearInterval(interval);
     };
   }, [tableId]);
 
@@ -176,7 +168,6 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     const executePlaceOrder = async () => {
     if (!table || cart.length === 0 || isSubmittingRef.current) return;
     
-    // If no customer name is associated with the table, prompt them!
     if (!table.customerName && !custName) {
       setIsCustomerModalOpen(true);
       return;
@@ -186,50 +177,20 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     setIsSubmitting(true);
 
     try {
-      const retailItems = cart.filter(i => i.isRetail || i.category === 'Retail');
-      const kitchenItems = cart.filter(i => !i.isRetail && i.category !== 'Retail');
-      const newOrderIds = [];
-      const finalCustomerName = table.customerName || custName || null;
-      const finalCustomerPhone = table.customerPhone || custPhone || null;
-      
-      if (kitchenItems.length > 0) {
-        const sub = kitchenItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
-        const orderId = await createOrderTransaction({
+      const res = await fetch('/api/orders/submit-first', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderKey: crypto.randomUUID(),
           tableId: table.id,
-          tableNumber: table.number,
-          customerPhone: finalCustomerPhone,
-          customerName: finalCustomerName,
-          displayIdPrefix: 'QR',
-          items: kitchenItems.map(i => ({ menuItemId: i.id, name: i.name, price: i.price, category: i.category, qty: i.qty, notes: i.notes || '' })),
-          subtotal: sub, tax: 0, total: sub, status: 'pending', paymentMethod: null, paymentStatus: 'unpaid'
-        });
-        newOrderIds.push(orderId);
-      }
-      
-      if (retailItems.length > 0) {
-        const sub = retailItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
-        const orderId = await createOrderTransaction({
-          tableId: table.id,
-          tableNumber: table.number,
-          customerPhone: finalCustomerPhone,
-          customerName: finalCustomerName,
-          displayIdPrefix: 'QR',
-          items: retailItems.map(i => ({ menuItemId: i.id, name: i.name, price: i.price, category: i.category, qty: i.qty, notes: i.notes || '' })),
-          subtotal: sub, tax: 0, total: sub, status: 'served', paymentMethod: null, paymentStatus: 'unpaid'
-        });
-        newOrderIds.push(orderId);
-      }
-
-      const newActiveIds = [...(table.activeOrderIds || []), ...newOrderIds];
-      const tableStatus = kitchenItems.length > 0 ? (table.status === 'empty' || table.status === 'occupied' ? 'order_placed' : table.status) : table.status;
-      
-      await updateDoc(doc(db, 'tables', table.id), {
-        activeOrderIds: newActiveIds,
-        status: tableStatus,
-        updatedAt: Timestamp.now(),
-        ...(table.status === 'empty' ? { currentSessionId: deviceId } : {}),
-        ...((!table.customerName && custName) ? { customerName: custName, customerPhone: custPhone } : {})
+          items: cart,
+          customerName: table.customerName || custName || null,
+          customerPhone: table.customerPhone || custPhone || null,
+        })
       });
+
+      if (!res.ok) throw new Error('Failed to place order');
+      
       setCart([]);
       setIsCartOpen(false);
       setViewingOrders(true);
@@ -272,6 +233,57 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     </div>
   );
 
+
+  const [pinInput, setPinInput] = useState('');
+  const [isJoining, setIsJoining] = useState(false);
+
+  const handleJoinSession = async () => {
+    setIsJoining(true);
+    try {
+      const res = await fetch('/api/tables/verify-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tableId, pin: pinInput })
+      });
+      if (res.ok) {
+        toast.success('Joined table successfully');
+        window.location.reload();
+      } else {
+        const data = await res.json();
+        toast.error(data.error || 'Invalid PIN');
+      }
+    } catch (e) {
+      toast.error('Failed to verify PIN');
+    }
+    setIsJoining(false);
+  };
+
+  if (sessionData?.status === 'active' && !sessionData?.authenticated) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FCFAFA]">
+        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm text-center">
+          <h2 className="text-2xl font-bold text-[#2A1A14] mb-2">Table Locked</h2>
+          <p className="text-gray-500 mb-6 text-sm">This table is active. Please enter the PIN to join.</p>
+          <input 
+            type="text" 
+            maxLength={4}
+            value={pinInput}
+            onChange={e => setPinInput(e.target.value)}
+            className="w-full text-center text-3xl tracking-[1em] font-mono border-b-2 border-[#2A1A14] pb-2 mb-6 focus:outline-none"
+            placeholder="••••"
+          />
+          <button 
+            onClick={handleJoinSession}
+            disabled={isJoining || pinInput.length < 4}
+            className="w-full py-3 bg-[#2A1A14] text-white rounded-xl font-bold disabled:opacity-50"
+          >
+            {isJoining ? 'Verifying...' : 'Join Table'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!table) return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FCFAFA] text-center">
       <h1 className="text-2xl font-bold text-red-600 mb-2">Invalid QR Code</h1>
@@ -291,7 +303,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   );
 
   // Show order confirmation screen if table is active and this device doesn't own the session
-  if (table.status !== 'empty' && !sessionConfirmed && table.currentSessionId !== deviceId) {
+  if (table.status !== 'empty' && !sessionConfirmed && sessionData?.role !== 'owner' && sessionData?.role !== 'joined') {
     const confirmItems = tableOrders.flatMap(o => o.items);
     const confirmTotal = tableOrders.reduce((s, o) => s + o.total, 0);
 
@@ -352,7 +364,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
                 setSessionConfirmed(true);
                 // Claim the session for this device
                 if (table) {
-                  updateDoc(doc(db, 'tables', table.id), { currentSessionId: deviceId }).catch(() => {});
+                  /* Session claiming handled server-side now */
                 }
               }}
               className="w-full py-4 bg-[#2e1c14] text-white font-bold text-base rounded-2xl shadow-lg active:scale-[0.98] transition-transform"
