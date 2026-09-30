@@ -227,6 +227,13 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 
   const isAwaitingConfirmation = tableOrders.some(o => o.paymentStatus === 'awaiting_confirmation');
 
+  if (!tableLoading && !table) return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FCFAFA] text-center">
+      <h1 className="text-2xl font-bold text-red-600 mb-2">Error Loading Table</h1>
+      <p className="text-gray-600 font-medium">We could not load the table data. Please make sure the QR code is valid, or ask a staff member for assistance.</p>
+    </div>
+  );
+
   if (tableLoading || menuLoading) return (
     <div className="min-h-screen flex items-center justify-center bg-[#FCFAFA]">
       <div className="w-8 h-8 border-4 border-[#2A1A14] border-t-transparent rounded-full animate-spin"></div>
@@ -303,7 +310,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   );
 
   // Show order confirmation screen if table is active and this device doesn't own the session
-  if (table.status !== 'empty' && !sessionConfirmed && sessionData?.role !== 'owner' && sessionData?.role !== 'joined') {
+  if (table?.status !== 'empty' && !sessionConfirmed && sessionData?.role !== 'owner' && sessionData?.role !== 'joined') {
     const confirmItems = tableOrders.flatMap(o => o.items);
     const confirmTotal = tableOrders.reduce((s, o) => s + o.total, 0);
 
