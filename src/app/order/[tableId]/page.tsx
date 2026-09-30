@@ -24,7 +24,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const { settings } = useSettings();
 
   const getStatusText = (s: string) => {
-    if (s === 'pending') return 'Order Received';
+    if (s === 'pending' || s === 'needs_approval') return 'Order Received';
     if (s === 'preparing') return 'Preparing';
     if (s === 'prepared') return 'Ready';
     if (s === 'served') return 'Served';
@@ -195,6 +195,8 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       if (!res.ok) throw new Error('Failed to place order');
       
       setCart([]);
+      setSessionData((prev: any) => ({ ...prev, role: 'owner', authenticated: true }));
+      setSessionConfirmed(true);
       setIsCartOpen(false);
       setViewingOrders(true);
     } catch (error) {

@@ -222,8 +222,8 @@ const ApprovalCard = ({ order, onAccept, onReject }: any) => {
         </p>
       </div>
       <div className="flex gap-2">
-        <button onClick={() => onReject(order.id)} className="px-4 py-2 bg-white text-red-600 font-bold border border-red-200 rounded-lg shadow-sm hover:bg-red-50">Reject</button>
-        <button onClick={() => onAccept(order.id)} className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg shadow-sm">Accept</button>
+        <button onClick={() => onReject(order.id, order.tableId, order.sessionId)} className="px-4 py-2 bg-white text-red-600 font-bold border border-red-200 rounded-lg shadow-sm hover:bg-red-50">Reject</button>
+        <button onClick={() => onAccept(order.id, order.tableId)} className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg shadow-sm">Accept</button>
       </div>
     </div>
   );
@@ -288,12 +288,12 @@ export default function DashboardPage() {
   }, []);
 
   // Staff Actions
-  const handleAcceptOrder = async (orderId: string) => {
+  const handleAcceptOrder = async (orderId: string, tableId: string) => {
     try {
       const res = await fetch('/api/staff/accept-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId })
+        body: JSON.stringify({ orderId, tableId })
       });
       if (!res.ok) throw new Error('Failed to accept');
       toast.success('Order accepted');
@@ -302,12 +302,12 @@ export default function DashboardPage() {
     }
   };
 
-  const handleRejectOrder = async (orderId: string) => {
+  const handleRejectOrder = async (orderId: string, tableId: string, sessionId: string) => {
     try {
       const res = await fetch('/api/staff/reject-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId, reason: 'Rejected by staff' })
+        body: JSON.stringify({ sessionId, tableId, reason: 'Rejected by staff' })
       });
       if (!res.ok) throw new Error('Failed to reject');
       toast.success('Order rejected');
