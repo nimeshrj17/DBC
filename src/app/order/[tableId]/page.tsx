@@ -117,7 +117,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           setSessionError(null);
           
           if (data.status) {
-            setTable({ id: tableId, status: data.status, number: tableId } as any);
+            setTable({ id: tableId, status: data.status, number: data.number || tableId } as any);
           }
           if (data.orders) {
             setTableOrders(data.orders);
