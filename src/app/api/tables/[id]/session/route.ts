@@ -18,12 +18,24 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     
     const tableData = tableDoc.data();
     const status = tableData?.status || 'empty';
-    const number = tableData?.number || tableId;
+    const number = tableData?.number ?? tableId;
 
     let pin = null;
     let orders: any[] = [];
     
     if (session) {
+      if (status === 'empty') {
+        const response = NextResponse.json({ 
+          status, 
+          number,
+          authenticated: false,
+          role: null,
+          pin: null,
+          orders: []
+        });
+        response.cookies.delete(`__Host-tbl_${tableId}`);
+        return response;
+      }
       const ordersSnap = await adminDb.collection('orders')
         .where('tableId', '==', tableId)
         .where('sessionId', '==', session.sessionId)

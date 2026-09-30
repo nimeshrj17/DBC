@@ -105,6 +105,15 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const [sessionError, setSessionError] = useState<any>(null);
 
   useEffect(() => {
+    if (table?.status === 'empty') {
+      if (viewingOrders) setViewingOrders(false);
+      if (justPaid) setJustPaid(false);
+      if (sessionConfirmed) setSessionConfirmed(false);
+      if (cart.length > 0) setCart([]);
+    }
+  }, [table?.status]);
+
+  useEffect(() => {
     if (!tableId) return;
     
     let isMounted = true;
@@ -117,7 +126,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           setSessionError(null);
           
           if (data.status) {
-            setTable({ id: tableId, status: data.status, number: data.number || tableId } as any);
+            setTable({ id: tableId, status: data.status, number: data.number ?? tableId } as any);
           }
           if (data.orders) {
             setTableOrders(data.orders);
