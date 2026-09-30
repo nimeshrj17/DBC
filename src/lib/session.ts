@@ -1,8 +1,7 @@
-import { SignJWT, jwtVerify } from 'jose';
+import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
 const SECRET_KEY = process.env.SESSION_SECRET || 'fallback-secret-change-in-production-1234567890';
-const key = new TextEncoder().encode(SECRET_KEY);
 
 export interface SessionPayload {
   tableId: string;
@@ -11,20 +10,14 @@ export interface SessionPayload {
   isAnon?: boolean;
 }
 
-export async function signSession(payload: SessionPayload, expiresIn = '4h') {
-  return await new SignJWT({ ...payload })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime(expiresIn)
-    .sign(key);
+export async function signSession(payload: SessionPayload) {
+  return jwt.sign(payload, SECRET_KEY, { expiresIn: '4h' });
 }
 
 export async function verifySession(token: string): Promise<SessionPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, key, {
-      algorithms: ['HS256'],
-    });
-    return payload as unknown as SessionPayload;
+    const payload = jwt.verify(token, SECRET_KEY);
+    return payload as SessionPayload;
   } catch (error) {
     return null;
   }
