@@ -10,7 +10,7 @@ export interface Table {
   seats: number;
   x?: number;
   y?: number;
-  status: 'empty' | 'occupied' | 'order_placed' | 'preparing' | 'prepared' | 'served' | 'awaiting_payment';
+  status: 'empty' | 'needs_approval' | 'occupied' | 'order_placed' | 'preparing' | 'prepared' | 'served' | 'awaiting_payment';
   activeOrderIds: string[];
   time?: string;
   price?: string;
