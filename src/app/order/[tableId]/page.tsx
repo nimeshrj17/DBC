@@ -65,6 +65,9 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const [justPaid, setJustPaid] = useState(false);
   const [sessionConfirmed, setSessionConfirmed] = useState(false);
   const [sessionDenied, setSessionDenied] = useState(false);
+  const [pinInput, setPinInput] = useState("");
+  const [isJoining, setIsJoining] = useState(false);
+
   const prevAwaitingRef = useRef(false);
   const prevOrdersRef = useRef(0);
   
@@ -241,8 +244,6 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   );
 
 
-  const [pinInput, setPinInput] = useState('');
-  const [isJoining, setIsJoining] = useState(false);
 
   const handleJoinSession = async () => {
     setIsJoining(true);
