@@ -186,7 +186,7 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
 };
 
 
-const ApprovalCard = ({ order, onAccept, onReject }: any) => {
+const ApprovalCard = ({ order, onAccept, onReject, tableName }: any) => {
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
@@ -212,7 +212,7 @@ const ApprovalCard = ({ order, onAccept, onReject }: any) => {
   return (
     <div className={`p-4 mb-4 rounded-xl shadow-lg border-2 flex items-center justify-between ${needsAttention ? 'bg-red-100 border-red-500' : isFlashing ? 'bg-red-50 border-red-400 animate-pulse' : 'bg-yellow-50 border-yellow-400'}`}>
       <div>
-        <h4 className="font-bold text-lg text-slate-900">Table {order.tableNumber} - Order Needs Approval</h4>
+        <h4 className="font-bold text-lg text-slate-900">{tableName || `Table ${order.tableNumber}`} - Order Needs Approval</h4>
         <p className="text-sm font-medium text-slate-700">
           {order.items.length} items • ₹{order.total.toFixed(2)}
         </p>
@@ -1023,7 +1023,7 @@ export default function DashboardPage() {
 
         {/* APPROVAL CARDS */}
         {orders.filter(o => (o.status as string) === 'needs_approval').map(order => (
-          <ApprovalCard key={order.id} order={order} onAccept={handleAcceptOrder} onReject={handleRejectOrder} />
+          <ApprovalCard key={order.id} order={order} onAccept={handleAcceptOrder} onReject={handleRejectOrder} tableName={tables.find(t => t.id === order.tableId)?.name} />
         ))}
 
         {viewMode === 'floor' ? (
