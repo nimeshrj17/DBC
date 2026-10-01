@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
@@ -229,7 +229,9 @@ const ApprovalCard = ({ order, onAccept, onReject }: any) => {
   );
 };
 
-export default function DashboardPage() {
+
+
+\nexport default function DashboardPage() {
   const { menuItems } = useMenu();
   const { tables, loading, updateTableStatus, addTable, updateTableDetails, deleteTable, transferTable, updateTablePosition } = useTables();
   const { orders, loading: ordersLoading, updateOrder, updateOrderStatus, createOrder, removeSentItemTransaction } = useOrders();
@@ -249,6 +251,7 @@ export default function DashboardPage() {
   const [transferTargetId, setTransferTargetId] = useState('');
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [clearTablePrompt, setClearTablePrompt] = useState<{tableId: string, hasUnpaid: boolean} | null>(null);
+
   
   const selectedTable = tables.find(t => t.id === selectedTableId) || null;
   const activeOrders = selectedTable?.activeOrderIds 
