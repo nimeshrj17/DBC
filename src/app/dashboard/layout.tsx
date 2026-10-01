@@ -9,36 +9,6 @@ import { useAuth } from '@/lib/context/AuthContext';
 import PrintAgent from '@/components/PrintAgent';
 
 
-const playAlarm = () => {
-  if (typeof window === 'undefined') return;
-  try {
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContext) return;
-    const audioCtx = new AudioContext();
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
-    
-    // Quick double beep
-    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.05);
-    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.15);
-    
-    gainNode.gain.setValueAtTime(0, audioCtx.currentTime + 0.2);
-    gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.25);
-    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.35);
-
-    oscillator.start();
-    oscillator.stop(audioCtx.currentTime + 0.4);
-  } catch (e) {
-    console.error("Audio playback failed", e);
-  }
-};
 export default function DashboardLayout({
   children,
 }: {
@@ -52,7 +22,7 @@ export default function DashboardLayout({
   useEffect(() => {
     const currentApprovalCount = orders.filter(o => o.status === 'needs_approval').length;
     if (currentApprovalCount > prevApprovalCountRef.current) {
-      playAlarm();
+      import('@/lib/audio').then(({ playNotificationSound }) => { playNotificationSound('order'); });
     }
     prevApprovalCountRef.current = currentApprovalCount;
   }, [orders]);
