@@ -23,7 +23,7 @@ export interface Order {
   subtotal: number;
   tax: number;
   total: number;
-  status: 'pending' | 'preparing' | 'prepared' | 'served' | 'billed' | 'completed' | 'cancelled';
+  status: 'needs_approval' | 'pending' | 'preparing' | 'prepared' | 'served' | 'billed' | 'completed' | 'cancelled';
   paymentMethod: 'cash' | 'upi' | 'qr' | null;
   paymentStatus: 'unpaid' | 'awaiting_confirmation' | 'paid';
   createdAt: any;

@@ -231,7 +231,7 @@ const ApprovalCard = ({ order, onAccept, onReject }: any) => {
 
 
 
-\nexport default function DashboardPage() {
+export default function DashboardPage() {
   const { menuItems } = useMenu();
   const { tables, loading, updateTableStatus, addTable, updateTableDetails, deleteTable, transferTable, updateTablePosition } = useTables();
   const { orders, loading: ordersLoading, updateOrder, updateOrderStatus, createOrder, removeSentItemTransaction } = useOrders();
