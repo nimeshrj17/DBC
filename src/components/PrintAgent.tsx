@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { collection, query, where, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
 
@@ -41,7 +41,18 @@ export default function PrintAgent() {
             }
 
             // Create a modified order object to send to the printer containing ONLY kitchen items
-            const orderToPrint = { ...order, items: kitchenItems };
+            
+            // Fetch real table name to fix legacy tableNumber bugs
+            let realTableName = order.tableNumber;
+            try {
+              const tDoc = await getDoc(doc(db, 'tables', order.tableId));
+              if (tDoc.exists()) {
+                const tData = tDoc.data();
+                realTableName = tData.name || tData.number || order.tableNumber;
+              }
+            } catch (e) {}
+
+            const orderToPrint = { ...order, items: kitchenItems, tableNumber: realTableName, tableName: realTableName };
 
             if (printingRef.current.has(order.id)) return;
             printingRef.current.add(order.id);
