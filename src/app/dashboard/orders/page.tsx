@@ -285,7 +285,7 @@ export default function OrdersPage() {
                       <div className="flex items-center gap-3 flex-1">
                         <div className={`w-10 h-10 rounded-xl ${statusBg} border ${statusBorder} flex flex-col md:flex-row items-center justify-center font-extrabold ${statusText} text-sm shrink-0`}>
                           <span className="text-[10px] md:hidden leading-none mb-0.5 uppercase tracking-wide opacity-80 block">TBL</span>
-                          <span className="md:block">{order.tableNumber}</span>
+                          {(() => { const t = tables.find(t => t.id === order.tableId); const num = t?.number ?? order.tableNumber; return <span className="md:block" title={String(num)}>{String(num).length > 5 ? "TBL" : num}</span>; })()}
                         </div>
                         <div>
                           <div className="flex items-center gap-1.5">
