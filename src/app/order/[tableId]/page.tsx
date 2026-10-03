@@ -22,6 +22,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 
   const { menuItems: rawMenuItems, loading: menuLoading } = useMenu();
   const { settings } = useSettings();
+  const [isRequestingReset, setIsRequestingReset] = useState(false);
 
   const getStatusText = (s: string) => {
     if (s === 'pending' || s === 'needs_approval') return 'Order Received';
@@ -256,7 +257,6 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 
 
 
-  const [isRequestingReset, setIsRequestingReset] = useState(false);
   const handleRequestReset = async () => {
     setIsRequestingReset(true);
     try {
