@@ -8,6 +8,7 @@ export interface Table {
   name?: string;
   section?: string;
   seats: number;
+  resetRequested?: boolean;
   x?: number;
   y?: number;
   status: 'empty' | 'needs_approval' | 'occupied' | 'order_placed' | 'preparing' | 'prepared' | 'served' | 'awaiting_payment';
@@ -102,6 +103,7 @@ export function useTables() {
         updates.customerId = null;
         updates.customerName = null;
         updates.customerPhone = null;
+        updates.resetRequested = false;
         updates.currentSessionId = null;
       }
       await updateDoc(tableRef, updates);

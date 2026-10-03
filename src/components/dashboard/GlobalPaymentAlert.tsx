@@ -101,7 +101,8 @@ export function GlobalPaymentAlert() {
               activeOrderIds: [],
               occupancy: 0,
               customerName: null,
-              customerPhone: null
+              customerPhone: null,
+              resetRequested: false
             });
           } else {
             transaction.update(tableRef, {
