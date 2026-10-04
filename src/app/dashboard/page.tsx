@@ -75,7 +75,7 @@ const getIconColorClass = (status: string) => {
 };
 
 
-const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAddTableOpen, onQuickAssign, onMarkServed }: any) => {
+const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAddTableOpen, onQuickAssign, onMarkServed, tablePins = {} }: any) => {
   const tableOrders = table.activeOrderIds 
     ? orders.filter((o: any) => table.activeOrderIds.includes(o.id)) 
     : [];
@@ -113,6 +113,11 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
           <div className="flex items-center gap-2">
             <h4 className="text-lg font-bold text-slate-900 leading-none">{table.name || `Table ${table.number || table.id.slice(-3)}`}</h4>
             {table.name && table.number ? <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">#{table.number}</span> : null}
+            {tablePins[table.id] && (
+              <span className="text-[10px] font-mono font-bold text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded tracking-widest">
+                PIN:{tablePins[table.id]}
+              </span>
+            )}
             <div className="flex items-center gap-1 text-slate-700 bg-slate-200/70 border-none px-2 py-1 rounded-none text-[10px] font-bold">
               <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round"></path>
@@ -270,6 +275,22 @@ export default function DashboardPage() {
   const [transferTargetId, setTransferTargetId] = useState('');
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [clearTablePrompt, setClearTablePrompt] = useState<{tableId: string, hasUnpaid: boolean} | null>(null);
+  const [tablePins, setTablePins] = useState<Record<string, string>>({});
+  
+  useEffect(() => {
+    const fetchPins = async () => {
+      try {
+        const res = await fetch('/api/staff/table-pins');
+        if (res.ok) {
+          const data = await res.json();
+          setTablePins(data.pins || {});
+        }
+      } catch (e) {}
+    };
+    fetchPins();
+    const interval = setInterval(fetchPins, 15000); // refresh every 15s
+    return () => clearInterval(interval);
+  }, []);
 
   
   const selectedTable = tables.find(t => t.id === selectedTableId) || null;
@@ -320,6 +341,7 @@ export default function DashboardPage() {
       if (!res.ok) throw new Error('Failed to accept');
       const data = await res.json();
       toast.success(`Order accepted! Table PIN: ${data.pin}`, { duration: 15000 });
+      setTablePins(prev => ({ ...prev, [tableId]: data.pin }));
     } catch (err) {
       toast.error('Failed to accept order');
     }
@@ -1086,7 +1108,7 @@ export default function DashboardPage() {
               </div>
               <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-3.5 md:gap-5" : "flex flex-col gap-3 md:gap-4"}>
                 {activeTables.map((table) => (
-                  <NewTableCard 
+                  <NewTableCard tablePins={tablePins} 
                     key={table.id} 
                     table={table} 
                     orders={orders} 
@@ -1126,7 +1148,7 @@ export default function DashboardPage() {
                 .filter(t => t.status === 'empty' && (t.section || 'Main Hall') === section)
                 .sort((a, b) => a.number - b.number)
                 .map((table) => (
-                <NewTableCard 
+                <NewTableCard tablePins={tablePins} 
                   key={table.id} 
                   table={table} 
                   orders={orders} 

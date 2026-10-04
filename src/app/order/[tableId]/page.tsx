@@ -190,16 +190,25 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     setIsSubmitting(true);
 
     try {
-      const res = await fetch('/api/orders/submit-first', {
+      const isJoined = sessionData?.authenticated && ['occupied', 'served', 'needs_approval'].includes(sessionData?.status || '');
+      const endpoint = isJoined ? '/api/orders/submit-joined' : '/api/orders/submit-first';
+      
+      const payload = isJoined ? {
+        orderKey: crypto.randomUUID(),
+        tableId: table.id,
+        items: cart
+      } : {
+        orderKey: crypto.randomUUID(),
+        tableId: table.id,
+        items: cart,
+        customerName: table.customerName || custName || null,
+        customerPhone: table.customerPhone || custPhone || null,
+      };
+
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderKey: crypto.randomUUID(),
-          tableId: table.id,
-          items: cart,
-          customerName: table.customerName || custName || null,
-          customerPhone: table.customerPhone || custPhone || null,
-        })
+        body: JSON.stringify(payload)
       });
 
       if (!res.ok) throw new Error('Failed to place order');
@@ -281,7 +290,13 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       });
       if (res.ok) {
         toast.success('Joined table successfully');
-        window.location.reload();
+        try {
+          const sessionRes = await fetch(`/api/tables/${tableId}/session?_t=${Date.now()}`, { cache: "no-store" });
+          const data = await sessionRes.json();
+          setSessionData(data);
+        } catch (e) {
+          window.location.reload(); // fallback
+        }
       } else {
         const data = await res.json();
         toast.error(data.error || 'Invalid PIN');
