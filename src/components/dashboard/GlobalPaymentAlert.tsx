@@ -69,7 +69,7 @@ export function GlobalPaymentAlert() {
   if (!activeAlert) return null;
 
   const table = tables.find(t => t.id === activeAlert.tableId);
-  const tableName = table?.name || `Table ${activeAlert.tableNumber}`;
+  const tableName = table?.name || `Table ${String(activeAlert.tableNumber).length > 5 ? "..." : activeAlert.tableNumber}`;
 
   const handleDismiss = () => {
     setDismissed(prev => ({ ...prev, [activeAlert.id]: Date.now() }));

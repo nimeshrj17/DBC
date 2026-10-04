@@ -158,7 +158,7 @@ export default function OrdersPage() {
     const searchLower = searchQuery.toLowerCase();
     return (order.displayId || '').toLowerCase().includes(searchLower) || 
            (tables.find(t => t.id === order.tableId)?.name || '').toLowerCase().includes(searchLower) ||
-           `Table ${order.tableNumber}`.toLowerCase().includes(searchLower);
+           `Table ${String(order.tableNumber).length > 5 ? "..." : order.tableNumber}`.toLowerCase().includes(searchLower);
   });
   
   const pendingCount = activeOrders.filter(o => o.status === 'pending').length;
@@ -290,7 +290,7 @@ export default function OrdersPage() {
                         <div>
                           <div className="flex items-center gap-1.5">
                             <h3 className="font-bold text-slate-900 text-sm leading-tight truncate max-w-[120px]">
-                              {(tables.find(t => t.id === order.tableId)?.name || `Table ${order.tableNumber}`)}
+                              {(tables.find(t => t.id === order.tableId)?.name || `Table ${String(order.tableNumber).length > 5 ? "..." : order.tableNumber}`)}
                             </h3>
                             <span className="text-xs text-slate-400 font-medium truncate max-w-[80px]">
                               #{order.displayId}

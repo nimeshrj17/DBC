@@ -127,7 +127,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
           setSessionError(null);
           
           if (data.status) {
-            setTable({ id: tableId, status: data.status, number: data.number ?? tableId } as any);
+            setTable({ id: tableId, status: data.status, number: data.number ?? "Unknown" } as any);
           }
           if (data.orders) {
             setTableOrders(data.orders);
@@ -399,7 +399,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
         <div className="flex items-center justify-between pb-3 border-b border-dashed border-gray-200">
           <div>
             <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wide">Order Ref</span>
-            <p className="text-sm font-bold text-[#2b1a13] tracking-wide">#{finalReceiptData?.ref || table.id.substring(0,6).toUpperCase()}</p>
+            <p className="text-sm font-bold text-[#2b1a13] tracking-wide">#{finalReceiptData?.ref || table.number || "001"}</p>
           </div>
           <div className="text-right">
             <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wide">Timestamp</span>

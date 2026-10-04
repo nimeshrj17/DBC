@@ -111,7 +111,7 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
       <div className="p-4 flex-1 flex flex-col">
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center gap-2">
-            <h4 className="text-lg font-bold text-slate-900 leading-none">{table.name || `Table ${table.number || table.id.slice(-3)}`}</h4>
+            <h4 className="text-lg font-bold text-slate-900 leading-none">{table.name || `Table ${table.number}`}</h4>
             {table.name && table.number ? <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">#{table.number}</span> : null}
             {tablePins[table.id] && (
               <span className="text-[10px] font-mono font-bold text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded tracking-widest">
@@ -217,7 +217,7 @@ const ApprovalCard = ({ order, onAccept, onReject, tableName }: any) => {
   return (
     <div className={`p-4 mb-4 rounded-xl shadow-lg border-2 flex items-center justify-between ${needsAttention ? 'bg-red-100 border-red-500' : isFlashing ? 'bg-red-50 border-red-400 animate-pulse' : 'bg-yellow-50 border-yellow-400'}`}>
       <div>
-        <h4 className="font-bold text-lg text-slate-900">{tableName || `Table ${order.tableNumber}`} - Order Needs Approval</h4>
+        <h4 className="font-bold text-lg text-slate-900">{tableName || `Table ${String(order.tableNumber).length > 5 ? "..." : order.tableNumber}`} - Order Needs Approval</h4>
         <p className="text-sm font-medium text-slate-700">
           {order.items.length} items • ₹{order.total.toFixed(2)}
         </p>
