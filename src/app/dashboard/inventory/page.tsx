@@ -52,7 +52,7 @@ export default function InventoryPage() {
     unit: '',
     totalCost: '',
     company: '',
-    retailCategory: 'cigarettes' as 'cigarettes' | 'biscuits' | 'soft_drinks' | 'lighters' | 'toffees' | 'other',
+    retailCategory: 'cigarettes' as 'cigarettes' | 'biscuits' | 'soft_drinks' | 'water_bottles' | 'chips_snacks' | 'lighters' | 'toffees' | 'other',
     boxes: '',
     sticksPerBox: '20',
     publishToMenu: true,
@@ -607,7 +607,9 @@ export default function InventoryPage() {
                     >
                       <option value="cigarettes">Cigarettes</option>
                       <option value="biscuits">Biscuits & Cookies</option>
-                      <option value="soft_drinks">Cold Drinks / Beverages</option>
+                      <option value="soft_drinks">Cold Drinks / Soft Drinks</option>
+                      <option value="water_bottles">Water Bottles</option>
+                      <option value="chips_snacks">Chips &amp; Snacks</option>
                       <option value="lighters">Lighters / Matches</option>
                       <option value="toffees">Toffees & Candies</option>
                       <option value="other">Other Retail</option>
