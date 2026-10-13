@@ -31,13 +31,13 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     if (s === 'served') return 'Served';
     return s.toUpperCase();
   };
+  // Show all items EXCEPT pure retail/counter items (isRetail=true or category='Retail')
+  // Chai ke Sang items are marked isRetail but should still appear on customer menu
   const menuItems = rawMenuItems.filter(i => {
-    const isSoftDrink = i.category && (
-      i.category.toLowerCase().includes('soft drink') || 
-      i.category.toLowerCase().includes('softdrink') ||
-      i.category.toLowerCase().includes('cold drink')
-    );
-    return (!i.isRetail && i.category !== 'Retail') || isSoftDrink;
+    if (i.category === 'Retail') return false;
+    // isRetail items from Chai ke Sang should show (customers can order them)
+    // Only exclude generic Retail category
+    return true;
   });
   
   const categories = Array.from(new Set(menuItems.map(item => item.category)));
