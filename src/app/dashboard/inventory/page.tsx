@@ -184,16 +184,18 @@ export default function InventoryPage() {
       }
 
       if (editingItemId) {
-        await updateInventoryItem(editingItemId, {
+        const updatePayload: any = {
           name: itemData.name,
           type: itemData.type,
           quantity: itemData.quantity,
           unit: itemData.unit,
           totalCost: itemData.totalCost,
-          itemNumber: itemData.itemNumber,
-          retailCategory: itemData.retailCategory,
-          company: itemData.company,
-        });
+          itemNumber: itemData.itemNumber || '',
+        };
+        if (itemData.retailCategory) updatePayload.retailCategory = itemData.retailCategory;
+        if (itemData.company !== undefined) updatePayload.company = itemData.company || '';
+
+        await updateInventoryItem(editingItemId, updatePayload);
         
         // Sync the updated name, category, and selling price to the linked menu item if it's retail
         if (itemData.type === 'retail') {
@@ -204,16 +206,35 @@ export default function InventoryPage() {
               linkedMenu = menuItems.find(m => m.name.toLowerCase() === originalItem.name.toLowerCase());
             }
           }
+
+          const targetCategory = itemData.retailCategory 
+            ? itemData.retailCategory.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') 
+            : 'Other';
+
           if (linkedMenu) {
             await updateMenuItem(linkedMenu.id, {
               linkedInventoryId: editingItemId,
               linkedInventoryAmount: 1,
               name: itemData.name,
               price: Number(formData.sellingPrice) || 0,
+              description: itemData.company ? `Brand: ${itemData.company}` : (linkedMenu.description || 'Retail product'),
+              category: linkedMenu.category || targetCategory,
+              available: itemData.quantity > 0,
+              isRetail: true,
+            });
+          } else if (formData.publishToMenu) {
+            // If it wasn't linked yet, create the menu item
+            await addMenuItem({
+              name: itemData.name,
               description: itemData.company ? `Brand: ${itemData.company}` : 'Retail product',
-              category: itemData.retailCategory 
-                ? itemData.retailCategory.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') 
-                : 'Other'
+              price: Number(formData.sellingPrice) || 0,
+              category: targetCategory,
+              isRetail: true,
+              available: itemData.quantity > 0,
+              linkedInventoryId: editingItemId,
+              linkedInventoryAmount: 1,
+              itemNumber: itemData.itemNumber || '',
+              archived: false,
             });
           }
         }
