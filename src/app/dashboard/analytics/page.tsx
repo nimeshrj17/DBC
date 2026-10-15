@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 
 import { useAnalytics } from '@/lib/hooks/useAnalytics';
 import { useMenu } from '@/lib/hooks/useMenu';
+import { useTables } from '@/lib/hooks/useTables';
+import { Order } from '@/lib/hooks/useOrders';
 import { 
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, 
   XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer 
@@ -12,9 +14,11 @@ const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
 
 export default function AnalyticsPage() {
   const { analytics, loading, orders } = useAnalytics(30);
+  const { tables } = useTables();
   const { menuItems } = useMenu();
   const [activeTab, setActiveTab] = useState<'overview' | 'daily' | 'menu' | 'customers' | 'splits' | 'history'>('overview');
   const [selectedDate, setSelectedDate] = useState<string>('');
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   if (loading || !analytics) {
     return (
@@ -438,11 +442,12 @@ export default function AnalyticsPage() {
                   <tr>
                     <th className="px-6 py-3 font-bold">Date & Time</th>
                     <th className="px-6 py-3 font-bold">Order ID</th>
-                    <th className="px-6 py-3 font-bold">Type</th>
-                    <th className="px-6 py-3 font-bold">Items</th>
+                    <th className="px-6 py-3 font-bold">Table / Type</th>
+                    <th className="px-6 py-3 font-bold text-center">Items</th>
                     <th className="px-6 py-3 font-bold">Total</th>
                     <th className="px-6 py-3 font-bold">Payment</th>
                     <th className="px-6 py-3 font-bold">Status</th>
+                    <th className="px-6 py-3 font-bold text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -450,44 +455,61 @@ export default function AnalyticsPage() {
                     const date = order.createdAt?.toDate ? order.createdAt.toDate() : new Date(order.createdAt || Date.now());
                     const itemCount = order.items ? order.items.reduce((sum: number, i: any) => sum + (i.qty || 0), 0) : 0;
                     
+                    const tableObj = tables.find(t => t.id === order.tableId);
+                    const tableName = tableObj ? (tableObj.name || `Table ${tableObj.number}`) : (order.tableNumber === 999999 ? 'Takeaway' : `Table ${order.tableNumber}`);
+
                     return (
-                      <tr key={order.id || idx} className="hover:bg-slate-50 transition-colors">
+                      <tr 
+                        key={order.id || idx} 
+                        onClick={() => setSelectedOrder(order)}
+                        className="hover:bg-slate-100/80 cursor-pointer transition-colors group"
+                      >
                         <td className="px-6 py-3">
                           <div className="font-bold text-slate-900">{date.toLocaleDateString()}</div>
-                          <div className="text-[10px] text-slate-500 font-medium uppercase">{date.toLocaleTimeString()}</div>
+                          <div className="text-[10px] text-slate-500 font-medium uppercase">{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                         </td>
                         <td className="px-6 py-3 font-mono text-xs font-bold text-slate-600">
                           {order.displayId || order.id?.substring(0, 6)}
                         </td>
-                        <td className="px-6 py-3 font-medium text-slate-600 capitalize">
-                          {order.tableNumber === 999999 ? 'Takeaway' : 'Dine-in'}
+                        <td className="px-6 py-3 font-semibold text-slate-800">
+                          {tableName}
                         </td>
                         <td className="px-6 py-3 text-center">
-                          <span className="px-2 py-1 bg-slate-100 text-slate-700 font-bold rounded-none text-xs">{itemCount}</span>
+                          <span className="px-2.5 py-1 bg-slate-100 group-hover:bg-white text-slate-700 font-bold rounded-lg text-xs border border-slate-200">
+                            {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                          </span>
                         </td>
                         <td className="px-6 py-3 font-black text-emerald-600">
                           ₹{order.total.toLocaleString()}
                         </td>
                         <td className="px-6 py-3">
-                          <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-none ${
-                            order.paymentStatus === 'paid' ? 'bg-emerald-100 text-emerald-700' :
-                            
-                            'bg-amber-100 text-amber-700'
+                          <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md border ${
+                            order.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                            'bg-amber-50 text-amber-700 border-amber-200'
                           }`}>
                             {order.paymentMethod || 'Unknown'} {order.paymentStatus === 'paid' ? '' : `(${order.paymentStatus})`}
                           </span>
                         </td>
                         <td className="px-6 py-3">
-                          <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-none ${
-                            order.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
-                            order.status === 'cancelled' ? 'bg-rose-100 text-rose-700' :
-                            'bg-blue-100 text-blue-700'
+                          <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md border ${
+                            order.status === 'completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                            order.status === 'cancelled' ? 'bg-rose-50 text-rose-700 border-rose-200' :
+                            'bg-blue-50 text-blue-700 border-blue-200'
                           }`}>
                             {order.status}
                           </span>
                         </td>
+                        <td className="px-6 py-3 text-right">
+                          <button 
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setSelectedOrder(order); }}
+                            className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg transition"
+                          >
+                            View Details →
+                          </button>
+                        </td>
                       </tr>
-                    )
+                    );
                   })}
                 </tbody>
               </table>
@@ -601,6 +623,132 @@ export default function AnalyticsPage() {
             })()}
           </div>
         )}
+      {/* ORDER DETAILS MODAL */}
+      {selectedOrder && (() => {
+        const date = selectedOrder.createdAt?.toDate ? selectedOrder.createdAt.toDate() : new Date(selectedOrder.createdAt || Date.now());
+        const tableObj = tables.find(t => t.id === selectedOrder.tableId);
+        const tableName = tableObj ? (tableObj.name || `Table ${tableObj.number}`) : (selectedOrder.tableNumber === 999999 ? 'Takeaway' : `Table ${selectedOrder.tableNumber}`);
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+            <div 
+              className="bg-white rounded-3xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="p-6 border-b border-slate-100 flex items-start justify-between bg-slate-50/80 shrink-0">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-1 bg-slate-900 text-white rounded-lg font-mono text-xs font-bold">
+                      {selectedOrder.displayId || selectedOrder.id?.substring(0, 6)}
+                    </span>
+                    <span className="px-2.5 py-1 bg-brand-lime text-slate-950 rounded-lg text-xs font-extrabold uppercase tracking-wider">
+                      {tableName}
+                    </span>
+                    <span className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider ${
+                      selectedOrder.status === 'completed' ? 'bg-emerald-100 text-emerald-800' :
+                      selectedOrder.status === 'cancelled' ? 'bg-rose-100 text-rose-800' :
+                      'bg-blue-100 text-blue-800'
+                    }`}>
+                      {selectedOrder.status}
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-500 font-medium mt-2 flex items-center gap-3">
+                    <span>📅 {date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    <span>⏰ {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    {selectedOrder.customerName && <span>👤 {selectedOrder.customerName}</span>}
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => setSelectedOrder(null)}
+                  className="w-8 h-8 rounded-full bg-slate-200/70 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Items List */}
+              <div className="p-6 overflow-y-auto flex-1 divide-y divide-slate-100 custom-scroll">
+                <div className="flex justify-between items-center text-[11px] uppercase font-bold text-slate-400 pb-2.5">
+                  <span>Ordered Item</span>
+                  <div className="flex gap-6">
+                    <span className="w-10 text-center">Qty</span>
+                    <span className="w-16 text-right">Price</span>
+                    <span className="w-20 text-right">Total</span>
+                  </div>
+                </div>
+
+                {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                  selectedOrder.items.map((item: any, idx: number) => (
+                    <div key={idx} className="py-3 flex flex-col text-sm">
+                      <div className="flex items-center justify-between">
+                        <div className="pr-3">
+                          <p className="font-bold text-slate-900">{item.name}</p>
+                          {item.category && <span className="text-[11px] text-slate-400 font-medium">{item.category}</span>}
+                        </div>
+                        <div className="flex items-center gap-6 shrink-0">
+                          <span className="w-10 text-center font-bold text-slate-700 bg-slate-100 py-0.5 rounded-md text-xs">{item.qty}</span>
+                          <span className="w-16 text-right font-medium text-slate-500 text-xs tabular-nums">₹{item.price}</span>
+                          <span className="w-20 text-right font-black text-slate-900 tabular-nums">₹{(item.price * item.qty).toLocaleString()}</span>
+                        </div>
+                      </div>
+                      {item.notes && (
+                        <p className="text-xs text-amber-600 font-semibold italic mt-1 bg-amber-50 px-2.5 py-1 rounded-md">
+                          Note: {item.notes}
+                        </p>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-8 text-center text-slate-400 text-sm">No items found in this order record.</div>
+                )}
+
+                {/* Kitchen / Order Notes */}
+                {selectedOrder.kitchenNotes && (
+                  <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                    <p className="text-xs font-bold text-amber-800">Kitchen Note:</p>
+                    <p className="text-xs text-amber-700 mt-0.5">{selectedOrder.kitchenNotes}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer / Billing Summary */}
+              <div className="p-6 bg-slate-50 border-t border-slate-100 shrink-0 space-y-3">
+                <div className="space-y-1.5 text-xs font-semibold text-slate-600">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span className="tabular-nums">₹{(selectedOrder.subtotal ?? (selectedOrder.total - (selectedOrder.tax || 0))).toFixed(2)}</span>
+                  </div>
+                  {selectedOrder.tax ? (
+                    <div className="flex justify-between text-slate-500">
+                      <span>Tax / GST</span>
+                      <span className="tabular-nums">₹{selectedOrder.tax.toFixed(2)}</span>
+                    </div>
+                  ) : null}
+                  <div className="flex justify-between items-center pt-2 border-t border-slate-200 text-base font-black text-slate-900">
+                    <span>Total Amount</span>
+                    <span className="text-xl text-emerald-600 tabular-nums">₹{selectedOrder.total.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                {/* Payment Info Banner */}
+                <div className="pt-2 flex items-center justify-between text-xs font-bold bg-white p-3 rounded-xl border border-slate-200">
+                  <span className="text-slate-500">Payment Status:</span>
+                  <div className="flex items-center gap-2">
+                    <span className="uppercase text-slate-800 font-extrabold">{selectedOrder.paymentMethod || 'Not specified'}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-extrabold ${
+                      selectedOrder.paymentStatus === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                    }`}>
+                      {selectedOrder.paymentStatus}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
       </div>
     </div>
   );
