@@ -11,12 +11,12 @@ export default function PrintAgent() {
   useEffect(() => {
     console.log("🖨️ PrintAgent Frontend Component Mounted!");
     
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Look back 12 hours so midnight rollover or timezone differences never drop active orders
+    const cutoff = new Date(Date.now() - 12 * 60 * 60 * 1000);
 
     const q = query(
       collection(db, "orders"),
-      where("createdAt", ">=", today)
+      where("createdAt", ">=", cutoff)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -30,17 +30,25 @@ export default function PrintAgent() {
 
           if ((order.status === "pending" || order.status === "preparing") && !order.printedKOT) {
             
-            // Check for Chai/Retail items that don't need KOT printing
-            const isFrontCounterItem = (i: any) => i.isRetail || i.category === 'Retail' || i.category?.toLowerCase() === 'chai' || i.category?.toLowerCase() === 'chai ke sang';
-            const kitchenItems = order.items.filter((i: any) => !isFrontCounterItem(i));
+            // ONLY Chai and Retail items will not be printed on the KOT slip.
+            // All buns, coffee, eatables, and other drinks will be printed!
+            const isExcludedFromKOT = (i: any) => {
+              if (i.isRetail || i.category === 'Retail') return true;
+              const cat = (i.category || '').toLowerCase().trim();
+              // Only exclude pure Chai beverage category
+              if (cat === 'chai' || cat === 'tea' || cat === 'herbal tea') return true;
+              return false;
+            };
+
+            const kitchenItems = order.items.filter((i: any) => !isExcludedFromKOT(i));
             
             if (kitchenItems.length === 0) {
-              // Order ONLY contains front counter items. Skip printing, mark as printed.
+              // Order ONLY contains chai or retail items. Skip physical printing, mark as printed.
               await updateDoc(doc(db, "orders", order.id), { printedKOT: true });
               return;
             }
 
-            // Create a modified order object to send to the printer containing ONLY kitchen items
+            // Create a modified order object to send to the printer containing ONLY printable items
             
             // Fetch real table name to fix legacy tableNumber bugs
             let realTableName = order.tableNumber;
@@ -70,14 +78,14 @@ export default function PrintAgent() {
               const result = await res.json();
               if (result.success) {
                  await updateDoc(doc(db, "orders", order.id), { printedKOT: true });
-                 toast.success(`KOT Printed (Table ${order.tableNumber || order.tableName})`);
+                 toast.success(`KOT Printed (Table ${realTableName || order.tableNumber})`);
                  console.log("🖨️ Success! Marked in DB.");
               } else {
                  throw new Error(result.error);
               }
             } catch (e) {
               console.error("🖨️ Local Print Agent Error:", e);
-              toast.error("Printer disconnected! Please start the Print Agent App.");
+              toast.error("Printer disconnected! Please ensure Print Agent is running on the client Mac.");
               printingRef.current.delete(order.id);
             }
           }

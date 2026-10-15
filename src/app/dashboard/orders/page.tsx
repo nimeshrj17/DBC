@@ -90,6 +90,51 @@ export default function OrdersPage() {
   return () => clearInterval(interval);
   }, []);
 
+  const handleManualPrintKOT = async (order: Order) => {
+    try {
+      const isExcludedFromKOT = (i: any) => {
+        if (i.isRetail || i.category === 'Retail') return true;
+        const cat = (i.category || '').toLowerCase().trim();
+        if (cat === 'chai' || cat === 'tea' || cat === 'herbal tea') return true;
+        return false;
+      };
+
+      const kitchenItems = order.items.filter((i: any) => !isExcludedFromKOT(i));
+      if (kitchenItems.length === 0) {
+        toast.info("This order only contains Chai or Retail items (no kitchen KOT needed)");
+        return;
+      }
+
+      const table = tables.find(t => t.id === order.tableId);
+      const tableName = table ? (table.name || table.number) : order.tableNumber;
+
+      const orderToPrint = {
+        ...order,
+        items: kitchenItems,
+        tableName: tableName,
+        tableNumber: tableName
+      };
+
+      toast.loading("Sending KOT to printer...", { id: `print-${order.id}` });
+      const res = await fetch('http://127.0.0.1:5050/print', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order: orderToPrint })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`KOT Printed successfully!`, { id: `print-${order.id}` });
+        await updateOrder(order.id, { printedKOT: true });
+      } else {
+        throw new Error(data.error || "Printer returned error");
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Failed to print KOT. Ensure Print Agent is running on the client Mac.", { id: `print-${order.id}` });
+    }
+  };
+
   const handleMarkPaid = async (method: 'cash' | 'qr') => {
     if (!orderToPay) return;
     try {
@@ -352,6 +397,20 @@ export default function OrdersPage() {
                       
                       {/* Action Buttons (Restored to correct classes based on state) */}
                       <div className="grid grid-cols-1 gap-2">
+                        {/* Manual Print / Reprint KOT Button */}
+                        {order.status !== 'cancelled' && (
+                          <button 
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); handleManualPrintKOT(order); }}
+                            className="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-800 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
+                          >
+                            <svg className="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                            </svg>
+                            {order.printedKOT ? 'Reprint KOT' : 'Print KOT'}
+                          </button>
+                        )}
+
                         {order.status === 'pending' && (
                           <button onClick={(e) => { e.stopPropagation(); handleStatusChange(order, 'preparing') }} className="w-full py-2.5 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-95">
                             Accept & Start Prep

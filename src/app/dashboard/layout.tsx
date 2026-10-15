@@ -106,6 +106,21 @@ export default function DashboardLayout({
 
 
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [printAgentOnline, setPrintAgentOnline] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkPrintAgent = async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:5050/', { method: 'GET', signal: AbortSignal.timeout(2000) });
+        setPrintAgentOnline(res.ok);
+      } catch {
+        setPrintAgentOnline(false);
+      }
+    };
+    checkPrintAgent();
+    const interval = setInterval(checkPrintAgent, 10000);
+    return () => clearInterval(interval);
+  }, []);
   
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -251,7 +266,22 @@ export default function DashboardLayout({
           </nav>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          {/* Printer Status Pill */}
+          <div 
+            title={printAgentOnline ? "Print Agent Connected" : "Print Agent Offline on this Mac"}
+            className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border transition-colors ${
+              printAgentOnline === true 
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                : printAgentOnline === false 
+                  ? 'bg-rose-50 text-rose-700 border-rose-200 animate-pulse'
+                  : 'bg-slate-50 text-slate-500 border-slate-200'
+            }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${printAgentOnline ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+            <span>🖨️ {printAgentOnline ? 'Printer Online' : 'Printer Offline'}</span>
+          </div>
+
           <div className="flex items-center gap-2">
             <span className="text-sm font-bold text-slate-900">{user?.name}</span>
             <span className="px-1.5 py-0.5 bg-slate-200/50 text-slate-600 text-[9px] font-bold tracking-widest uppercase rounded-none border border-slate-300/50">{user?.role}</span>

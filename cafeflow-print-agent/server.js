@@ -66,13 +66,25 @@ app.post('/print', (req, res) => {
         const finalBuffer = Buffer.concat([initCmd, textBuffer, cutCmd]);
         fs.writeFileSync(filePath, finalBuffer);
 
-        exec(`lpr -P Kitchen ${filePath}`, (error) => {
-            if (error) {
-                console.error(`❌ Failed to print:`, error);
-                return res.status(500).json({ success: false, error: error.message });
+        // Check if printer 'Kitchen' exists, otherwise use system default printer
+        exec('lpstat -p', (statErr, stdout) => {
+            let printerFlag = '-P Kitchen';
+            if (statErr || !stdout || !stdout.includes('printer Kitchen')) {
+                console.log('⚠️ Printer "Kitchen" not found in CUPS. Falling back to default printer.');
+                printerFlag = ''; // Uses default printer
             }
-            console.log(`✅ Printed Successfully!`);
-            res.json({ success: true });
+
+            const printCmd = printerFlag ? `lpr ${printerFlag} ${filePath}` : `lpr ${filePath}`;
+            console.log(`Executing: ${printCmd}`);
+
+            exec(printCmd, (error) => {
+                if (error) {
+                    console.error(`❌ Failed to print:`, error);
+                    return res.status(500).json({ success: false, error: error.message });
+                }
+                console.log(`✅ Printed Successfully!`);
+                res.json({ success: true });
+            });
         });
     } catch (error) {
         console.error(`❌ Exception:`, error);
