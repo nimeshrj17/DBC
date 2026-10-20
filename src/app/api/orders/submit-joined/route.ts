@@ -11,10 +11,18 @@ export async function POST(request: Request) {
     const session = await getSessionCookie(tableId);
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Validate prices
-    const menuSnap = await adminDb.collection('menuItems').get();
+    // 1. Fetch only requested menu items
+    const requestedIds = Array.from(new Set(items.map((i: any) => i.menuItemId || i.id).filter(Boolean))) as string[];
+    if (requestedIds.length === 0) return NextResponse.json({ error: 'No items specified' }, { status: 400 });
+
+    const itemRefs = requestedIds.map(id => adminDb.collection('menuItems').doc(id));
+    const itemDocs = await adminDb.getAll(...itemRefs);
     const menuMap = new Map();
-    menuSnap.forEach((doc: any) => menuMap.set(doc.id, { id: doc.id, ...doc.data() }));
+    itemDocs.forEach((doc: any) => {
+      if (doc.exists) {
+        menuMap.set(doc.id, { id: doc.id, ...doc.data() });
+      }
+    });
 
     let serverSubtotal = 0;
     const validatedItems: any[] = [];
@@ -22,6 +30,24 @@ export async function POST(request: Request) {
     for (const clientItem of items) {
       const serverItem = menuMap.get(clientItem.menuItemId || clientItem.id);
       if (!serverItem) continue;
+
+      const cat = (serverItem.category || '').toLowerCase();
+      const name = (serverItem.name || '').toLowerCase();
+      const retailCat = ((serverItem as any).retailCategory || '').toLowerCase();
+      if (
+        cat.includes('cigarette') ||
+        cat.includes('cigar') ||
+        cat.includes('tobacco') ||
+        cat.includes('smoking') ||
+        retailCat === 'cigarettes' ||
+        retailCat.includes('cigarette') ||
+        name.includes('cigarette') ||
+        name.includes('cigar') ||
+        name.includes('bidi') ||
+        name.includes('beedi')
+      ) {
+        return NextResponse.json({ error: 'Cigarettes can only be ordered from the counter/admin dashboard.' }, { status: 400 });
+      }
       
       const qty = Math.min(Math.max(1, clientItem.qty), 10);
       serverSubtotal += (serverItem.price * qty);

@@ -31,16 +31,53 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     if (s === 'served') return 'Served';
     return s.toUpperCase();
   };
-  // Show all items EXCEPT pure retail/counter items (isRetail=true or category='Retail')
-  // Chai ke Sang items are marked isRetail but should still appear on customer menu
+  const isCigaretteItem = (i: MenuItem) => {
+    const cat = (i.category || '').toLowerCase().trim();
+    const name = (i.name || '').toLowerCase().trim();
+    const retailCat = ((i as any).retailCategory || '').toLowerCase().trim();
+
+    if (
+      cat.includes('cigarette') ||
+      cat.includes('cigar') ||
+      cat.includes('tobacco') ||
+      cat.includes('smoking') ||
+      retailCat === 'cigarettes' ||
+      retailCat.includes('cigarette')
+    ) {
+      return true;
+    }
+
+    const cigaretteKeywords = [
+      'cigarette',
+      'cigar',
+      'bidi',
+      'beedi',
+      'marlboro',
+      'classic mild',
+      'gold flake',
+      'ice burst',
+      'advance compact',
+      'classic connect',
+      'wave pulse',
+      'four square',
+      'charminar',
+      'djarum',
+      'gudang garam',
+      'benson & hedges',
+      'benson and hedges'
+    ];
+    return cigaretteKeywords.some(kw => name.includes(kw));
+  };
+
+  // Show all items EXCEPT pure retail/counter items and cigarettes
+  // Cigarettes can only be ordered from the admin dashboard
   const menuItems = rawMenuItems.filter(i => {
     if (i.category === 'Retail') return false;
-    // isRetail items from Chai ke Sang should show (customers can order them)
-    // Only exclude generic Retail category
+    if (isCigaretteItem(i)) return false;
     return true;
   });
   
-  const categories = Array.from(new Set(menuItems.map(item => item.category)));
+  const categories = Array.from(new Set(menuItems.map(item => item.category))).filter(c => !c.toLowerCase().includes('cigarette'));
 
   const [table, setTable] = useState<Table | null>(null);
   const [tableLoading, setTableLoading] = useState(true);
@@ -119,6 +156,10 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     
     let isMounted = true;
     const fetchSession = async () => {
+      // Pause polling if the tab is backgrounded or screen is locked to save Firestore quota
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+        return;
+      }
       try {
         const res = await fetch(`/api/tables/${tableId}/session?_t=${Date.now()}`, { cache: "no-store" });
         const data = await res.json();
@@ -143,15 +184,28 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
     };
     
     fetchSession();
-    const interval = setInterval(fetchSession, 3000);
+    // Optimized: poll every 8 seconds instead of 3 seconds (cuts reads by >65%)
+    const interval = setInterval(fetchSession, 8000);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchSession();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     
     return () => {
       isMounted = false;
       clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [tableId]);
 
   const addToCart = (item: MenuItem) => {
+    if (isCigaretteItem(item)) {
+      toast.error('Cigarettes can only be ordered at the counter/admin dashboard.');
+      return;
+    }
     setCart(prev => {
       const existing = prev.find(i => i.id === item.id);
       if (existing) {

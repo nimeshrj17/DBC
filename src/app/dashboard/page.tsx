@@ -279,6 +279,7 @@ export default function DashboardPage() {
   
   useEffect(() => {
     const fetchPins = async () => {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
       try {
         const res = await fetch('/api/staff/table-pins');
         if (res.ok) {
@@ -288,7 +289,7 @@ export default function DashboardPage() {
       } catch (e) {}
     };
     fetchPins();
-    const interval = setInterval(fetchPins, 15000); // refresh every 15s
+    const interval = setInterval(fetchPins, 45000); // refresh every 45s (conserve quota)
     return () => clearInterval(interval);
   }, []);
 
@@ -318,15 +319,18 @@ export default function DashboardPage() {
 
 
   
-  // Heartbeat
+  // Heartbeat - keep customer UI alive while minimizing write frequency
   useEffect(() => {
-    const interval = setInterval(() => {
+    const updateHeartbeat = () => {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
       try {
         setDoc(doc(db, 'settings', 'heartbeat'), { lastHeartbeat: serverTimestamp() }, { merge: true });
       } catch (err) {
         console.error("Heartbeat error", err);
       }
-    }, 30000);
+    };
+    updateHeartbeat();
+    const interval = setInterval(updateHeartbeat, 60000); // 60s interval
     return () => clearInterval(interval);
   }, []);
 
