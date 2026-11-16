@@ -161,39 +161,39 @@ export default function RevenuePage() {
   return (
     <div className="flex flex-col w-full h-full pb-10 bg-slate-50 overflow-y-auto custom-scroll">
       {/* Header / period controls */}
-      <div className="px-5 md:px-8 pt-5 pb-4 bg-white border-b border-slate-200 sticky top-0 z-10">
+      <div className="px-4 md:px-8 pt-4 md:pt-5 pb-4 bg-white border-b border-slate-200 md:sticky md:top-0 z-10">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">Revenue</h2>
-            <p className="text-sm font-medium text-slate-500 mt-1">
+            <p className="hidden sm:block text-sm font-medium text-slate-500 mt-1">
               Business day runs {hourText} to {hourText}. Revenue = paid orders, cancelled excluded.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl">
               {(['day', 'week', 'month', 'custom'] as Period[]).map(p => (
-                <button key={p} onClick={() => pickPeriod(p)} className={`px-4 py-2 rounded-lg text-sm font-semibold capitalize transition-all ${period === p ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>{p}</button>
+                <button key={p} onClick={() => pickPeriod(p)} className={`px-3.5 py-2.5 rounded-lg text-sm font-semibold capitalize transition-all ${period === p ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>{p}</button>
               ))}
             </div>
             <div className="flex items-center gap-1">
-              <button onClick={() => move(-1)} aria-label="Previous" className="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 font-bold">‹</button>
+              <button onClick={() => move(-1)} aria-label="Previous" className="w-11 h-11 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 font-bold">‹</button>
               <div className="px-3 py-2 min-w-[11rem] text-center text-sm font-bold text-slate-800">{range.label}</div>
-              <button onClick={() => move(1)} disabled={!canGoForward} aria-label="Next" className="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 font-bold disabled:opacity-30">›</button>
+              <button onClick={() => move(1)} disabled={!canGoForward} aria-label="Next" className="w-11 h-11 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 font-bold disabled:opacity-30">›</button>
             </div>
             {range.endKey < todayKey && (
               <button
                 onClick={() => (period === 'custom' ? setCustom({ from: todayKey, to: todayKey }) : setAnchor(todayKey))}
-                className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-semibold hover:bg-slate-50"
+                className="px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm font-semibold hover:bg-slate-50"
               >
                 Today
               </button>
             )}
-            <button onClick={refresh} className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-semibold hover:bg-slate-50">Refresh</button>
+            <button onClick={refresh} className="px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm font-semibold hover:bg-slate-50">Refresh</button>
             {period !== 'day' && (
-              <button onClick={rebuild} title="Recompute past days from the orders" className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-semibold hover:bg-slate-50">Rebuild</button>
+              <button onClick={rebuild} title="Recompute past days from the orders" className="px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm font-semibold hover:bg-slate-50">Rebuild</button>
             )}
-            <button onClick={() => downloadRevenuePdf({ range, s, prev, compLabel: comp.label })} disabled={!s.orders} className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-semibold hover:bg-slate-50 disabled:opacity-40">PDF</button>
-            <button onClick={exportCsv} disabled={!orderCount || loadingLedger} className="px-3 py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold disabled:opacity-40">Export CSV</button>
+            <button onClick={() => downloadRevenuePdf({ range, s, prev, compLabel: comp.label })} disabled={!s.orders} className="px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm font-semibold hover:bg-slate-50 disabled:opacity-40">PDF</button>
+            <button onClick={exportCsv} disabled={!orderCount || loadingLedger} className="px-3 py-2.5 rounded-lg bg-slate-900 text-white text-sm font-semibold disabled:opacity-40">Export CSV</button>
           </div>
         </div>
         {period === 'custom' && (
@@ -208,7 +208,7 @@ export default function RevenuePage() {
         </div>
       </div>
 
-      <div className="p-5 md:p-8 space-y-6">
+      <div className="p-4 md:p-8 space-y-5 md:space-y-6">
         {error && <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-semibold">{error}</div>}
 
         {/* KPIs */}

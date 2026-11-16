@@ -306,14 +306,14 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   const isAwaitingConfirmation = tableOrders.some(o => o.paymentStatus === 'awaiting_confirmation');
 
   if (!tableLoading && !table) return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FCFAFA] text-center">
+    <div className="min-h-dvh flex flex-col items-center justify-center p-6 bg-[#FCFAFA] text-center">
       <h1 className="text-2xl font-bold text-red-600 mb-2">Error Loading Table</h1>
       <p className="text-gray-600 font-medium">We could not load the table data. Please make sure the QR code is valid. {sessionError ? String(sessionError) : "No session error, data was empty?"}</p>
     </div>
   );
 
   if (tableLoading || menuLoading) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FCFAFA]">
+    <div className="min-h-dvh flex items-center justify-center bg-[#FCFAFA]">
       <div className="w-8 h-8 border-4 border-[#2A1A14] border-t-transparent rounded-full animate-spin"></div>
     </div>
   );
@@ -363,7 +363,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
 
   if (sessionData && ['occupied', 'served', 'billed'].includes(sessionData.status) && !sessionData.authenticated) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FCFAFA]">
+      <div className="min-h-dvh flex flex-col items-center justify-center p-6 bg-[#FCFAFA]">
         <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm text-center">
           <h2 className="text-2xl font-bold text-[#2A1A14] mb-2">Table Locked</h2>
           <p className="text-gray-500 mb-6 text-sm">This table is active. Please enter the PIN to join.</p>
@@ -399,7 +399,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   }
 
   if (!table) return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FCFAFA] text-center">
+    <div className="min-h-dvh flex flex-col items-center justify-center p-6 bg-[#FCFAFA] text-center">
       <h1 className="text-2xl font-bold text-red-600 mb-2">Invalid QR Code</h1>
       <p className="text-gray-600">This table does not exist or the link is invalid.</p>
     </div>
@@ -410,7 +410,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   // Show "Please wait" if table is in needs_approval and they are not authenticated
   if (table?.status === 'needs_approval' && !sessionData?.authenticated && !isSubmittingRef.current) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FCFAFA] text-center">
+      <div className="min-h-dvh flex flex-col items-center justify-center p-6 bg-[#FCFAFA] text-center">
         <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
         </div>
@@ -421,7 +421,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   }
 
   if (justPaid) return (
-    <div className="w-full max-w-md mx-auto flex-1 min-h-screen bg-[#FDFBF7] flex flex-col px-5 pt-8 pb-7">
+    <div className="w-full max-w-md mx-auto flex-1 min-h-dvh bg-[#FDFBF7] flex flex-col px-5 pt-8 pb-7">
       <header className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#EFE4D8] text-[#9c4c2d] text-sm">
@@ -506,7 +506,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   );
 
   if (isSubmitting) return (
-    <div className="max-w-md mx-auto relative bg-[#FDFBF7] min-h-screen shadow-2xl flex flex-col items-center justify-center">
+    <div className="max-w-md mx-auto relative bg-[#FDFBF7] min-h-dvh shadow-2xl flex flex-col items-center justify-center">
       <svg height="100%" style={{ background: "transparent", overflow: "visible" }} viewBox="0 0 600 450" width="100%" xmlns="http://www.w3.org/2000/svg">
 <defs>
 <linearGradient id="teaWarmGrad" x1="0%" x2="100%" y1="0%" y2="100%">
@@ -631,7 +631,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   );
 
   if (viewingOrders && tableOrders.length > 0) return (
-    <div className="max-w-md mx-auto relative bg-[#FAF7F2] min-h-screen shadow-2xl flex flex-col">
+    <div className="max-w-md mx-auto relative bg-[#FAF7F2] min-h-dvh shadow-2xl flex flex-col">
       <header className="bg-[#5a3829] text-white pt-6 pb-5 px-5 rounded-b-[2rem] shadow-lg sticky top-0 z-30">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -781,7 +781,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       {isPaymentModalOpen && (
         <>
           <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity" onClick={() => setIsPaymentModalOpen(false)}></div>
-          <main className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 w-full max-w-md bg-[#FAF7F2] rounded-none shadow-2xl flex flex-col max-h-[92vh]">
+          <main className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 w-full max-w-md bg-[#FAF7F2] rounded-none shadow-2xl flex flex-col max-h-[92dvh]">
             <div className="w-full flex justify-center pt-3 pb-1">
               <div className="w-12 h-1.5 bg-stone-300 hover:bg-stone-400 cursor-pointer active:cursor-grabbing transition rounded-full" onClick={() => setIsPaymentModalOpen(false)} title="Drag down to close"></div>
             </div>
@@ -855,7 +855,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
   );
 
   return (
-    <div className="w-full max-w-md mx-auto bg-[#faf7f2] min-h-screen relative flex flex-col shadow-2xl overflow-x-hidden pb-24">
+    <div className="w-full max-w-md mx-auto bg-[#faf7f2] min-h-dvh relative flex flex-col shadow-2xl overflow-x-hidden pb-24">
 
       {isCustomerModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -1130,7 +1130,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       {isCartOpen && (
         <>
           <div className="fixed inset-0 z-10 bg-black/45 backdrop-blur-[2px] transition-opacity" onClick={() => setIsCartOpen(false)}></div>
-          <main className="fixed bottom-0 left-1/2 -translate-x-1/2 z-20 w-full max-w-md bg-[#FAF7F2] rounded-none shadow-sheet border-t border-[#f0e4d7] flex flex-col max-h-[88vh] transition-transform">
+          <main className="fixed bottom-0 left-1/2 -translate-x-1/2 z-20 w-full max-w-md bg-[#FAF7F2] rounded-none shadow-sheet border-t border-[#f0e4d7] flex flex-col max-h-[88dvh] transition-transform">
             <header className="pt-3 px-6 pb-4 shrink-0">
               <div className="flex justify-center mb-3">
                 <div className="w-12 h-1.5 rounded-full bg-[#D6CDC5] cursor-grab" onClick={() => setIsCartOpen(false)}></div>
@@ -1221,7 +1221,7 @@ export default function CustomerOrderPage({ params }: { params: Promise<{ tableI
       {isPaymentModalOpen && (
         <>
           <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity" onClick={() => setIsPaymentModalOpen(false)}></div>
-          <main className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 w-full max-w-md bg-[#FAF7F2] rounded-none shadow-2xl flex flex-col max-h-[92vh]">
+          <main className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 w-full max-w-md bg-[#FAF7F2] rounded-none shadow-2xl flex flex-col max-h-[92dvh]">
             <div className="w-full flex justify-center pt-3 pb-1">
               <div className="w-12 h-1.5 bg-stone-300 hover:bg-stone-400 cursor-pointer active:cursor-grabbing transition rounded-full" onClick={() => setIsPaymentModalOpen(false)} title="Drag down to close"></div>
             </div>

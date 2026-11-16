@@ -141,7 +141,7 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50 overflow-hidden text-slate-900">
+    <div className="flex flex-col h-dvh bg-slate-50 overflow-hidden text-slate-900">
       
       {/* Header & Tabs */}
       <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
