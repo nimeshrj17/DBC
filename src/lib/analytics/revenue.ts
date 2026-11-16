@@ -242,90 +242,72 @@ const hourLabel = (h: number) => `${h % 12 === 0 ? 12 : h % 12} ${h < 12 ? 'AM' 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const methodName = (m: any) => (m === 'upi' || m === 'qr' ? 'Online' : m === 'cash' ? 'Cash' : 'Not recorded');
 
-/**
- * @param costs menu item id -> making cost per unit. Missing items mean profit cannot be resolved.
- */
-export function summarize(
-  orders: Order[],
-  range: RevenueRange,
-  tableName: (o: any) => string,
-  costs: Record<string, number> = {}
-): RevenueSummary {
-  const dailyMap = new Map<string, { revenue: number; kitchen: number; retail: number; orders: number }>();
-  for (let k = range.startKey; k <= range.endKey; k = addDaysKey(k, 1)) dailyMap.set(k, { revenue: 0, kitchen: 0, retail: 0, orders: 0 });
+// ---------- per-day summary (this is what gets stored in analytics_daily) ----------
 
-  const hourMap = new Map<number, { revenue: number; orders: number }>();
-  for (let i = 0; i < 24; i++) hourMap.set((BUSINESS_DAY_START_HOUR + i) % 24, { revenue: 0, orders: 0 });
+/** Bump when the shape or the counting rules change; older stored days are then rebuilt. */
+export const DAY_SUMMARY_VERSION = 1;
 
-  const weekdayAgg = WEEKDAYS.map(() => ({ revenue: 0, orders: 0, days: new Set<string>() }));
-  const channels = { kitchen: { revenue: 0, orders: 0, qty: 0 }, retail: { revenue: 0, orders: 0, qty: 0 } };
+export interface DaySummary {
+  key: string; // business date
+  v: number;
+  orders: number; // paid orders
+  revenue: number;
+  itemsSold: number;
+  itemsTotal: number; // sum of item price x qty (to detect orders edited after billing)
+  channels: { kitchen: Money; retail: Money };
+  cancelled: { count: number; value: number };
+  open: { count: number; value: number };
+  payment: { method: string; revenue: number; orders: number }[];
+  types: { type: OrderType; revenue: number; orders: number }[];
+  categories: { name: string; channel: Channel; revenue: number; qty: number }[];
+  /** cogs only covers units whose cost was saved on the order; the rest are `uncostedQty`. */
+  items: { id: string; name: string; category: string; channel: Channel; revenue: number; qty: number; cogs: number; uncostedQty: number }[];
+  hourly: { hour: number; revenue: number; orders: number }[]; // only hours with sales
+  staff: { name: string; orders: number; revenue: number; cancelled: number }[];
+}
+
+const emptyMoney = (): Money => ({ revenue: 0, orders: 0, qty: 0 });
+
+/** Summarise the orders of one business day. Pure and JSON-safe, so it can be stored. */
+export function summarizeDay(key: string, orders: Order[]): DaySummary {
+  const channels = { kitchen: emptyMoney(), retail: emptyMoney() };
   const pay = new Map<string, { revenue: number; orders: number }>();
   const type = new Map<OrderType, { revenue: number; orders: number }>();
   const cats = new Map<string, { name: string; channel: Channel; revenue: number; qty: number }>();
-  const items = new Map<string, { id: string; name: string; category: string; channel: Channel; revenue: number; qty: number }>();
+  const items = new Map<string, DaySummary['items'][number]>();
+  const hours = new Map<number, { revenue: number; orders: number }>();
   const staff = new Map<string, { orders: number; revenue: number; cancelled: number }>();
-  const uncosted = new Set<string>();
-
-  let revenue = 0, count = 0, itemsSold = 0, itemsTotal = 0, cogs = 0;
   const cancelled = { count: 0, value: 0 };
   const open = { count: 0, value: 0 };
-  const ledger: LedgerRow[] = [];
+  let revenue = 0, count = 0, itemsSold = 0, itemsTotal = 0;
 
   for (const o of orders) {
     if (o.mergedInto) continue;
     const when = toDate(o.createdAt);
-    if (!when) continue;
-    const key = businessDateKey(when);
-    if (key < range.startKey || key > range.endKey) continue;
+    if (!when || businessDateKey(when) !== key) continue;
 
-    const state: LedgerRow['state'] = isCancelled(o) ? 'cancelled' : isCounted(o) ? 'paid' : 'open';
     const total = o.total || 0;
-    const oItems = (o.items || []).map(i => ({ name: i.name, qty: i.qty, price: i.price, channel: itemChannel(i) }));
     const who = staffNameOf(o);
 
-    ledger.push({
-      id: o.id,
-      displayId: o.displayId || o.id.slice(0, 6),
-      time: when,
-      businessDate: key,
-      table: tableName(o),
-      type: orderType(o),
-      items: oItems,
-      itemCount: oItems.reduce((s, i) => s + i.qty, 0),
-      total,
-      paymentMethod: state === 'paid' ? methodName(o.paymentMethod) : '—',
-      staff: who,
-      customer: o.customerName || '',
-      state,
-      timeline: timelineOf(o, when),
-      minutesToPay: minutesBetween(when, toDate(o.paidAt)),
-      mergedRounds: o.mergedFrom?.length || 0,
-    });
-
-    if (state === 'cancelled') {
+    if (isCancelled(o)) {
       cancelled.count++; cancelled.value += total;
       const s = staff.get(who) || { orders: 0, revenue: 0, cancelled: 0 }; s.cancelled++; staff.set(who, s);
       continue;
     }
-    if (state === 'open') { open.count++; open.value += total; continue; }
+    if (!isCounted(o)) { open.count++; open.value += total; continue; }
 
-    // ---- counted order ----
     revenue += total; count++;
-    const day = dailyMap.get(key)!;
-    day.revenue += total; day.orders++;
 
-    const h = hourMap.get(when.getHours())!;
-    h.revenue += total; h.orders++;
+    const h = hours.get(when.getHours()) || { revenue: 0, orders: 0 };
+    h.revenue += total; h.orders++; hours.set(when.getHours(), h);
 
-    const k = parseKey(key);
-    const dow = (new Date(k.y, k.m, k.d).getDay() + 6) % 7;
-    weekdayAgg[dow].revenue += total; weekdayAgg[dow].orders++; weekdayAgg[dow].days.add(key);
+    const pm = methodName(o.paymentMethod);
+    const p = pay.get(pm) || { revenue: 0, orders: 0 };
+    p.revenue += total; p.orders++; pay.set(pm, p);
 
-    const p = pay.get(methodName(o.paymentMethod)) || { revenue: 0, orders: 0 };
-    p.revenue += total; p.orders++; pay.set(methodName(o.paymentMethod), p);
-
-    const t = type.get(orderType(o)) || { revenue: 0, orders: 0 };
-    t.revenue += total; t.orders++; type.set(orderType(o), t);
+    const ot = orderType(o);
+    const t = type.get(ot) || { revenue: 0, orders: 0 };
+    t.revenue += total; t.orders++; type.set(ot, t);
 
     const s = staff.get(who) || { orders: 0, revenue: 0, cancelled: 0 };
     s.orders++; s.revenue += total; staff.set(who, s);
@@ -337,24 +319,109 @@ export function summarize(
       itemsSold += it.qty; itemsTotal += line;
       channels[ch].revenue += line; channels[ch].qty += it.qty;
       if (!seenChannels.has(ch)) { channels[ch].orders++; seenChannels.add(ch); }
-      day[ch] += line;
 
       const cat = it.category || 'Uncategorized';
       const c = cats.get(cat) || { name: cat, channel: ch, revenue: 0, qty: 0 };
       c.revenue += line; c.qty += it.qty; cats.set(cat, c);
 
       const id = it.menuItemId || it.name;
-      const row = items.get(id) || { id, name: (it.name || '').trim(), category: cat, channel: ch, revenue: 0, qty: 0 };
-      row.revenue += line; row.qty += it.qty; items.set(id, row);
+      const row = items.get(id) || { id, name: (it.name || '').trim(), category: cat, channel: ch, revenue: 0, qty: 0, cogs: 0, uncostedQty: 0 };
+      row.revenue += line; row.qty += it.qty;
+      if (typeof it.unitCost === 'number') row.cogs += it.unitCost * it.qty;
+      else row.uncostedQty += it.qty;
+      items.set(id, row);
+    }
+  }
 
-      const unitCost = typeof it.unitCost === 'number' ? it.unitCost : costs[it.menuItemId];
-      if (typeof unitCost === 'number') cogs += unitCost * it.qty;
-      else uncosted.add(id);
+  return {
+    key,
+    v: DAY_SUMMARY_VERSION,
+    orders: count,
+    revenue,
+    itemsSold,
+    itemsTotal,
+    channels,
+    cancelled,
+    open,
+    payment: [...pay.entries()].map(([method, v]) => ({ method, ...v })),
+    types: [...type.entries()].map(([t, v]) => ({ type: t, ...v })),
+    categories: [...cats.values()],
+    items: [...items.values()],
+    hourly: [...hours.entries()].map(([hour, v]) => ({ hour, ...v })),
+    staff: [...staff.entries()].map(([name, v]) => ({ name, ...v })),
+  };
+}
+
+/** One DaySummary per business day in the range (empty days included), from raw orders. */
+export function summarizeDays(orders: Order[], range: RevenueRange): DaySummary[] {
+  const byDay = new Map<string, Order[]>();
+  for (const o of orders) {
+    const when = toDate(o.createdAt);
+    if (!when) continue;
+    const k = businessDateKey(when);
+    if (k < range.startKey || k > range.endKey) continue;
+    (byDay.get(k) || byDay.set(k, []).get(k)!).push(o);
+  }
+  const days: DaySummary[] = [];
+  for (let k = range.startKey; k <= range.endKey; k = addDaysKey(k, 1)) days.push(summarizeDay(k, byDay.get(k) || []));
+  return days;
+}
+
+/**
+ * Combine day summaries into the numbers the Revenue page shows.
+ * @param costs menu item id -> making cost per unit, used only for units sold without a saved cost.
+ */
+export function combineDays(days: DaySummary[], range: RevenueRange, costs: Record<string, number> = {}): Omit<RevenueSummary, 'ledger'> {
+  const byKey = new Map(days.map(d => [d.key, d]));
+  const hourMap = new Map<number, { revenue: number; orders: number }>();
+  for (let i = 0; i < 24; i++) hourMap.set((BUSINESS_DAY_START_HOUR + i) % 24, { revenue: 0, orders: 0 });
+  const weekdayAgg = WEEKDAYS.map(() => ({ revenue: 0, orders: 0, days: new Set<string>() }));
+  const channels = { kitchen: emptyMoney(), retail: emptyMoney() };
+  const pay = new Map<string, { revenue: number; orders: number }>();
+  const type = new Map<OrderType, { revenue: number; orders: number }>();
+  const cats = new Map<string, { name: string; channel: Channel; revenue: number; qty: number }>();
+  const items = new Map<string, { id: string; name: string; category: string; channel: Channel; revenue: number; qty: number }>();
+  const staff = new Map<string, { orders: number; revenue: number; cancelled: number }>();
+  const uncosted = new Set<string>();
+  const cancelled = { count: 0, value: 0 };
+  const open = { count: 0, value: 0 };
+  const dailyArr: RevenueSummary['daily'] = [];
+  let revenue = 0, count = 0, itemsSold = 0, itemsTotal = 0, cogs = 0;
+
+  for (let key = range.startKey; key <= range.endKey; key = addDaysKey(key, 1)) {
+    const d = byKey.get(key);
+    dailyArr.push({ key, revenue: d?.revenue ?? 0, kitchen: d?.channels.kitchen.revenue ?? 0, retail: d?.channels.retail.revenue ?? 0, orders: d?.orders ?? 0 });
+    if (!d) continue;
+
+    revenue += d.revenue; count += d.orders; itemsSold += d.itemsSold; itemsTotal += d.itemsTotal;
+    for (const ch of ['kitchen', 'retail'] as const) {
+      channels[ch].revenue += d.channels[ch].revenue; channels[ch].orders += d.channels[ch].orders; channels[ch].qty += d.channels[ch].qty;
+    }
+    cancelled.count += d.cancelled.count; cancelled.value += d.cancelled.value;
+    open.count += d.open.count; open.value += d.open.value;
+
+    const k = parseKey(key);
+    const dow = (new Date(k.y, k.m, k.d).getDay() + 6) % 7;
+    weekdayAgg[dow].revenue += d.revenue; weekdayAgg[dow].orders += d.orders;
+    if (d.orders > 0) weekdayAgg[dow].days.add(key);
+
+    for (const h of d.hourly) { const x = hourMap.get(h.hour)!; x.revenue += h.revenue; x.orders += h.orders; }
+    for (const p of d.payment) { const x = pay.get(p.method) || { revenue: 0, orders: 0 }; x.revenue += p.revenue; x.orders += p.orders; pay.set(p.method, x); }
+    for (const t of d.types) { const x = type.get(t.type) || { revenue: 0, orders: 0 }; x.revenue += t.revenue; x.orders += t.orders; type.set(t.type, x); }
+    for (const c of d.categories) { const x = cats.get(c.name) || { ...c, revenue: 0, qty: 0 }; x.revenue += c.revenue; x.qty += c.qty; cats.set(c.name, x); }
+    for (const s of d.staff) { const x = staff.get(s.name) || { orders: 0, revenue: 0, cancelled: 0 }; x.orders += s.orders; x.revenue += s.revenue; x.cancelled += s.cancelled; staff.set(s.name, x); }
+    for (const i of d.items) {
+      const x = items.get(i.id) || { id: i.id, name: i.name, category: i.category, channel: i.channel, revenue: 0, qty: 0 };
+      x.revenue += i.revenue; x.qty += i.qty; items.set(i.id, x);
+      cogs += i.cogs;
+      if (i.uncostedQty > 0) {
+        if (typeof costs[i.id] === 'number') cogs += costs[i.id] * i.uncostedQty;
+        else uncosted.add(i.id);
+      }
     }
   }
 
   const share = (v: number) => (revenue ? (v / revenue) * 100 : 0);
-  const dailyArr = [...dailyMap.entries()].map(([key, v]) => ({ key, ...v }));
   const withSales = dailyArr.filter(d => d.orders > 0);
   const best = withSales.length ? withSales.reduce((a, b) => (b.revenue > a.revenue ? b : a)) : null;
   const worst = withSales.length ? withSales.reduce((a, b) => (b.revenue < a.revenue ? b : a)) : null;
@@ -403,8 +470,50 @@ export function summarize(
     peakHour: peak && peak.revenue > 0 ? { label: `${peak.label} – ${hourLabel((peak.hour + 1) % 24)}`, revenue: peak.revenue } : null,
     itemsMismatch: Math.round((revenue - itemsTotal) * 100) / 100,
     profit,
-    ledger: ledger.sort((a, b) => (b.time?.getTime() || 0) - (a.time?.getTime() || 0)),
   };
+}
+
+/** Every order in the range as a row (paid, cancelled and open). Needs raw orders. */
+export function buildLedger(orders: Order[], range: RevenueRange, tableName: (o: any) => string): LedgerRow[] {
+  const ledger: LedgerRow[] = [];
+  for (const o of orders) {
+    if (o.mergedInto) continue;
+    const when = toDate(o.createdAt);
+    if (!when) continue;
+    const key = businessDateKey(when);
+    if (key < range.startKey || key > range.endKey) continue;
+    const state: LedgerRow['state'] = isCancelled(o) ? 'cancelled' : isCounted(o) ? 'paid' : 'open';
+    const oItems = (o.items || []).map(i => ({ name: i.name, qty: i.qty, price: i.price, channel: itemChannel(i) }));
+    ledger.push({
+      id: o.id,
+      displayId: o.displayId || o.id.slice(0, 6),
+      time: when,
+      businessDate: key,
+      table: tableName(o),
+      type: orderType(o),
+      items: oItems,
+      itemCount: oItems.reduce((s, i) => s + i.qty, 0),
+      total: o.total || 0,
+      paymentMethod: state === 'paid' ? methodName(o.paymentMethod) : '—',
+      staff: staffNameOf(o),
+      customer: o.customerName || '',
+      state,
+      timeline: timelineOf(o, when),
+      minutesToPay: minutesBetween(when, toDate(o.paidAt)),
+      mergedRounds: o.mergedFrom?.length || 0,
+    });
+  }
+  return ledger.sort((a, b) => (b.time?.getTime() || 0) - (a.time?.getTime() || 0));
+}
+
+/** Everything the page needs, straight from raw orders. */
+export function summarize(
+  orders: Order[],
+  range: RevenueRange,
+  tableName: (o: any) => string,
+  costs: Record<string, number> = {}
+): RevenueSummary {
+  return { ...combineDays(summarizeDays(orders, range), range, costs), ledger: buildLedger(orders, range, tableName) };
 }
 
 export const rupees = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
