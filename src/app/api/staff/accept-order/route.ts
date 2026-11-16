@@ -35,7 +35,7 @@ export async function POST(request: Request) {
         updatedAt: new Date()
       });
 
-      t.update(orderRef, { status: 'pending' });
+      t.update(orderRef, { status: 'pending', acceptedAt: new Date() });
 
       return { success: true, pin: generatedPin };
     });

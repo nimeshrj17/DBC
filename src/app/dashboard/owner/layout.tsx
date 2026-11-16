@@ -21,7 +21,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
   }
 
   const navItems = [
-    { name: 'Live Dashboard', path: '/dashboard/owner' },
+    { name: 'Revenue', path: '/dashboard/revenue' },
     { name: 'Menu Engineering', path: '/dashboard/owner/menu-engineering' },
     { name: 'Inventory & Wastage', path: '/dashboard/owner/inventory' },
     { name: 'Staff Management', path: '/dashboard/owner/staff' },

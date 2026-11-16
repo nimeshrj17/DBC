@@ -87,7 +87,8 @@ export default function KioskPage() {
           total: kSub + kTax,
           status: 'pending',
           paymentMethod: null,
-          paymentStatus: 'unpaid'
+          paymentStatus: 'unpaid',
+          source: 'kiosk'
         });
       }
 
@@ -104,7 +105,8 @@ export default function KioskPage() {
           total: rSub + rTax,
           status: 'pending', // Keeps it active to ring the alarm
           paymentMethod: null,
-          paymentStatus: 'unpaid'
+          paymentStatus: 'unpaid',
+          source: 'kiosk'
         });
       }
 

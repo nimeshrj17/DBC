@@ -3,6 +3,7 @@ import { collection, query, where, getDocs, doc, setDoc, getDoc } from 'firebase
 import { db } from '@/lib/firebase';
 import { Order } from './useOrders';
 import { MenuItem } from './useMenu';
+import { isCounted } from '@/lib/analytics/revenue';
 import { toast } from 'sonner';
 
 export interface MonthlyExpenses {
@@ -40,39 +41,38 @@ export function useOwnerReports() {
       
       let totalSales = 0;
       let totalCogs = 0;
-      
+      const uncosted = new Set<string>();
+
       snap.docs.forEach(d => {
         const order = d.data() as Order;
-        if (order.status === 'cancelled') return;
-        
-        // Ensure paid/billed
-        if (order.status === 'billed' || order.status === 'completed' || order.paymentStatus === 'paid') {
-          totalSales += order.total;
-          
-          // Compute theoretical COGS based on current menu item cost
-          order.items.forEach(item => {
-            const menuRef = menuItems.find(m => m.id === item.menuItemId);
-            if (menuRef?.costing) {
-              totalCogs += (menuRef.costing.totalCost * item.qty);
-            } else {
-               // Fallback: guess 35% COGS if uncosted
-               totalCogs += (item.price * item.qty * 0.35);
-            }
-          });
-        }
+        // Same definition as every other revenue screen: paid and not cancelled
+        if (!isCounted(order)) return;
+        totalSales += order.total;
+
+        order.items.forEach(item => {
+          const cost = item.unitCost ?? menuItems.find(m => m.id === item.menuItemId)?.costing?.totalCost;
+          if (cost && cost > 0) totalCogs += cost * item.qty;
+          else uncosted.add(item.menuItemId || item.name);
+        });
       });
 
-      const operatingProfit = totalSales - totalCogs - staffCost - expenses.rent - expenses.electricity - expenses.other;
-      
+      // Never guess cost: without making cost for every item sold, profit cannot be resolved
+      const costResolved = uncosted.size === 0 && totalSales > 0;
+      const operatingProfit = costResolved
+        ? totalSales - totalCogs - staffCost - expenses.rent - expenses.electricity - expenses.other
+        : null;
+
       setReportData({
         monthStr,
         totalSales,
         totalCogs,
+        costResolved,
+        itemsWithoutCost: uncosted.size,
         staffCost,
         expenses,
         operatingProfit,
-        grossMargin: totalSales > 0 ? ((totalSales - totalCogs) / totalSales) * 100 : 0,
-        netMargin: totalSales > 0 ? (operatingProfit / totalSales) * 100 : 0
+        grossMargin: costResolved ? ((totalSales - totalCogs) / totalSales) * 100 : null,
+        netMargin: costResolved && operatingProfit !== null ? (operatingProfit / totalSales) * 100 : null
       });
 
     } catch (e) {

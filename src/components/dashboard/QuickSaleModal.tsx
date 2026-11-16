@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 
 import { useMenu, MenuItem } from '@/lib/hooks/useMenu';
-import { useOrders } from '@/lib/hooks/useOrders';
+import { useOrders, staffStamp } from '@/lib/hooks/useOrders';
+import { useAuth } from '@/lib/context/AuthContext';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/Button';
 
 export function QuickSaleModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   const { menuItems } = useMenu();
   const { createOrder } = useOrders();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   
   // Phase 1: Select Item, Phase 2: Pay
@@ -45,6 +47,8 @@ export function QuickSaleModal({ isOpen, onClose }: { isOpen: boolean, onClose: 
         status: 'completed',
         paymentStatus: 'paid',
         paymentMethod: method,
+        paidBy: staffStamp(user),
+        source: 'quick_sale',
         customerName: 'Quick Sale',
         customerPhone: '9999999999',
         tableNumber: 0,

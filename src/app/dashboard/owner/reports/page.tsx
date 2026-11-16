@@ -106,7 +106,9 @@ export default function OwnerReportsPage() {
                 <div className="border-t border-dashed border-slate-200 pt-4 space-y-3 pl-4">
                   <div className="flex justify-between text-sm">
                      <span className="text-slate-600">Raw Material Cost (Theoretical COGS)</span>
-                     <span className="font-semibold text-rose-600">- ₹{reportData.totalCogs.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                     {reportData.costResolved
+                       ? <span className="font-semibold text-rose-600">- ₹{reportData.totalCogs.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                       : <span className="font-semibold text-slate-400">Not available ({reportData.itemsWithoutCost} items have no making cost)</span>}
                   </div>
                   <div className="flex justify-between text-sm">
                      <span className="text-slate-600">Staff Salary & Wages</span>
@@ -128,9 +130,11 @@ export default function OwnerReportsPage() {
 
                 <div className="border-t-2 border-slate-800 pt-4 flex justify-between items-center text-xl font-black">
                   <span className="text-slate-900">Actual Operating Profit</span>
-                  <span className={reportData.operatingProfit >= 0 ? "text-emerald-600" : "text-rose-600"}>
-                    ₹{reportData.operatingProfit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                  </span>
+                  {reportData.operatingProfit === null
+                    ? <span className="text-base text-slate-400">Cannot be resolved: insufficient cost data</span>
+                    : <span className={reportData.operatingProfit >= 0 ? "text-emerald-600" : "text-rose-600"}>
+                        ₹{reportData.operatingProfit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                      </span>}
                 </div>
               </div>
             </div>
@@ -140,18 +144,18 @@ export default function OwnerReportsPage() {
                <div className="bg-indigo-50 border border-indigo-100 p-5 rounded-2xl">
                  <p className="text-xs font-bold text-indigo-700 uppercase tracking-wider mb-1">Gross Margin</p>
                  <div className="flex items-end gap-2">
-                   <h3 className="text-3xl font-black text-indigo-900">{reportData.grossMargin.toFixed(1)}%</h3>
+                   <h3 className="text-3xl font-black text-indigo-900">{reportData.grossMargin === null ? <span className="text-base text-slate-400">Cannot be resolved</span> : `${reportData.grossMargin.toFixed(1)}%`}</h3>
                    <i className="w-5 h-5 text-indigo-500 mb-1 las la-chart-line"></i>
                  </div>
                  <p className="text-xs text-indigo-600/70 mt-1">Sales minus Raw Materials</p>
                </div>
-               <div className={`${reportData.netMargin >= 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100'} border p-5 rounded-2xl`}>
-                 <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${reportData.netMargin >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>Net Operating Margin</p>
+               <div className={`${(reportData.netMargin ?? 0) >= 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100'} border p-5 rounded-2xl`}>
+                 <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${(reportData.netMargin ?? 0) >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>Net Operating Margin</p>
                  <div className="flex items-end gap-2">
-                   <h3 className={`text-3xl font-black ${reportData.netMargin >= 0 ? 'text-emerald-900' : 'text-rose-900'}`}>{reportData.netMargin.toFixed(1)}%</h3>
-                   {reportData.netMargin >= 0 ? <i className="w-5 h-5 text-emerald-500 mb-1 las la-chart-line"></i> : <i className="w-5 h-5 text-rose-500 mb-1 las la-chart-line"></i>}
+                   <h3 className={`text-3xl font-black ${(reportData.netMargin ?? 0) >= 0 ? 'text-emerald-900' : 'text-rose-900'}`}>{reportData.netMargin === null ? <span className="text-base text-slate-400">Cannot be resolved</span> : `${reportData.netMargin.toFixed(1)}%`}</h3>
+                   {(reportData.netMargin ?? 0) >= 0 ? <i className="w-5 h-5 text-emerald-500 mb-1 las la-chart-line"></i> : <i className="w-5 h-5 text-rose-500 mb-1 las la-chart-line"></i>}
                  </div>
-                 <p className={`text-xs mt-1 ${reportData.netMargin >= 0 ? 'text-emerald-600/70' : 'text-rose-600/70'}`}>After all fixed costs</p>
+                 <p className={`text-xs mt-1 ${(reportData.netMargin ?? 0) >= 0 ? 'text-emerald-600/70' : 'text-rose-600/70'}`}>After all fixed costs</p>
                </div>
             </div>
           </div>

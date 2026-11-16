@@ -7,7 +7,8 @@ import { useTables, Table } from '@/lib/hooks/useTables';
 import { MenuPickerModal } from '@/components/dashboard/MenuPickerModal';
 import { toast } from 'sonner';
 import { useMenu, MenuItem } from '@/lib/hooks/useMenu';
-import { useOrders, OrderItem, Order } from '@/lib/hooks/useOrders';
+import { useOrders, OrderItem, Order, staffStamp } from '@/lib/hooks/useOrders';
+import { statusStamps } from '@/lib/orderStamps';
 import { useInventory } from '@/lib/hooks/useInventory';
 import DownloadAllQRsButton from '@/components/dashboard/DownloadAllQRsButton';
 
@@ -261,8 +262,8 @@ export default function DashboardPage() {
   const { orders, loading: ordersLoading, updateOrder, updateOrderStatus, createOrder, removeSentItemTransaction } = useOrders();
   const { settings, loading: settingsLoading } = useSettings();
   const { addOrUpdateCustomer, customers } = useCustomers();
-  const { hasPermission } = useAuth();
-  
+  const { hasPermission, user } = useAuth();
+
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
   const [editingTableId, setEditingTableId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -276,7 +277,12 @@ export default function DashboardPage() {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [clearTablePrompt, setClearTablePrompt] = useState<{tableId: string, hasUnpaid: boolean} | null>(null);
   const [tablePins, setTablePins] = useState<Record<string, string>>({});
-  
+
+  // Never let a payment dialog opened for one table survive into the next table that gets opened
+  useEffect(() => {
+    if (!selectedTableId) setIsPaymentModalOpen(false);
+  }, [selectedTableId]);
+
   useEffect(() => {
     const fetchPins = async () => {
       if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
@@ -533,6 +539,7 @@ export default function DashboardPage() {
           status: 'preparing',
           paymentMethod: null,
           paymentStatus: 'unpaid',
+          source: 'staff_pos',
           kitchenNotes: ticketNote || undefined
         });
         newOrderIds.push(orderId);
@@ -553,6 +560,7 @@ export default function DashboardPage() {
           status: 'preparing', // Keeps it active for the front counter to serve
           paymentMethod: null,
           paymentStatus: 'unpaid',
+          source: 'staff_pos',
           kitchenNotes: ticketNote || undefined
         });
         newOrderIds.push(orderId);
@@ -607,7 +615,7 @@ export default function DashboardPage() {
     }
   };
 
-  const handleCheckout = async (method: 'cash' | 'qr') => {
+  const handleCheckout = async (method: 'cash' | 'upi') => {
     if (!selectedTable || activeOrders.length === 0) return;
     try {
       await runTransaction(db, async (transaction) => {
@@ -651,13 +659,27 @@ export default function DashboardPage() {
           total: mergedTotal,
           tax: mergedTax,
           paymentMethod: method || 'cash',
+          paidBy: staffStamp(user),
+          paidAt: serverTimestamp(),
           paymentStatus: 'paid',
-          status: 'completed'
+          status: 'completed',
+          mergedFrom: checkoutOrderIds.slice(1),
+          ...statusStamps('completed')
         });
         
+        // Keep the other rounds on record (their own timestamps, items and staff) but mark them as
+        // part of this bill so they are never counted twice.
         for (let i = 1; i < checkoutOrderIds.length; i++) {
           const orderRef = doc(db, 'orders', checkoutOrderIds[i]);
-          transaction.delete(orderRef);
+          transaction.update(orderRef, {
+            mergedInto: masterOrderId,
+            paymentStatus: 'paid',
+            paymentMethod: method || 'cash',
+            status: 'completed',
+            paidBy: staffStamp(user) ?? null,
+            paidAt: serverTimestamp(),
+            ...statusStamps('completed')
+          });
         }
         
         // Replace checked out orders with the single consolidated master order
@@ -689,7 +711,7 @@ export default function DashboardPage() {
       
       setSelectedTableId(null);
       setIsMenuOpen(false);
-      toast.success(`Payment of ₹${grandTotal.toFixed(2)} received via ${method === 'cash' ? 'Cash' : 'QR/Card'}. Table cleared successfully!`);
+      toast.success(`Payment of ₹${grandTotal.toFixed(2)} received via ${method === 'cash' ? 'Cash' : 'Online'}. Table cleared successfully!`);
     } catch (error) {
       console.error(error);
       toast.error("Failed to process payment");
@@ -850,12 +872,22 @@ export default function DashboardPage() {
           total: mergedTotal,
           tax: mergedTax,
           paymentStatus: 'paid',
-          status: 'completed'
+          status: 'completed',
+          mergedFrom: checkoutOrderIds.slice(1),
+          paidAt: serverTimestamp(),
+          ...statusStamps('completed')
         });
         
+        // Keep the other rounds on record, marked as part of this bill so they are never counted twice
         for (let i = 1; i < checkoutOrderIds.length; i++) {
           const orderRef = doc(db, 'orders', checkoutOrderIds[i]);
-          transaction.delete(orderRef);
+          transaction.update(orderRef, {
+            mergedInto: masterOrderId,
+            paymentStatus: 'paid',
+            status: 'completed',
+            paidAt: serverTimestamp(),
+            ...statusStamps('completed')
+          });
         }
         
         const newActiveIds = currentActiveIds.filter((id: string) => !checkoutOrderIds.includes(id));
