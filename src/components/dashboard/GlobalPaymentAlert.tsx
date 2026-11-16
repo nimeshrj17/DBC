@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useOrders, staffStamp } from '@/lib/hooks/useOrders';
 import { useAuth } from '@/lib/context/AuthContext';
+import { statusStamps } from '@/lib/orderStamps';
 import { useTables } from '@/lib/hooks/useTables';
 
 import { playNotificationSound } from '@/lib/audio';
@@ -91,7 +92,8 @@ export function GlobalPaymentAlert() {
           status: 'completed',
           paymentStatus: 'paid',
           paidBy: staffStamp(user),
-          paidAt: serverTimestamp()
+          paidAt: serverTimestamp(),
+          ...statusStamps('completed')
         });
 
         if (tableSnap.exists()) {

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { istBusinessDate } from '@/lib/analytics/revenue';
 import { adminDb } from '@/lib/firebase-admin';
 import { getSessionCookie } from '@/lib/session';
 
@@ -58,6 +59,7 @@ export async function POST(request: Request) {
         category: serverItem.category || 'Uncategorized',
         price: serverItem.price,
         qty,
+        ...(serverItem.costing?.totalCost > 0 ? { unitCost: serverItem.costing.totalCost } : {}),
         notes: clientItem.notes || ''
       });
     }
@@ -98,6 +100,9 @@ export async function POST(request: Request) {
         total: serverTotal,
         status: orderStatus,
         paymentStatus: 'unpaid',
+        businessDate: istBusinessDate(),
+        orderType: 'dine_in', // QR orders only come from tables
+        source: 'qr_customer',
         createdAt: new Date(),
         updatedAt: new Date()
       };

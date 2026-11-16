@@ -50,7 +50,7 @@ export function useOwnerReports() {
         totalSales += order.total;
 
         order.items.forEach(item => {
-          const cost = menuItems.find(m => m.id === item.menuItemId)?.costing?.totalCost;
+          const cost = item.unitCost ?? menuItems.find(m => m.id === item.menuItemId)?.costing?.totalCost;
           if (cost && cost > 0) totalCogs += cost * item.qty;
           else uncosted.add(item.menuItemId || item.name);
         });

@@ -48,6 +48,7 @@ export function QuickSaleModal({ isOpen, onClose }: { isOpen: boolean, onClose: 
         paymentStatus: 'paid',
         paymentMethod: method,
         paidBy: staffStamp(user),
+        source: 'quick_sale',
         customerName: 'Quick Sale',
         customerPhone: '9999999999',
         tableNumber: 0,

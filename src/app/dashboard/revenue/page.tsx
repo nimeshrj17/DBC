@@ -400,7 +400,16 @@ export default function RevenuePage() {
                     </tr>
                     {expanded === r.id && (
                       <tr className="bg-slate-50"><td colSpan={8} className="px-4 py-3">
-                        {r.customer && <div className="text-xs text-slate-500 mb-2">Customer: {r.customer}</div>}
+                        {r.customer && <div className="text-xs text-slate-500 mb-1">Customer: {r.customer}</div>}
+                        {r.timeline.length > 1 && (
+                          <div className="text-xs text-slate-500 mb-2">
+                            {r.timeline.map((t, i) => (
+                              <span key={t.label}>{i > 0 && ' → '}{t.label} {t.time.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })}</span>
+                            ))}
+                            {r.minutesToPay !== null && <span className="font-semibold text-slate-700"> ({r.minutesToPay} min to pay)</span>}
+                          </div>
+                        )}
+                        {r.mergedRounds > 0 && <div className="text-xs text-slate-500 mb-2">Combined bill: includes {r.mergedRounds} earlier order round{r.mergedRounds > 1 ? 's' : ''}</div>}
                         {r.items.map((i, idx) => (
                           <div key={idx} className="flex justify-between text-xs py-0.5">
                             <span><span className="inline-block w-2 h-2 rounded-full mr-2" style={{ background: i.channel === 'retail' ? RETAIL : KITCHEN }} />{i.qty} × {i.name.trim()}</span>

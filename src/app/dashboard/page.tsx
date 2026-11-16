@@ -8,6 +8,7 @@ import { MenuPickerModal } from '@/components/dashboard/MenuPickerModal';
 import { toast } from 'sonner';
 import { useMenu, MenuItem } from '@/lib/hooks/useMenu';
 import { useOrders, OrderItem, Order, staffStamp } from '@/lib/hooks/useOrders';
+import { statusStamps } from '@/lib/orderStamps';
 import { useInventory } from '@/lib/hooks/useInventory';
 import DownloadAllQRsButton from '@/components/dashboard/DownloadAllQRsButton';
 
@@ -538,6 +539,7 @@ export default function DashboardPage() {
           status: 'preparing',
           paymentMethod: null,
           paymentStatus: 'unpaid',
+          source: 'staff_pos',
           kitchenNotes: ticketNote || undefined
         });
         newOrderIds.push(orderId);
@@ -558,6 +560,7 @@ export default function DashboardPage() {
           status: 'preparing', // Keeps it active for the front counter to serve
           paymentMethod: null,
           paymentStatus: 'unpaid',
+          source: 'staff_pos',
           kitchenNotes: ticketNote || undefined
         });
         newOrderIds.push(orderId);
@@ -659,12 +662,24 @@ export default function DashboardPage() {
           paidBy: staffStamp(user),
           paidAt: serverTimestamp(),
           paymentStatus: 'paid',
-          status: 'completed'
+          status: 'completed',
+          mergedFrom: checkoutOrderIds.slice(1),
+          ...statusStamps('completed')
         });
         
+        // Keep the other rounds on record (their own timestamps, items and staff) but mark them as
+        // part of this bill so they are never counted twice.
         for (let i = 1; i < checkoutOrderIds.length; i++) {
           const orderRef = doc(db, 'orders', checkoutOrderIds[i]);
-          transaction.delete(orderRef);
+          transaction.update(orderRef, {
+            mergedInto: masterOrderId,
+            paymentStatus: 'paid',
+            paymentMethod: method || 'cash',
+            status: 'completed',
+            paidBy: staffStamp(user) ?? null,
+            paidAt: serverTimestamp(),
+            ...statusStamps('completed')
+          });
         }
         
         // Replace checked out orders with the single consolidated master order
@@ -857,12 +872,22 @@ export default function DashboardPage() {
           total: mergedTotal,
           tax: mergedTax,
           paymentStatus: 'paid',
-          status: 'completed'
+          status: 'completed',
+          mergedFrom: checkoutOrderIds.slice(1),
+          paidAt: serverTimestamp(),
+          ...statusStamps('completed')
         });
         
+        // Keep the other rounds on record, marked as part of this bill so they are never counted twice
         for (let i = 1; i < checkoutOrderIds.length; i++) {
           const orderRef = doc(db, 'orders', checkoutOrderIds[i]);
-          transaction.delete(orderRef);
+          transaction.update(orderRef, {
+            mergedInto: masterOrderId,
+            paymentStatus: 'paid',
+            status: 'completed',
+            paidAt: serverTimestamp(),
+            ...statusStamps('completed')
+          });
         }
         
         const newActiveIds = currentActiveIds.filter((id: string) => !checkoutOrderIds.includes(id));

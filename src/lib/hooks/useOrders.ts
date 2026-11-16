@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, doc, updateDoc, setDoc, runTransaction } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
+import { istBusinessDate, orderTypeFor } from '../analytics/revenue';
+import { statusStamps, OrderSource } from '../orderStamps';
 
 export interface StaffStamp {
   id: string;
@@ -12,6 +14,24 @@ export interface StaffStamp {
 export const staffStamp = (user: { id: string; name: string } | null | undefined): StaffStamp | undefined =>
   user ? { id: user.id, name: user.name } : undefined;
 
+export interface OrderEvent {
+  orderId: string;
+  type: 'item_removed' | 'order_cancelled';
+  itemName?: string;
+  qty?: number;
+  amount?: number; // value taken off the bill
+  by?: StaffStamp;
+}
+
+/** Audit trail for changes that move revenue. Best effort: a logging failure must never block service. */
+export async function logOrderEvent(event: OrderEvent) {
+  try {
+    await addDoc(collection(db, 'orderEvents'), JSON.parse(JSON.stringify({ ...event, at: new Date().toISOString(), businessDate: istBusinessDate() })));
+  } catch (e) {
+    console.warn('Could not record order event', e);
+  }
+}
+
 export interface OrderItem {
   menuItemId: string;
   name: string;
@@ -20,6 +40,7 @@ export interface OrderItem {
   notes?: string;
   category?: string;
   isRetail?: boolean;
+  unitCost?: number; // making cost per unit at the time of sale (absent when the item has no costing)
 }
 
 export interface Order {
@@ -41,16 +62,28 @@ export interface Order {
   createdBy?: StaffStamp; // staff who rang up the order (absent on customer QR orders)
   paidBy?: StaffStamp; // staff who took the payment
   paidAt?: any;
+  businessDate?: string; // 'YYYY-MM-DD', business day ends at 2 AM IST
+  orderType?: 'dine_in' | 'takeaway';
+  source?: OrderSource;
+  acceptedAt?: any;
+  preparedAt?: any;
+  servedAt?: any;
+  billedAt?: any;
+  completedAt?: any;
+  cancelledAt?: any;
+  cancelledBy?: StaffStamp;
+  mergedInto?: string; // set when this order was folded into a combined bill; kept for the record, never counted
+  mergedFrom?: string[]; // on the bill's master order: the orders it absorbed
   customerId?: string; // To track who made the order
   kitchenNotes?: string;
   kdsDismissed?: boolean;
   printedKOT?: boolean;
 }
-export const createOrderTransaction = async (orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt' | 'displayId'> & { displayIdPrefix?: string, idempotencyKey?: string }) => {
+export const createOrderTransaction = async (orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt' | 'displayId'> & { displayIdPrefix?: string, idempotencyKey?: string, source?: OrderSource }) => {
   try {
     const prefix = orderData.displayIdPrefix || 'KOT';
     const displayId = `#${prefix}-${Math.floor(1000 + Math.random() * 9000)}`;
-    const { idempotencyKey, displayIdPrefix, ...dataToSave } = orderData;
+    const { idempotencyKey, displayIdPrefix, source, ...dataToSave } = orderData;
     
     let newOrderId = '';
     
@@ -146,9 +179,19 @@ export const createOrderTransaction = async (orderData: Omit<Order, 'id' | 'crea
       // Remove any undefined properties recursively to prevent Firestore crashes
       const cleanDataToSave = JSON.parse(JSON.stringify(dataToSave));
       
+      // Snapshot each item's making cost now, so later menu cost edits never rewrite history
+      const itemsWithCost = cleanDataToSave.items.map((it: OrderItem, idx: number) => {
+        const cost = menuSnaps[idx].exists() ? menuSnaps[idx].data()?.costing?.totalCost : undefined;
+        return typeof cost === 'number' && cost > 0 ? { ...it, unitCost: cost } : it;
+      });
+
       transaction.set(orderRef, {
         ...cleanDataToSave,
+        items: itemsWithCost,
         displayId,
+        businessDate: istBusinessDate(),
+        orderType: orderTypeFor(cleanDataToSave.tableId, cleanDataToSave.tableNumber, displayId),
+        source: source || (cleanDataToSave.createdBy ? 'staff_pos' : undefined),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });
@@ -173,7 +216,9 @@ export function useOrders() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const ordersData: Order[] = [];
       snapshot.forEach((doc) => {
-        ordersData.push({ id: doc.id, ...doc.data() } as Order);
+        const order = { id: doc.id, ...doc.data() } as Order;
+        // Orders folded into a combined bill stay in the database but are shown once, as the bill
+        if (!order.mergedInto) ordersData.push(order);
       });
       setOrders(ordersData);
       setLoading(false);
@@ -187,14 +232,16 @@ export function useOrders() {
 
   const { user } = useAuth();
 
-  const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt' | 'displayId'> & { idempotencyKey?: string }) => {
+  const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt' | 'displayId'> & { idempotencyKey?: string, source?: OrderSource }) => {
     return createOrderTransaction({ createdBy: staffStamp(user), ...orderData });
   };
 
   const updateOrder = async (orderId: string, updates: Partial<Omit<Order, 'id'>>) => {
     try {
       const orderRef = doc(db, 'orders', orderId);
-      await updateDoc(orderRef, updates);
+      const stamps = updates.status ? statusStamps(updates.status, staffStamp(user)) : {};
+      await updateDoc(orderRef, { ...stamps, ...updates });
+      if (updates.status === 'cancelled') logOrderEvent({ orderId, type: 'order_cancelled', by: staffStamp(user) });
     } catch (error) {
       console.error("Error updating order:", error);
       throw error;
@@ -206,8 +253,10 @@ export function useOrders() {
       const orderRef = doc(db, 'orders', orderId);
       await updateDoc(orderRef, { 
         status,
+        ...statusStamps(status, staffStamp(user)),
         updatedAt: serverTimestamp()
       });
+      if (status === 'cancelled') logOrderEvent({ orderId, type: 'order_cancelled', by: staffStamp(user) });
     } catch (error) {
       console.error("Error updating order status:", error);
     }
@@ -215,6 +264,7 @@ export function useOrders() {
 
     const removeSentItemTransaction = async (orderId: string, menuItemId: string, taxPercentage: number, notes?: string) => {
     try {
+      const removed: { item?: { name: string; price: number } } = {};
       await runTransaction(db, async (transaction) => {
         // 1. Get the order
         const orderRef = doc(db, 'orders', orderId);
@@ -228,6 +278,7 @@ export function useOrders() {
         if (itemIndex === -1) throw new Error("Item not in order");
         
         const itemToRemove = orderData.items[itemIndex];
+        removed.item = { name: itemToRemove.name, price: itemToRemove.price };
         
         // 3. Get the menu item to find inventory links
         const menuRef = doc(db, 'menuItems', menuItemId);
@@ -294,6 +345,9 @@ export function useOrders() {
           }
         }
       });
+      if (removed.item) {
+        logOrderEvent({ orderId, type: 'item_removed', itemName: removed.item.name, qty: 1, amount: removed.item.price, by: staffStamp(user) });
+      }
     } catch (error) {
       console.error("Error removing sent item:", error);
       throw error;

@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/Card';
 
 import { useOrders, Order, staffStamp } from '@/lib/hooks/useOrders';
 import { useAuth } from '@/lib/context/AuthContext';
+import { statusStamps } from '@/lib/orderStamps';
 import { useTables } from '@/lib/hooks/useTables';
 import { doc, runTransaction, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -152,7 +153,8 @@ export default function OrdersPage() {
           paymentStatus: 'paid',
           paymentMethod: method,
           paidBy: staffStamp(user),
-          paidAt: serverTimestamp()
+          paidAt: serverTimestamp(),
+          ...statusStamps('completed')
         });
 
         // 2. Update table

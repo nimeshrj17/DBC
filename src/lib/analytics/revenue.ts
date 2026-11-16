@@ -137,15 +137,31 @@ export function comparisonRange(range: RevenueRange): { range: RevenueRange; lab
 
 // ---------- order classification ----------
 
-/** An order counts as revenue once it is paid and not cancelled. Nothing else counts. */
-export const isCounted = (o: Pick<Order, 'paymentStatus' | 'status'>) => o.paymentStatus === 'paid' && o.status !== 'cancelled';
+/**
+ * An order counts as revenue once it is paid and not cancelled. Nothing else counts.
+ * Orders folded into a combined bill (`mergedInto`) are kept for the record but never counted,
+ * because the bill's master order already carries their items and total.
+ */
+export const isCounted = (o: Pick<Order, 'paymentStatus' | 'status' | 'mergedInto'>) =>
+  o.paymentStatus === 'paid' && o.status !== 'cancelled' && !o.mergedInto;
 export const isCancelled = (o: Pick<Order, 'status'>) => o.status === 'cancelled';
 
 export type OrderType = 'dine_in' | 'takeaway';
-export function orderType(o: any): OrderType {
-  if (o.tableId === 'takeaway' || o.tableNumber === 0 || o.tableNumber === 999999) return 'takeaway';
-  if (typeof o.displayId === 'string' && o.displayId.includes('PARCEL')) return 'takeaway';
+/** Takeaway and counter sales have no real table. */
+export function orderTypeFor(tableId?: string, tableNumber?: number, displayId?: string): OrderType {
+  if (tableId === 'takeaway' || tableNumber === 0 || tableNumber === 999999) return 'takeaway';
+  if (typeof displayId === 'string' && displayId.includes('PARCEL')) return 'takeaway';
   return 'dine_in';
+}
+export const orderType = (o: any): OrderType => (o.orderType as OrderType) || orderTypeFor(o.tableId, o.tableNumber, o.displayId);
+
+/**
+ * Business date in IST regardless of where the code runs (browser or a UTC server).
+ * India has no daylight saving, so a fixed +05:30 offset is exact.
+ */
+export function istBusinessDate(d = new Date()): string {
+  const t = new Date(d.getTime() + (330 - BUSINESS_DAY_START_HOUR * 60) * 60000);
+  return `${t.getUTCFullYear()}-${pad(t.getUTCMonth() + 1)}-${pad(t.getUTCDate())}`;
 }
 
 export const NOT_RECORDED = 'Not recorded';
@@ -198,6 +214,28 @@ export interface LedgerRow {
   staff: string;
   customer: string;
   state: 'paid' | 'cancelled' | 'open';
+  /** When each step happened, oldest first. Only steps that were recorded appear. */
+  timeline: { label: string; time: Date }[];
+  minutesToPay: number | null;
+  mergedRounds: number;
+}
+
+const minutesBetween = (a: Date | null, b: Date | null) => (a && b ? Math.max(0, Math.round((b.getTime() - a.getTime()) / 60000)) : null);
+
+function timelineOf(o: Order, created: Date): { label: string; time: Date }[] {
+  const steps: [string, Date | null][] = [
+    ['Placed', created],
+    ['Accepted', toDate(o.acceptedAt)],
+    ['Prepared', toDate(o.preparedAt)],
+    ['Served', toDate(o.servedAt)],
+    ['Billed', toDate(o.billedAt)],
+    ['Paid', toDate(o.paidAt)],
+    ['Cancelled', toDate(o.cancelledAt)],
+  ];
+  return steps
+    .filter((s): s is [string, Date] => s[1] !== null)
+    .sort((a, b) => a[1].getTime() - b[1].getTime())
+    .map(([label, time]) => ({ label, time }));
 }
 
 const hourLabel = (h: number) => `${h % 12 === 0 ? 12 : h % 12} ${h < 12 ? 'AM' : 'PM'}`;
@@ -234,6 +272,7 @@ export function summarize(
   const ledger: LedgerRow[] = [];
 
   for (const o of orders) {
+    if (o.mergedInto) continue;
     const when = toDate(o.createdAt);
     if (!when) continue;
     const key = businessDateKey(when);
@@ -258,6 +297,9 @@ export function summarize(
       staff: who,
       customer: o.customerName || '',
       state,
+      timeline: timelineOf(o, when),
+      minutesToPay: minutesBetween(when, toDate(o.paidAt)),
+      mergedRounds: o.mergedFrom?.length || 0,
     });
 
     if (state === 'cancelled') {
@@ -305,7 +347,8 @@ export function summarize(
       const row = items.get(id) || { id, name: (it.name || '').trim(), category: cat, channel: ch, revenue: 0, qty: 0 };
       row.revenue += line; row.qty += it.qty; items.set(id, row);
 
-      if (typeof costs[it.menuItemId] === 'number') cogs += costs[it.menuItemId] * it.qty;
+      const unitCost = typeof it.unitCost === 'number' ? it.unitCost : costs[it.menuItemId];
+      if (typeof unitCost === 'number') cogs += unitCost * it.qty;
       else uncosted.add(id);
     }
   }
