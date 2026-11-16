@@ -26,7 +26,6 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
     { name: 'Inventory & Wastage', path: '/dashboard/owner/inventory' },
     { name: 'Staff Management', path: '/dashboard/owner/staff' },
     { name: 'SOPs & Rules', path: '/dashboard/owner/sops' },
-    { name: 'Monthly P&L', path: '/dashboard/owner/reports' },
   ];
 
   return (
