@@ -561,7 +561,7 @@ export default function InventoryPage() {
       {/* Add Stock Modal - Replace standard Card modal with simple modal or side sheet */}
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center z-[100] md:p-4">
-          <div className="bg-white w-full md:max-w-2xl md:rounded-3xl rounded-t-3xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col animate-in slide-in-from-bottom-10 md:zoom-in-95 duration-200">
+          <div className="bg-white w-full md:max-w-2xl md:rounded-3xl rounded-t-3xl max-h-[90dvh] overflow-y-auto shadow-2xl flex flex-col animate-in slide-in-from-bottom-10 md:zoom-in-95 duration-200">
             <div className="p-4 md:p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
               <div>
                 <h3 className="text-xl font-bold text-slate-900">{editingItemId ? 'Edit Inventory Item' : 'Add New Item'}</h3>

@@ -34,7 +34,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto pb-10 h-full flex flex-col">
+    <div className="space-y-6 max-w-4xl mx-auto w-full px-4 md:px-8 pt-4 md:pt-6 pb-10 h-full flex flex-col">
       <div>
         <h1 className="text-2xl font-bold mb-1">Store Settings</h1>
         <p className="text-sm text-muted-foreground">Manage your cafe's global configuration.</p>

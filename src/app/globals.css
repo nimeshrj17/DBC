@@ -96,3 +96,32 @@ body {
 *:not(.rounded-full) {
   border-radius: 0 !important;
 }
+
+
+/* ---------- phone / installed web app ---------- */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none; /* no pull-to-refresh or bounce while using the POS */
+}
+
+/* Tapping quickly must never trigger double-tap zoom or a click delay */
+button, a, input, select, textarea, label, [role="button"] {
+  touch-action: manipulation;
+}
+
+/* iOS zooms the whole page when a field with text under 16px is focused */
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Room for the notch and home bar when installed on the home screen */
+.safe-top { padding-top: env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }

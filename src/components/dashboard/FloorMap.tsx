@@ -76,7 +76,7 @@ export function FloorMap({ tables, activeZone, onSelectTable, onUpdatePosition }
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-220px)] bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden relative">
+    <div className="flex flex-col h-[calc(100dvh-220px)] bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden relative">
       <div className="flex justify-between items-center p-4 border-b border-slate-100 bg-slate-50/50">
         <div>
           <h3 className="font-bold text-slate-900">Floor Layout <span className="text-slate-400 font-normal">({activeZone})</span></h3>
