@@ -120,8 +120,11 @@ export default function DashboardLayout({
   useEffect(() => {
     const checkPrintAgent = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:5050/', { method: 'GET', signal: AbortSignal.timeout(2000) });
-        setPrintAgentOnline(res.ok);
+        // /status reports the printer itself, not just the agent. Older agents without it count as online.
+        const res = await fetch('http://127.0.0.1:5050/status', { method: 'GET', signal: AbortSignal.timeout(4000) });
+        if (res.status === 404) setPrintAgentOnline(true);
+        else if (!res.ok) setPrintAgentOnline(false);
+        else setPrintAgentOnline((await res.json()).printer?.reachable !== false);
       } catch {
         setPrintAgentOnline(false);
       }
