@@ -4,11 +4,15 @@ import { useEffect, useRef } from 'react';
 import { collection, query, where, onSnapshot, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
+import { usePrintStation } from '@/lib/printStation';
 
 export default function PrintAgent() {
   const printingRef = useRef<Set<string>>(new Set());
+  const { isStation } = usePrintStation();
 
   useEffect(() => {
+    // Only the device the printer is connected to prints; phones and other computers stay quiet
+    if (!isStation) return;
     console.log("🖨️ PrintAgent Frontend Component Mounted!");
     
     // Look back 12 hours so midnight rollover or timezone differences never drop active orders
@@ -94,7 +98,7 @@ export default function PrintAgent() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [isStation]);
 
   return null;
 }
