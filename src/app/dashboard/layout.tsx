@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 
 import { GlobalPaymentAlert } from '@/components/dashboard/GlobalPaymentAlert';
 import { useOrders } from '@/lib/hooks/useOrders';
+import { businessDateKey, currentBusinessDateKey, isCounted, toDate } from '@/lib/analytics/revenue';
 import { useAuth } from '@/lib/context/AuthContext';
 import PrintAgent from '@/components/PrintAgent';
 
@@ -42,11 +43,13 @@ export default function DashboardLayout({
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
+  // Same rule as the Revenue page: paid, not cancelled, within today's business day (2 AM to 2 AM)
+  const businessToday = currentBusinessDateKey();
   const todayRevenue = orders
     .filter(o => {
-      if (o.status !== 'completed' || o.paymentStatus !== 'paid') return false;
-      const orderDate = o.createdAt?.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
-      return orderDate >= today;
+      if (!isCounted(o)) return false;
+      const orderDate = toDate(o.createdAt);
+      return !!orderDate && businessDateKey(orderDate) === businessToday;
     })
     .reduce((sum, order) => sum + order.total, 0);
 

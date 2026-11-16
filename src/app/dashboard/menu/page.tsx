@@ -114,7 +114,7 @@ export default function MenuPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10">
+    <div className="space-y-4 md:space-y-6 max-w-7xl mx-auto w-full min-w-0 px-4 md:px-8 pt-4 md:pt-6 pb-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold mb-1">Menu Management</h1>

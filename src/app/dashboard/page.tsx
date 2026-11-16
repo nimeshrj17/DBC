@@ -108,11 +108,11 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
       if (isVacant && onQuickAssign) {
         onQuickAssign(table.id);
       }
-    }} className={`rounded-none border ${cardStyle} shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-md transition group cursor-pointer h-full min-h-[140px]`}>
+    }} className={`rounded-none border ${cardStyle} shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-md transition group cursor-pointer h-full min-h-[104px] sm:min-h-[140px]`}>
       <div className="p-4 flex-1 flex flex-col">
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <h4 className="text-lg font-bold text-slate-900 leading-none">{table.name || `Table ${table.number}`}</h4>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
+          <div className="flex flex-wrap items-center gap-2 min-w-0">
+            <h4 className="text-lg font-bold text-slate-900 leading-tight whitespace-nowrap">{table.name || `Table ${table.number}`}</h4>
             {table.name && table.number ? <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">#{table.number}</span> : null}
             {tablePins[table.id] && (
               <span className="text-[10px] font-mono font-bold text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded tracking-widest">
@@ -126,7 +126,7 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
               <span>{table.seats}</span>
             </div>
           </div>
-          <div className="flex flex-col items-end gap-1">
+          <div className="flex flex-row flex-wrap sm:flex-col items-center sm:items-end gap-1">
             {isVacant ? (
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 font-bold text-slate-500 text-[10px] uppercase tracking-wider">
                 <span className="w-2 h-2 rounded-full bg-slate-300"></span> Available
@@ -163,25 +163,25 @@ const NewTableCard = ({ table, orders, setSelectedTableId, onClearTable, setIsAd
       <div className="flex flex-col xl:flex-row bg-slate-50 border-t border-slate-100">
         {!isVacant && (
           <>
-            <button onClick={(e) => { e.stopPropagation(); setSelectedTableId(table.id); }} className="flex-1 py-2 text-[11px] sm:text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors border-b xl:border-b-0 xl:border-r border-slate-200">
+            <button onClick={(e) => { e.stopPropagation(); setSelectedTableId(table.id); }} className="flex-1 py-3 sm:py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors border-b xl:border-b-0 xl:border-r border-slate-200">
               Add Item
             </button>
             {hasPendingChai ? (
-              <button onClick={(e) => { e.stopPropagation(); onMarkServed(table.id, pendingChaiOrders.map((o: any) => o.id)); }} className="flex-1 py-2 text-[11px] sm:text-xs font-bold text-amber-700 hover:bg-amber-100 transition-colors border-b xl:border-b-0 xl:border-r border-slate-200 bg-amber-50">
+              <button onClick={(e) => { e.stopPropagation(); onMarkServed(table.id, pendingChaiOrders.map((o: any) => o.id)); }} className="flex-1 py-3 sm:py-2 text-xs font-bold text-amber-700 hover:bg-amber-100 transition-colors border-b xl:border-b-0 xl:border-r border-slate-200 bg-amber-50">
                 Serve Chai
               </button>
             ) : (
-              <button onClick={(e) => { e.stopPropagation(); onMarkServed(table.id, table.activeOrderIds || []); }} className="flex-1 py-2 text-[11px] sm:text-xs font-bold text-emerald-600 hover:bg-emerald-50 transition-colors border-b xl:border-b-0 xl:border-r border-slate-200">
+              <button onClick={(e) => { e.stopPropagation(); onMarkServed(table.id, table.activeOrderIds || []); }} className="flex-1 py-3 sm:py-2 text-xs font-bold text-emerald-600 hover:bg-emerald-50 transition-colors border-b xl:border-b-0 xl:border-r border-slate-200">
                 Served
               </button>
             )}
-            <button onClick={(e) => { e.stopPropagation(); onClearTable(table.id); }} className="flex-1 py-2 text-[11px] sm:text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors">
+            <button onClick={(e) => { e.stopPropagation(); onClearTable(table.id); }} className="flex-1 py-3 sm:py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors">
               Clear
             </button>
           </>
         )}
         {isVacant && (
-          <button onClick={(e) => { e.stopPropagation(); onQuickAssign(table.id); }} className="flex-1 py-2.5 text-xs font-bold text-white bg-[#10B981] hover:bg-[#059669] transition-colors flex items-center justify-center gap-1.5 shadow-inner">
+          <button onClick={(e) => { e.stopPropagation(); onQuickAssign(table.id); }} className="flex-1 py-3.5 sm:py-2.5 text-sm sm:text-xs font-bold text-white bg-[#10B981] hover:bg-[#059669] transition-colors flex items-center justify-center gap-1.5 shadow-inner">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"></path></svg>
             Open Table
           </button>
@@ -1043,23 +1043,23 @@ export default function DashboardPage() {
 
       {/* Mobile Controls (from mobile_dashboard.html) */}
       <section className="md:hidden px-5 pt-5 pb-2" data-purpose="section-action-header">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-col gap-3 mb-3">
           <div>
             <h2 className="text-xl font-black text-slate-900 tracking-tight">Table Dashboard</h2>
             <p className="text-xs text-slate-400 font-medium">Overview of all dining tables at a glance</p>
           </div>
-          <div className="flex items-center space-x-2">
-            <DownloadAllQRsButton tables={tables} />
-            <button onClick={() => setIsQuickSaleOpen(true)} className="bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold px-3 py-2 rounded-xl text-xs shadow-sm mx-1" type="button">
+          <div className="flex flex-wrap items-center gap-2 [&_button]:min-h-[44px]">
+            <button onClick={() => setIsQuickSaleOpen(true)} className="bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold px-4 py-2 rounded-xl text-sm shadow-sm" type="button">
               Sale
             </button>
-            <button onClick={() => setIsAddTableOpen(true)} className="bg-[#10B981] hover:bg-[#059669] text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center space-x-1.5 shadow-sm active:scale-95 transition-all">
+            <button onClick={() => setIsAddTableOpen(true)} className="bg-[#10B981] hover:bg-[#059669] text-slate-950 font-bold px-4 py-2 rounded-xl text-sm flex items-center space-x-1.5 shadow-sm active:scale-95 transition-all">
               <svg className="w-3.5 h-3.5 stroke-current fill-none stroke-[3]" viewBox="0 0 24 24">
                 <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round"></path>
               </svg>
               <span>Add Table</span>
             </button>
-            <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200">
+            <DownloadAllQRsButton tables={tables} />
+            <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 ml-auto [&_button]:min-w-[44px] [&_button]:min-h-[40px] [&_button]:flex [&_button]:items-center [&_button]:justify-center">
               <button onClick={() => setViewMode('grid')} className={`p-1.5 ${viewMode === 'grid' ? 'bg-white text-slate-900 rounded-lg shadow-xs' : 'text-slate-400 hover:text-slate-600 rounded-lg'}`} title="Grid View">
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                   <path d="M3 3h7v7H3V3zm11 0h7v7h-7V3zm-11 11h7v7H3v-7zm11 0h7v7h-7v-7z"></path>
@@ -1080,15 +1080,15 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar py-2 -mx-5 px-5" data-purpose="zone-filters">
-          <button onClick={() => setActiveZone('All')} className={`px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap shadow-xs transition-colors ${activeZone === 'All' ? 'font-semibold bg-slate-900 text-white' : 'font-medium bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+          <button onClick={() => setActiveZone('All')} className={`px-4 py-2.5 rounded-full text-sm whitespace-nowrap shadow-xs transition-colors ${activeZone === 'All' ? 'font-semibold bg-slate-900 text-white' : 'font-medium bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
             All ({tables.length})
           </button>
-          <button onClick={() => setActiveZone('Active')} className={`px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap shadow-xs transition-colors flex items-center space-x-1.5 ${activeZone === 'Active' ? 'font-semibold bg-slate-900 text-white' : 'font-medium bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+          <button onClick={() => setActiveZone('Active')} className={`px-4 py-2.5 rounded-full text-sm whitespace-nowrap shadow-xs transition-colors flex items-center space-x-1.5 ${activeZone === 'Active' ? 'font-semibold bg-slate-900 text-white' : 'font-medium bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
             <span className="w-2 h-2 rounded-full bg-amber-500"></span>
             <span>Active ({tables.filter(t => t.status !== 'empty').length})</span>
           </button>
           {Array.from(new Set(tables.map(t => String(t.section || 'Main Hall')))).map(z => (
-            <button key={z} onClick={() => setActiveZone(z)} className={`px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap shadow-xs transition-colors ${activeZone === z ? 'font-semibold bg-slate-900 text-white' : 'font-medium bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+            <button key={z} onClick={() => setActiveZone(z)} className={`px-4 py-2.5 rounded-full text-sm whitespace-nowrap shadow-xs transition-colors ${activeZone === z ? 'font-semibold bg-slate-900 text-white' : 'font-medium bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
               {z} ({tables.filter(t => (t.section || 'Main Hall') === z).length})
             </button>
           ))}

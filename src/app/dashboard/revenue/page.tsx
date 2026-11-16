@@ -39,9 +39,9 @@ function Delta({ now, before, label }: { now: number; before: number; label: str
 
 function Kpi({ title, value, sub, children }: { title: string; value: string; sub?: string; children?: React.ReactNode }) {
   return (
-    <Card className="flex flex-col">
-      <div className="text-sm font-semibold text-slate-500 mb-2">{title}</div>
-      <div className="text-2xl font-black text-slate-900">{value}</div>
+    <Card className="flex flex-col !p-3.5 md:!p-5">
+      <div className="text-xs md:text-sm font-semibold text-slate-500 mb-1 md:mb-2">{title}</div>
+      <div className="text-xl md:text-2xl font-black text-slate-900">{value}</div>
       {sub && <div className="text-xs text-slate-500 mt-1">{sub}</div>}
       {children}
     </Card>
@@ -212,7 +212,7 @@ export default function RevenuePage() {
         {error && <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-semibold">{error}</div>}
 
         {/* KPIs */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 xl:grid-cols-5 gap-3 md:gap-4">
           <Kpi title="Revenue" value={rupees(s.revenue)} sub={`${s.orders} paid orders`}>
             <Delta now={s.revenue} before={prev.revenue} label={comp.label} />
           </Kpi>
@@ -225,8 +225,8 @@ export default function RevenuePage() {
           <Kpi title="Cancelled" value={`${s.cancelled.count}`} sub={`${rupees(s.cancelled.value)} not collected`}>
             {s.open.count > 0 && <div className="text-xs font-semibold text-amber-600 mt-auto pt-3">{s.open.count} open / unpaid ({rupees(s.open.value)})</div>}
           </Kpi>
-          <Card className="flex flex-col">
-            <div className="text-sm font-semibold text-slate-500 mb-2">Profit margin</div>
+          <Card className="flex flex-col col-span-2 xl:col-span-1 !p-3.5 md:!p-5">
+            <div className="text-xs md:text-sm font-semibold text-slate-500 mb-1 md:mb-2">Profit margin</div>
             {s.profit.available ? (
               <>
                 <div className="text-2xl font-black text-slate-900">{s.profit.marginPct.toFixed(1)}%</div>

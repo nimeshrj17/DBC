@@ -26,6 +26,7 @@ export default function TakeawayPage() {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false); // phone only: the parcel slides up over the menu
   const isSubmittingRef = useRef(false);
 
   // Customer Details
@@ -141,24 +142,24 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
   };
 
   return (
-    <div className="flex flex-col h-dvh bg-slate-50 overflow-hidden text-slate-900">
+    <div className="flex flex-col md:h-dvh bg-slate-50 md:overflow-hidden text-slate-900">
       
       {/* Header & Tabs */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
+      <header className="bg-white border-b border-slate-200 px-4 md:px-6 py-3 md:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Takeaway POS</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">Takeaway POS</h1>
           <p className="text-sm text-slate-500">Manage parcel orders</p>
         </div>
-        <div className="flex bg-slate-100 p-1 rounded-xl">
+        <div className="flex bg-slate-100 p-1 rounded-xl [&_button]:flex-1 [&_button]:justify-center">
           <button 
             onClick={() => setActiveTab('new')}
-            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'new' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+            className={`px-4 md:px-6 py-2.5 md:py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'new' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
           >
             New Parcel
           </button>
           <button 
             onClick={() => setActiveTab('active')}
-            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'active' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+            className={`px-4 md:px-6 py-2.5 md:py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'active' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
           >
             Active Parcels
             {activeTakeawayOrders.length > 0 && (
@@ -170,16 +171,16 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
 
       {/* Main Content Area */}
       {activeTab === 'new' ? (
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex md:overflow-hidden">
           {/* Left Menu Section (List View) */}
-          <div className="flex-1 flex flex-col h-full overflow-hidden relative">
-            <div className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shrink-0">
-               <div className="flex overflow-x-auto hide-scrollbar gap-2 w-full pr-4">
+          <div className="flex-1 min-w-0 flex flex-col md:h-full md:overflow-hidden relative">
+            <div className="bg-white border-b border-slate-200 px-4 md:px-6 py-3 flex flex-col md:flex-row md:items-center justify-between gap-2 shrink-0 sticky top-0 z-10 md:static">
+               <div className="flex overflow-x-auto hide-scrollbar gap-2 w-full md:pr-4 order-2 md:order-1">
                 {categories.map(cat => (
                   <button
                     key={cat}
                     onClick={() => setActiveCategory(cat)}
-                    className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
+                    className={`px-4 py-2.5 md:py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                       activeCategory === cat
                         ? 'bg-slate-900 text-[#10B981]'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -189,7 +190,7 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
                   </button>
                 ))}
               </div>
-              <div className="relative shrink-0">
+              <div className="relative shrink-0 order-1 md:order-2">
                 <svg className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
@@ -198,14 +199,14 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
                   placeholder="Search menu..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 pr-4 py-1.5 border border-slate-200 rounded-full focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none text-sm w-48 bg-slate-50"
+                  className="pl-9 pr-4 py-2.5 md:py-1.5 border border-slate-200 rounded-full focus:ring-2 focus:ring-[#10B981] focus:border-[#10B981] outline-none text-sm w-full md:w-48 bg-slate-50"
                 />
               </div>
             </div>
 
             {/* Menu List */}
-            <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
-              <div className="flex flex-col gap-3 max-w-4xl mx-auto pb-20">
+            <div className="flex-1 md:overflow-y-auto p-3 md:p-6 bg-slate-50/50">
+              <div className="flex flex-col gap-2.5 md:gap-3 max-w-4xl mx-auto pb-28 md:pb-20">
                 {menuLoading ? (
                   [...Array(5)].map((_, i) => <div key={i} className="h-20 bg-slate-200 rounded-2xl animate-pulse"></div>)
                 ) : (
@@ -213,10 +214,10 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
                     <div 
                       key={item.id} 
                       onClick={() => addToCart(item)}
-                      className="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:border-[#10B981] hover:shadow-md transition-all cursor-pointer p-4 flex items-center justify-between group"
+                      className="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:border-[#10B981] hover:shadow-md active:bg-emerald-50 transition-all cursor-pointer p-3 md:p-4 flex items-center justify-between group min-h-[68px]"
                     >
-                      <div className="flex items-center gap-4 flex-1">
-                         <div className="w-14 h-14 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 shrink-0">
+                      <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
+                         <div className="hidden sm:flex w-14 h-14 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 shrink-0">
                            <span className="text-xs font-bold uppercase">{item.category.substring(0, 3)}</span>
                          </div>
                          <div>
@@ -224,9 +225,9 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
                            <p className="text-xs text-slate-500 line-clamp-1">{item.description}</p>
                          </div>
                       </div>
-                      <div className="flex items-center gap-4 shrink-0 pl-4">
+                      <div className="flex items-center gap-3 md:gap-4 shrink-0 pl-2 md:pl-4">
                         <span className="font-black text-lg text-slate-900">₹{item.price}</span>
-                        <button className="bg-slate-100 text-slate-600 w-10 h-10 rounded-full flex items-center justify-center font-bold group-hover:bg-[#10B981] group-hover:text-slate-900 transition-colors">
+                        <button className="bg-slate-100 text-slate-600 w-11 h-11 rounded-full text-xl flex items-center justify-center font-bold group-hover:bg-[#10B981] group-hover:text-slate-900 transition-colors">
                           +
                         </button>
                       </div>
@@ -241,26 +242,29 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
           </div>
 
           {/* Right Cart Section */}
-          <div className="w-[380px] bg-white border-l border-slate-200 flex flex-col shadow-xl shrink-0 z-10">
+          <div className={`${cartOpen ? 'fixed inset-0 z-[55] flex' : 'hidden md:flex'} md:static md:w-[380px] w-full bg-white border-l border-slate-200 flex-col shadow-xl shrink-0 md:z-10`} style={cartOpen ? { paddingTop: 'env(safe-area-inset-top)' } : undefined}>
             <div className="px-6 py-5 border-b border-slate-200 bg-slate-900 text-white flex items-center justify-between">
               <h2 className="text-lg font-bold flex items-center gap-2">
                 <svg className="w-5 h-5 text-[#10B981]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                 Current Parcel
               </h2>
-              <span className="bg-[#10B981] text-white text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm">
-                {cart.reduce((s, i) => s + i.qty, 0)} Items
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="bg-[#10B981] text-white text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm">
+                  {cart.reduce((s, i) => s + i.qty, 0)} {cart.reduce((s, i) => s + i.qty, 0) === 1 ? 'Item' : 'Items'}
+                </span>
+                <button onClick={() => setCartOpen(false)} className="md:hidden min-h-[40px] px-3 text-sm font-bold bg-white/10 rounded-lg">Menu</button>
+              </div>
             </div>
 
             {/* Customer Info Form */}
-            <div className="p-4 border-b border-slate-100 bg-slate-50/50 space-y-3">
+            <div className="p-4 border-b border-slate-100 bg-slate-50/50 grid grid-cols-2 md:grid-cols-1 gap-3">
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Customer Name (Optional)</label>
-                <input type="text" placeholder="e.g. Rahul" value={custName} onChange={e => setCustName(e.target.value)} className="w-full border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-slate-400" />
+                <input type="text" placeholder="e.g. Rahul" value={custName} onChange={e => setCustName(e.target.value)} className="w-full border border-slate-200 px-3 py-3 md:py-2 rounded-lg text-sm outline-none focus:border-slate-400" />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Phone Number (Optional)</label>
-                <input type="tel" placeholder="9999999999" value={custPhone} onChange={e => setCustPhone(e.target.value)} className="w-full border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-slate-400" />
+                <input type="tel" placeholder="9999999999" value={custPhone} onChange={e => setCustPhone(e.target.value)} className="w-full border border-slate-200 px-3 py-3 md:py-2 rounded-lg text-sm outline-none focus:border-slate-400" />
               </div>
             </div>
 
@@ -277,9 +281,9 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
                       <div className="text-slate-500 text-xs mt-1 font-medium">₹{item.price}</div>
                     </div>
                     <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-lg p-1 shadow-sm">
-                      <button onClick={() => updateQty(item.id, -1)} className="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-rose-500 hover:bg-rose-50 rounded-md font-bold transition-colors">−</button>
+                      <button onClick={() => updateQty(item.id, -1)} className="w-10 h-10 md:w-7 md:h-7 flex items-center justify-center text-slate-500 hover:text-rose-500 hover:bg-rose-50 rounded-md font-bold transition-colors">−</button>
                       <span className="font-bold w-4 text-center text-sm">{item.qty}</span>
-                      <button onClick={() => updateQty(item.id, 1)} className="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-emerald-500 hover:bg-emerald-50 rounded-md font-bold transition-colors">+</button>
+                      <button onClick={() => updateQty(item.id, 1)} className="w-10 h-10 md:w-7 md:h-7 flex items-center justify-center text-slate-500 hover:text-emerald-500 hover:bg-emerald-50 rounded-md font-bold transition-colors">+</button>
                     </div>
                     <div className="w-16 text-right font-bold text-slate-900">₹{item.price * item.qty}</div>
                   </div>
@@ -288,14 +292,14 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
             </div>
 
             {/* Checkout Footer */}
-            <div className="p-6 bg-white border-t border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
+            <div className="p-4 md:p-6 bg-white border-t border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
               <div className="space-y-2 mb-4 text-sm">
                 <div className="flex justify-between text-slate-500"><span>Subtotal</span><span className="font-semibold text-slate-700">₹{subtotal.toFixed(2)}</span></div>
                 
                 <div className="pt-2 border-t border-slate-100 flex justify-between text-lg font-black text-slate-900"><span>Total</span><span>₹{total.toFixed(2)}</span></div>
               </div>
               <button
-                onClick={handlePlaceOrder}
+                onClick={async () => { await handlePlaceOrder(); setCartOpen(false); }}
                 disabled={cart.length === 0 || isSubmitting}
                 className={`w-full py-4 rounded-xl font-bold text-lg shadow-md transition-all flex justify-center items-center gap-2 ${cart.length === 0 || isSubmitting ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none' : 'bg-[#10B981] text-white hover:bg-[#059669] hover:shadow-lg'}`}
               >
@@ -303,10 +307,22 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
               </button>
             </div>
           </div>
+
+          {/* Phone: always-visible parcel total above the bottom bar */}
+          {cart.length > 0 && !cartOpen && (
+            <button
+              onClick={() => setCartOpen(true)}
+              className="md:hidden fixed left-3 right-3 z-30 flex items-center justify-between bg-slate-900 text-white rounded-2xl px-4 min-h-[56px] shadow-xl active:scale-[0.99]"
+              style={{ bottom: 'calc(4.75rem + env(safe-area-inset-bottom))' }}
+            >
+              <span className="font-bold">{cart.reduce((s, i) => s + i.qty, 0)} {cart.reduce((s, i) => s + i.qty, 0) === 1 ? 'item' : 'items'} · ₹{total.toFixed(0)}</span>
+              <span className="font-bold text-[#10B981]">View parcel →</span>
+            </button>
+          )}
         </div>
       ) : (
         /* Active Parcels Tab */
-        <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+        <div className="flex-1 md:overflow-y-auto p-3 md:p-6 bg-slate-50/50">
           <div className="max-w-5xl mx-auto space-y-4">
             {ordersLoading ? (
                <div className="text-center text-slate-500 py-10">Loading active parcels...</div>
@@ -353,15 +369,15 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
                      {/* Action Buttons */}
                      <div className="grid grid-cols-2 gap-2 mt-auto">
                        {(order.status === 'pending' || order.status === 'preparing') ? (
-                         <button onClick={() => handleStatusUpdate(order.id, 'prepared')} className="col-span-2 bg-amber-500 text-white font-bold py-2.5 rounded-xl hover:bg-amber-600 transition-colors shadow-sm">Mark Prepared</button>
+                         <button onClick={() => handleStatusUpdate(order.id, 'prepared')} className="col-span-2 bg-amber-500 text-white font-bold py-3.5 md:py-2.5 rounded-xl hover:bg-amber-600 transition-colors shadow-sm">Mark Prepared</button>
                        ) : (order.status === 'prepared' || order.status === 'served') ? (
                          <>
-                           <button onClick={() => handlePayment(order.id, 'cash')} className="bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold py-2.5 rounded-xl hover:bg-emerald-100 transition-colors">Collect Cash</button>
+                           <button onClick={() => handlePayment(order.id, 'cash')} className="bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold py-3.5 md:py-2.5 rounded-xl hover:bg-emerald-100 transition-colors">Collect Cash</button>
                            
-                           <button onClick={() => handlePayment(order.id, 'upi')} className="col-span-2 bg-blue-50 text-blue-700 border border-blue-200 font-bold py-2.5 rounded-xl hover:bg-blue-100 transition-colors">Manual UPI Success</button>
+                           <button onClick={() => handlePayment(order.id, 'upi')} className="col-span-2 bg-blue-50 text-blue-700 border border-blue-200 font-bold py-3.5 md:py-2.5 rounded-xl hover:bg-blue-100 transition-colors">Manual UPI Success</button>
                          </>
                        ) : (
-                         <button className="col-span-2 bg-slate-100 text-slate-400 font-bold py-2.5 rounded-xl cursor-not-allowed">Waiting for customer...</button>
+                         <button className="col-span-2 bg-slate-100 text-slate-400 font-bold py-3.5 md:py-2.5 rounded-xl cursor-not-allowed">Waiting for customer...</button>
                        )}
                      </div>
                    </div>
