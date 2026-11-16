@@ -1,50 +1,76 @@
-import { useCallback, useEffect, useState } from 'react';
-import { collection, getDocs, orderBy, query, Timestamp, where } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Order } from './useOrders';
-import type { RevenueRange } from '@/lib/analytics/revenue';
+import { DaySummary, RevenueRange, summarizeDays } from '@/lib/analytics/revenue';
+import { LoadStats, fetchOrders, loadDays } from '@/lib/analytics/dailyCache';
 
 const REFRESH_MS = 60_000;
 
-async function fetchRange(range: RevenueRange): Promise<Order[]> {
-  const snap = await getDocs(
-    query(
-      collection(db, 'orders'),
-      where('createdAt', '>=', Timestamp.fromDate(range.start)),
-      where('createdAt', '<', Timestamp.fromDate(range.end)),
-      orderBy('createdAt', 'desc')
-    )
-  );
-  return snap.docs.map(d => ({ id: d.id, ...d.data() } as Order));
-}
-
-/** Orders for a business-day range plus its comparison range. Refreshes while the range is still open. */
+/**
+ * Revenue data for a range plus its comparison range.
+ * - Day view: raw orders (they are needed for the ledger anyway, about one day's worth).
+ * - Week / month / custom: saved daily summaries, a handful of reads. Raw orders are only
+ *   loaded when the ledger or an export asks for them.
+ */
 export function useRevenueRange(range: RevenueRange, comparison: RevenueRange) {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [compOrders, setCompOrders] = useState<Order[]>([]);
+  const [days, setDays] = useState<DaySummary[]>([]);
+  const [compDays, setCompDays] = useState<DaySummary[]>([]);
+  const [orders, setOrders] = useState<Order[] | null>(null);
+  const [stats, setStats] = useState<LoadStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fetchedAt, setFetchedAt] = useState<Date | null>(null);
   const [tick, setTick] = useState(0);
-
-  const refresh = useCallback(() => setTick(t => t + 1), []);
+  const forceRef = useRef(false);
+  const wantLedgerRef = useRef(false);
 
   const startMs = range.start.getTime();
   const endMs = range.end.getTime();
   const cStartMs = comparison.start.getTime();
   const cEndMs = comparison.end.getTime();
+  const isDay = range.period === 'day';
+
+  const refresh = useCallback(() => setTick(t => t + 1), []);
+  /** Recompute every past day in this range from orders and overwrite the saved summaries. */
+  const rebuild = useCallback(() => { forceRef.current = true; setTick(t => t + 1); }, []);
+  /** Load the individual orders for a multi-day range (ledger, CSV). */
+  const loadLedger = useCallback(async (): Promise<Order[]> => {
+    wantLedgerRef.current = true;
+    const raw = await fetchOrders(range);
+    setOrders(raw);
+    return raw;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startMs, endMs]);
+
+  // A different range means any loaded orders no longer apply
+  useEffect(() => {
+    wantLedgerRef.current = false;
+    setOrders(null);
+  }, [startMs, endMs]);
 
   useEffect(() => {
     let cancelled = false;
+    const force = forceRef.current;
+    forceRef.current = false;
     setLoading(true);
     setError(null);
-    Promise.all([fetchRange(range), fetchRange(comparison)])
-      .then(([cur, prev]) => {
+
+    (async () => {
+      const comp = loadDays(comparison);
+      if (isDay) {
+        const raw = await fetchOrders(range);
+        const cur = summarizeDays(raw, range);
+        const [c] = await Promise.all([comp]);
         if (cancelled) return;
-        setOrders(cur);
-        setCompOrders(prev);
-        setFetchedAt(new Date());
-      })
+        setOrders(raw); setDays(cur); setCompDays(c.days); setStats({ saved: c.stats.saved, built: c.stats.built, live: 1 });
+      } else {
+        const [cur, c] = await Promise.all([loadDays(range, force), comp]);
+        const raw = wantLedgerRef.current || force ? await fetchOrders(range) : null;
+        if (cancelled) return;
+        setDays(cur.days); setCompDays(c.days); setStats(cur.stats);
+        if (raw) setOrders(raw);
+      }
+      setFetchedAt(new Date());
+    })()
       .catch(e => {
         console.error('Revenue fetch failed', e);
         if (!cancelled) setError('Could not load orders. Check your connection and try again.');
@@ -52,6 +78,7 @@ export function useRevenueRange(range: RevenueRange, comparison: RevenueRange) {
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
+
     return () => {
       cancelled = true;
     };
@@ -67,5 +94,5 @@ export function useRevenueRange(range: RevenueRange, comparison: RevenueRange) {
     return () => clearInterval(id);
   }, [endMs, refresh]);
 
-  return { orders, compOrders, loading, error, fetchedAt, refresh };
+  return { days, compDays, orders, ledgerLoaded: orders !== null, loadLedger, stats, loading, error, fetchedAt, refresh, rebuild };
 }

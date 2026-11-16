@@ -10,7 +10,7 @@ import { useTables } from '@/lib/hooks/useTables';
 import { useRevenueRange } from '@/lib/hooks/useRevenueRange';
 import {
   BUSINESS_DAY_START_HOUR, LedgerRow, Period, RevenueRange, comparisonRange, currentBusinessDateKey, pctChange,
-  rangeFor, rupees, shiftRange, summarize,
+  buildLedger, combineDays, rangeFor, rupees, shiftRange,
 } from '@/lib/analytics/revenue';
 
 const KITCHEN = '#10b981';
@@ -62,7 +62,8 @@ export default function RevenuePage() {
 
   const range: RevenueRange = useMemo(() => rangeFor(period, anchor, custom), [period, anchor, custom]);
   const comp = useMemo(() => comparisonRange(range), [range]);
-  const { orders, compOrders, loading, error, fetchedAt, refresh } = useRevenueRange(range, comp.range);
+  const { days, compDays, orders, ledgerLoaded, loadLedger, stats, loading, error, fetchedAt, refresh, rebuild } = useRevenueRange(range, comp.range);
+  const [loadingLedger, setLoadingLedger] = useState(false);
 
   const tableName = useMemo(() => {
     const byId = new Map(tables.map(t => [t.id, t]));
@@ -80,8 +81,12 @@ export default function RevenuePage() {
     return m;
   }, [menuItems]);
 
-  const s = useMemo(() => summarize(orders, range, tableName, costs), [orders, range, tableName, costs]);
-  const prev = useMemo(() => summarize(compOrders, comp.range, tableName, costs), [compOrders, comp.range, tableName, costs]);
+  const s = useMemo(
+    () => ({ ...combineDays(days, range, costs), ledger: orders ? buildLedger(orders, range, tableName) : [] }),
+    [days, orders, range, tableName, costs]
+  );
+  const prev = useMemo(() => combineDays(compDays, comp.range, costs), [compDays, comp.range, costs]);
+  const orderCount = s.orders + s.cancelled.count + s.open.count;
 
   if (authLoading) return null;
   if (!hasPermission('view_revenue')) {
@@ -108,9 +113,16 @@ export default function RevenuePage() {
     return [r.displayId, r.table, r.staff, r.customer, r.paymentMethod, ...r.items.map(i => i.name)].join(' ').toLowerCase().includes(q);
   });
 
-  const exportCsv = () => {
+  const ensureLedger = async () => {
+    setLoadingLedger(true);
+    try { return orders ?? (await loadLedger()); } finally { setLoadingLedger(false); }
+  };
+
+  const exportCsv = async () => {
+    const raw = await ensureLedger();
+    const rows0 = buildLedger(raw, range, tableName);
     const head = ['Business date', 'Time', 'Order', 'Table/Type', 'Items', 'Qty', 'Total', 'Payment', 'Staff', 'Status'];
-    const rows = s.ledger.map(r => [
+    const rows = rows0.map(r => [
       r.businessDate, r.time?.toLocaleTimeString('en-IN') ?? '', r.displayId, r.table,
       r.items.map(i => `${i.qty}x ${i.name}`).join('; '), r.itemCount, r.total, r.paymentMethod, r.staff, r.state,
     ]);
@@ -159,7 +171,10 @@ export default function RevenuePage() {
               </button>
             )}
             <button onClick={refresh} className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-semibold hover:bg-slate-50">Refresh</button>
-            <button onClick={exportCsv} disabled={!s.ledger.length} className="px-3 py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold disabled:opacity-40">Export CSV</button>
+            {period !== 'day' && (
+              <button onClick={rebuild} title="Recompute past days from the orders" className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-semibold hover:bg-slate-50">Rebuild</button>
+            )}
+            <button onClick={exportCsv} disabled={!orderCount || loadingLedger} className="px-3 py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold disabled:opacity-40">Export CSV</button>
           </div>
         </div>
         {period === 'custom' && (
@@ -170,7 +185,7 @@ export default function RevenuePage() {
           </div>
         )}
         <div className="text-xs text-slate-400 mt-2">
-          {loading ? 'Loading…' : fetchedAt ? `Updated ${fetchedAt.toLocaleTimeString('en-IN')}${isCurrent ? ' · refreshes every minute' : ''}` : ''}
+          {loading ? 'Loading…' : fetchedAt ? `Updated ${fetchedAt.toLocaleTimeString('en-IN')}${isCurrent ? ' · refreshes every minute' : ''}${stats && period !== 'day' ? ` · ${stats.saved} days from saved summaries${stats.built ? `, ${stats.built} newly saved` : ''}` : ''}` : ''}
         </div>
       </div>
 
@@ -372,7 +387,7 @@ export default function RevenuePage() {
           <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
             <div>
               <h3 className="text-base font-bold text-slate-900">Order ledger</h3>
-              <p className="text-xs text-slate-500">Every order behind the numbers above. {ledger.length} shown.</p>
+              <p className="text-xs text-slate-500">Every order behind the numbers above.{ledgerLoaded ? ` ${ledger.length} shown.` : ''}</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <input value={query} onChange={e => { setQuery(e.target.value); setLedgerLimit(50); }} placeholder="Search order, table, item, staff…" className="border border-slate-200 rounded-lg px-3 py-2 text-sm w-64" />
@@ -381,6 +396,14 @@ export default function RevenuePage() {
               </select>
             </div>
           </div>
+          {!ledgerLoaded ? (
+            <div className="py-8 text-center">
+              <p className="text-sm text-slate-500 mb-3">Totals above come from saved daily summaries. Load the individual orders to browse or search them.</p>
+              <button onClick={ensureLedger} disabled={!orderCount || loadingLedger} className="px-4 py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold disabled:opacity-40">
+                {loadingLedger ? 'Loading…' : `Load ${orderCount} orders`}
+              </button>
+            </div>
+          ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead><tr className="text-xs text-slate-500 border-b border-slate-200"><th className="py-2">Time</th><th>Order</th><th>Table</th><th className="text-right">Items</th><th className="text-right">Total</th><th>Payment</th><th>Staff</th><th>Status</th></tr></thead>
@@ -423,7 +446,8 @@ export default function RevenuePage() {
               </tbody>
             </table>
           </div>
-          {ledger.length > ledgerLimit && <button onClick={() => setLedgerLimit(l => l + 100)} className="mt-3 text-sm font-semibold text-slate-600 hover:text-slate-900">Show more ({ledger.length - ledgerLimit} left)</button>}
+          )}
+          {ledgerLoaded && ledger.length > ledgerLimit && <button onClick={() => setLedgerLimit(l => l + 100)} className="mt-3 text-sm font-semibold text-slate-600 hover:text-slate-900">Show more ({ledger.length - ledgerLimit} left)</button>}
         </Card>
       </div>
     </div>
