@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { useOrders, Order, staffStamp } from '@/lib/hooks/useOrders';
 import { useAuth } from '@/lib/context/AuthContext';
 import { statusStamps } from '@/lib/orderStamps';
+import { AGENT_URL, isExcludedFromKOT } from '@/lib/kot';
 import { useTables } from '@/lib/hooks/useTables';
 import { doc, runTransaction, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -95,13 +96,6 @@ export default function OrdersPage() {
 
   const handleManualPrintKOT = async (order: Order) => {
     try {
-      const isExcludedFromKOT = (i: any) => {
-        if (i.isRetail || i.category === 'Retail') return true;
-        const cat = (i.category || '').toLowerCase().trim();
-        if (cat === 'chai' || cat === 'tea' || cat === 'herbal tea') return true;
-        return false;
-      };
-
       const kitchenItems = order.items.filter((i: any) => !isExcludedFromKOT(i));
       if (kitchenItems.length === 0) {
         toast.info("This order only contains Chai or Retail items (no kitchen KOT needed)");
@@ -119,7 +113,7 @@ export default function OrdersPage() {
       };
 
       toast.loading("Sending KOT to printer...", { id: `print-${order.id}` });
-      const res = await fetch('http://127.0.0.1:5050/print', {
+      const res = await fetch(`${AGENT_URL}/print`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ order: orderToPrint })

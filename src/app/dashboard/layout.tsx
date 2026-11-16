@@ -8,6 +8,7 @@ import { useOrders } from '@/lib/hooks/useOrders';
 import { businessDateKey, currentBusinessDateKey, isCounted, toDate } from '@/lib/analytics/revenue';
 import { useAuth } from '@/lib/context/AuthContext';
 import PrintAgent from '@/components/PrintAgent';
+import { usePrintStation } from '@/lib/printStation';
 
 
 export default function DashboardLayout({
@@ -110,6 +111,7 @@ export default function DashboardLayout({
 
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [printAgentOnline, setPrintAgentOnline] = useState<boolean | null>(null);
+  const { isStation, setStation } = usePrintStation();
   const [moreOpen, setMoreOpen] = useState(false);
 
   // Close the "More" sheet whenever the page changes
@@ -118,16 +120,21 @@ export default function DashboardLayout({
   useEffect(() => {
     const checkPrintAgent = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:5050/', { method: 'GET', signal: AbortSignal.timeout(2000) });
-        setPrintAgentOnline(res.ok);
+        // /status reports the printer itself, not just the agent. Older agents without it count as online.
+        const res = await fetch('http://127.0.0.1:5050/status', { method: 'GET', signal: AbortSignal.timeout(4000) });
+        if (res.status === 404) setPrintAgentOnline(true);
+        else if (!res.ok) setPrintAgentOnline(false);
+        else setPrintAgentOnline((await res.json()).printer?.reachable !== false);
       } catch {
         setPrintAgentOnline(false);
       }
     };
+    // Only the print station has an agent to check
+    if (!isStation) return;
     checkPrintAgent();
     const interval = setInterval(checkPrintAgent, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isStation]);
   
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -294,20 +301,29 @@ export default function DashboardLayout({
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Printer Status Pill */}
-          <div 
-            title={printAgentOnline ? "Print Agent Connected" : "Print Agent Offline on this Mac"}
-            className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border transition-colors ${
-              printAgentOnline === true 
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-                : printAgentOnline === false 
-                  ? 'bg-rose-50 text-rose-700 border-rose-200 animate-pulse'
-                  : 'bg-slate-50 text-slate-500 border-slate-200'
-            }`}
-          >
-            <span className={`w-2 h-2 rounded-full ${printAgentOnline ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-            <span>🖨️ {printAgentOnline ? 'Printer Online' : 'Printer Offline'}</span>
-          </div>
+          {/* Printer Status Pill: only the print station reports on the printer */}
+          {isStation ? (
+            <div className="hidden sm:flex items-center gap-2">
+              <div
+                title={printAgentOnline ? "Print Agent Connected" : "Print Agent is not running on this computer"}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border transition-colors ${
+                  printAgentOnline === true
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                    : printAgentOnline === false
+                      ? 'bg-rose-50 text-rose-700 border-rose-200 animate-pulse'
+                      : 'bg-slate-50 text-slate-500 border-slate-200'
+                }`}
+              >
+                <span className={`w-2 h-2 rounded-full ${printAgentOnline ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                <span>🖨️ {printAgentOnline ? 'Printer Online' : 'Printer Offline'}</span>
+              </div>
+              <button onClick={() => setStation(false)} className="text-[11px] font-semibold text-slate-400 hover:text-slate-700" title="Stop printing KOTs from this computer">Not the printer PC</button>
+            </div>
+          ) : (
+            <button onClick={() => setStation(true)} className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100" title="KOTs print from the computer connected to the printer. Click to make this computer the printing one.">
+              🖨️ Prints on café Mac · Use this computer
+            </button>
+          )}
 
           <div className="flex items-center gap-2">
             <span className="text-sm font-bold text-slate-900">{user?.name}</span>
@@ -375,10 +391,14 @@ export default function DashboardLayout({
               ))}
             </div>
             <div className="px-4 pt-4 flex items-center justify-between gap-3">
-              <span className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold border ${printAgentOnline ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'}`}>
-                <span className={`w-2 h-2 rounded-full ${printAgentOnline ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                {printAgentOnline ? 'Printer online' : 'Printer offline'}
-              </span>
+              {isStation ? (
+                <button onClick={() => setStation(false)} className={`flex items-center gap-1.5 px-3 min-h-[44px] rounded-full text-xs font-bold border ${printAgentOnline ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'}`}>
+                  <span className={`w-2 h-2 rounded-full ${printAgentOnline ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                  {printAgentOnline ? 'Printing here · online' : 'Printing here · offline'}
+                </button>
+              ) : (
+                <span className="text-xs font-semibold text-slate-500">KOTs print on the café Mac</span>
+              )}
               <button
                 onClick={() => { if (window.confirm('Are you sure you want to log out?')) logout(); }}
                 className="px-4 min-h-[44px] bg-rose-50 text-rose-600 text-sm font-bold border border-rose-100"

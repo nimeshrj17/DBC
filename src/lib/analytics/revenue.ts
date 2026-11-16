@@ -11,7 +11,7 @@ export const BUSINESS_DAY_START_HOUR = 2;
  * `isRetail` on order items is not reliable (burgers are flagged retail, some cold drinks are not),
  * so the channel is decided by category/name. Edit these patterns when new retail lines are added.
  */
-const RETAIL_CATEGORY_PATTERN = /cigar|tobacco|bidi|beedi|water|cold ?drink|energy|soft ?drink|soda/i;
+const RETAIL_CATEGORY_PATTERN = /cigar|tobacco|bidi|beedi|lighter|water|cold ?drink|energy|soft ?drink|soda/i;
 const RETAIL_NAME_PATTERN = /cigarette|bidi|beedi|\(stick\)|water bottle/i;
 
 export type Channel = 'kitchen' | 'retail';
