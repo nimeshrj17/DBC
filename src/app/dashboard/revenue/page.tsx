@@ -7,10 +7,16 @@ import {
 import { useAuth } from '@/lib/context/AuthContext';
 import { useMenu } from '@/lib/hooks/useMenu';
 import { useTables } from '@/lib/hooks/useTables';
+import { useStaff } from '@/lib/hooks/useStaff';
+import { Heatmap } from '@/components/revenue/Heatmap';
+import { InsightsPanel } from '@/components/revenue/InsightsPanel';
+import { CashReconciliation } from '@/components/revenue/CashReconciliation';
+import { MonthlyPnl } from '@/components/revenue/MonthlyPnl';
+import { downloadRevenuePdf } from '@/lib/analytics/pdf';
 import { useRevenueRange } from '@/lib/hooks/useRevenueRange';
 import {
   BUSINESS_DAY_START_HOUR, LedgerRow, Period, RevenueRange, comparisonRange, currentBusinessDateKey, pctChange,
-  buildLedger, combineDays, rangeFor, rupees, shiftRange,
+  buildLedger, combineDays, insights, movers, projectRevenue, rangeFor, rupees, shiftRange,
 } from '@/lib/analytics/revenue';
 
 const KITCHEN = '#10b981';
@@ -45,7 +51,9 @@ function Kpi({ title, value, sub, children }: { title: string; value: string; su
 const csvCell = (v: any) => `"${String(v ?? '').replace(/"/g, '""')}"`;
 
 export default function RevenuePage() {
-  const { hasPermission, loading: authLoading } = useAuth();
+  const { hasPermission, loading: authLoading, user } = useAuth();
+  const { staff } = useStaff();
+  const [cashVariance, setCashVariance] = useState<number | null>(null);
   const { menuItems } = useMenu();
   const { tables } = useTables();
 
@@ -87,6 +95,14 @@ export default function RevenuePage() {
   );
   const prev = useMemo(() => combineDays(compDays, comp.range, costs), [compDays, comp.range, costs]);
   const orderCount = s.orders + s.cancelled.count + s.open.count;
+  const staffCost = useMemo(() => staff.filter(x => x.isActive).reduce((sum, x) => sum + (x.salary || 0), 0), [staff]);
+  const moved = useMemo(() => movers(s.items, prev.items), [s.items, prev.items]);
+  const projection = useMemo(() => (period === 'month' || period === 'custom' ? projectRevenue(s.daily, todayKey) : null), [period, s.daily, todayKey]);
+
+  const tableLabel = (t: { id: string; number: number }) => {
+    const found = tables.find(x => x.id === t.id);
+    return found?.name || `Table ${found?.number ?? t.number}`;
+  };
 
   if (authLoading) return null;
   if (!hasPermission('view_revenue')) {
@@ -94,6 +110,8 @@ export default function RevenuePage() {
   }
 
   const isCurrent = range.endKey >= todayKey;
+  const alerts = insights(s, prev, { range, todayKey, compLabel: comp.label, cashVariance: period === 'day' ? cashVariance : null });
+  const cashSales = s.paymentSplit.find(p => p.method === 'Cash')?.revenue ?? 0;
   const pickPeriod = (p: Period) => {
     if (p === 'custom') setCustom({ from: range.startKey, to: range.endKey });
     setPeriod(p);
@@ -174,6 +192,7 @@ export default function RevenuePage() {
             {period !== 'day' && (
               <button onClick={rebuild} title="Recompute past days from the orders" className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-semibold hover:bg-slate-50">Rebuild</button>
             )}
+            <button onClick={() => downloadRevenuePdf({ range, s, prev, compLabel: comp.label })} disabled={!s.orders} className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-semibold hover:bg-slate-50 disabled:opacity-40">PDF</button>
             <button onClick={exportCsv} disabled={!orderCount || loadingLedger} className="px-3 py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold disabled:opacity-40">Export CSV</button>
           </div>
         </div>
@@ -221,11 +240,7 @@ export default function RevenuePage() {
             )}
           </Card>
         </div>
-        {s.itemsMismatch !== 0 && s.orders > 0 && (
-          <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold">
-            Item totals differ from order totals by {rupees(Math.abs(s.itemsMismatch))} in this period (an order was edited after billing, or has extra charges). Revenue above uses order totals.
-          </div>
-        )}
+        <InsightsPanel items={alerts} />
 
         {/* Kitchen vs retail */}
         <Card>
@@ -316,6 +331,72 @@ export default function RevenuePage() {
           </Card>
         )}
 
+        {/* Week by week and projection */}
+        {s.weeks.length > 1 && (
+          <Card>
+            <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+              <h3 className="text-base font-bold text-slate-900">Week by week</h3>
+              {projection && (
+                <p className="text-xs text-slate-600">
+                  At the current pace ({rupees(projection.perDay)} a day over {projection.basedOnDays} finished days) this period ends near <b>{rupees(projection.projected)}</b>. An estimate, not a promise.
+                </p>
+              )}
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead><tr className="text-xs text-slate-500 border-b border-slate-200"><th className="py-2">Week</th><th className="text-right">Days</th><th className="text-right">Orders</th><th className="text-right">Revenue</th><th className="text-right">Avg order</th><th className="text-right">vs previous week</th></tr></thead>
+                <tbody>
+                  {s.weeks.map((w, i) => {
+                    const before = s.weeks[i - 1];
+                    const pct = before && before.days === w.days ? pctChange(w.revenue, before.revenue) : null;
+                    return (
+                      <tr key={w.startKey} className="border-b border-slate-100">
+                        <td className="py-2 font-semibold text-slate-800">{w.startKey.slice(5)} – {w.endKey.slice(5)}</td>
+                        <td className="text-right text-slate-500">{w.days}</td>
+                        <td className="text-right">{w.orders}</td>
+                        <td className="text-right font-semibold">{rupees(w.revenue)}</td>
+                        <td className="text-right">{rupees(w.aov)}</td>
+                        <td className={`text-right font-semibold ${pct === null ? 'text-slate-300' : pct >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{pct === null ? '–' : `${pct >= 0 ? '▲' : '▼'} ${Math.abs(pct).toFixed(0)}%`}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        )}
+
+        {/* Heatmap */}
+        {showDaily && s.revenue > 0 && (
+          <Card>
+            <h3 className="text-base font-bold text-slate-900 mb-1">When the money comes in</h3>
+            <p className="text-xs text-slate-500 mb-4">Revenue by weekday and hour. Darker is busier. Use it to plan shifts and prep.</p>
+            <Heatmap data={s.heatmap} />
+          </Card>
+        )}
+
+        {/* Movers */}
+        {(moved.up.length > 0 || moved.down.length > 0) && (
+          <Card>
+            <h3 className="text-base font-bold text-slate-900 mb-1">Items moving vs {comp.label}</h3>
+            <p className="text-xs text-slate-500 mb-4">Biggest changes in item revenue.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {([['Selling more', moved.up, 'text-emerald-600'], ['Selling less', moved.down, 'text-red-500']] as const).map(([title, list, color]) => (
+                <div key={title}>
+                  <div className="text-sm font-bold text-slate-700 mb-2">{title}</div>
+                  {list.length === 0 && <div className="text-xs text-slate-400">Nothing notable.</div>}
+                  {list.map(m => (
+                    <div key={m.id} className="flex justify-between text-sm py-1 border-b border-slate-100">
+                      <span className="text-slate-700">{m.name.trim()} <span className="text-xs text-slate-400">{m.qtyBefore} → {m.qtyNow}</span></span>
+                      <span className={`font-semibold ${color}`}>{m.delta > 0 ? '+' : '−'}{rupees(Math.abs(m.delta))}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
         {/* Splits */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
@@ -327,6 +408,21 @@ export default function RevenuePage() {
             <SplitTable rows={s.typeSplit.map(t => ({ name: t.type === 'dine_in' ? 'Dine-in' : 'Takeaway / counter', revenue: t.revenue, orders: t.orders }))} total={s.revenue} />
           </Card>
         </div>
+
+        {/* Cash reconciliation (one day) and monthly P&L */}
+        {period === 'day' && (
+          <CashReconciliation dateKey={range.startKey} cashSales={cashSales} who={user ? { id: user.id, name: user.name } : undefined} onVariance={setCashVariance} />
+        )}
+        {period === 'month' && (
+          <MonthlyPnl
+            monthKey={range.startKey.slice(0, 7)}
+            monthInProgress={isCurrent}
+            revenue={s.revenue}
+            cogs={s.profit.available ? s.profit.cogs : null}
+            itemsWithoutCost={s.profit.available ? 0 : s.profit.itemsWithoutCost}
+            staffCost={staffCost}
+          />
+        )}
 
         {/* Staff */}
         <Card>
@@ -351,6 +447,38 @@ export default function RevenuePage() {
             </table>
           </div>
         </Card>
+
+        {/* Tables and service speed */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <h3 className="text-base font-bold text-slate-900 mb-3">Tables</h3>
+            {s.tables.length === 0 ? <div className="text-slate-400 text-sm py-4">No dine-in sales.</div> : (
+              <table className="w-full text-sm text-left">
+                <thead><tr className="text-xs text-slate-500 border-b border-slate-200"><th className="py-2">Table</th><th className="text-right">Orders</th><th className="text-right">Revenue</th><th className="text-right">Share</th></tr></thead>
+                <tbody>
+                  {s.tables.slice(0, 12).map(t => (
+                    <tr key={t.id} className="border-b border-slate-100">
+                      <td className="py-2 font-semibold text-slate-800">{tableLabel(t)}</td>
+                      <td className="text-right">{t.orders}</td>
+                      <td className="text-right font-semibold">{rupees(t.revenue)}</td>
+                      <td className="text-right text-slate-500">{s.revenue ? ((t.revenue / s.revenue) * 100).toFixed(0) : 0}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </Card>
+          <Card>
+            <h3 className="text-base font-bold text-slate-900 mb-1">Service speed</h3>
+            <p className="text-xs text-slate-500 mb-4">Measured only on orders placed since time tracking started.</p>
+            {([['Time to prepare', s.timing.avgPrepMin, s.timing.prepN], ['Order to served', s.timing.avgServeMin, s.timing.serveN], ['Order to paid', s.timing.avgPayMin, s.timing.payN]] as const).map(([label, v, n]) => (
+              <div key={label} className="flex justify-between text-sm py-2 border-b border-slate-100">
+                <span className="text-slate-600">{label}</span>
+                <span className="font-semibold text-slate-900">{v === null ? <span className="text-slate-400 font-normal">no data yet</span> : `${Math.round(v)} min`} {v !== null && <span className="text-xs text-slate-400 font-normal">({n} orders)</span>}</span>
+              </div>
+            ))}
+          </Card>
+        </div>
 
         {/* Items */}
         <Card>

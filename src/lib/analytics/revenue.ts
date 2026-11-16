@@ -197,6 +197,13 @@ export interface RevenueSummary {
   profit:
     | { available: true; cogs: number; grossProfit: number; marginPct: number }
     | { available: false; reason: string; itemsWithoutCost: number };
+  /** Revenue by weekday (Mon=0) and clock hour. */
+  heatmap: number[][];
+  weeks: { startKey: string; endKey: string; revenue: number; orders: number; aov: number; days: number }[];
+  tables: { id: string; number: number; revenue: number; orders: number }[];
+  timing: { avgPayMin: number | null; avgServeMin: number | null; avgPrepMin: number | null; payN: number; serveN: number; prepN: number };
+  /** Biggest items sold without any making cost, so it is clear which costs to enter first. */
+  uncostedItems: { id: string; name: string; revenue: number; qty: number }[];
   ledger: LedgerRow[];
 }
 
@@ -245,7 +252,7 @@ const methodName = (m: any) => (m === 'upi' || m === 'qr' ? 'Online' : m === 'ca
 // ---------- per-day summary (this is what gets stored in analytics_daily) ----------
 
 /** Bump when the shape or the counting rules change; older stored days are then rebuilt. */
-export const DAY_SUMMARY_VERSION = 1;
+export const DAY_SUMMARY_VERSION = 2;
 
 export interface DaySummary {
   key: string; // business date
@@ -264,6 +271,10 @@ export interface DaySummary {
   items: { id: string; name: string; category: string; channel: Channel; revenue: number; qty: number; cogs: number; uncostedQty: number }[];
   hourly: { hour: number; revenue: number; orders: number }[]; // only hours with sales
   staff: { name: string; orders: number; revenue: number; cancelled: number }[];
+  /** Dine-in revenue by table. */
+  tables: { id: string; number: number; revenue: number; orders: number }[];
+  /** Sums and counts of minutes, only for orders that recorded the step (older orders did not). */
+  timing: { payMin: number; payN: number; serveMin: number; serveN: number; prepMin: number; prepN: number };
 }
 
 const emptyMoney = (): Money => ({ revenue: 0, orders: 0, qty: 0 });
@@ -277,6 +288,8 @@ export function summarizeDay(key: string, orders: Order[]): DaySummary {
   const items = new Map<string, DaySummary['items'][number]>();
   const hours = new Map<number, { revenue: number; orders: number }>();
   const staff = new Map<string, { orders: number; revenue: number; cancelled: number }>();
+  const tables = new Map<string, { id: string; number: number; revenue: number; orders: number }>();
+  const timing = { payMin: 0, payN: 0, serveMin: 0, serveN: 0, prepMin: 0, prepN: 0 };
   const cancelled = { count: 0, value: 0 };
   const open = { count: 0, value: 0 };
   let revenue = 0, count = 0, itemsSold = 0, itemsTotal = 0;
@@ -291,7 +304,9 @@ export function summarizeDay(key: string, orders: Order[]): DaySummary {
 
     if (isCancelled(o)) {
       cancelled.count++; cancelled.value += total;
-      const s = staff.get(who) || { orders: 0, revenue: 0, cancelled: 0 }; s.cancelled++; staff.set(who, s);
+      // Credit the cancellation to whoever cancelled it when that is known
+      const canceller = o.cancelledBy?.name || who;
+      const s = staff.get(canceller) || { orders: 0, revenue: 0, cancelled: 0 }; s.cancelled++; staff.set(canceller, s);
       continue;
     }
     if (!isCounted(o)) { open.count++; open.value += total; continue; }
@@ -311,6 +326,20 @@ export function summarizeDay(key: string, orders: Order[]): DaySummary {
 
     const s = staff.get(who) || { orders: 0, revenue: 0, cancelled: 0 };
     s.orders++; s.revenue += total; staff.set(who, s);
+
+    if (ot === 'dine_in' && o.tableId) {
+      const tb = tables.get(o.tableId) || { id: o.tableId, number: Number(o.tableNumber) || 0, revenue: 0, orders: 0 };
+      tb.revenue += total; tb.orders++; tables.set(o.tableId, tb);
+    }
+
+    const placed = when, paid = toDate(o.paidAt), served = toDate(o.servedAt), prepared = toDate(o.preparedAt), accepted = toDate(o.acceptedAt);
+    const addTiming = (a: Date | null, b: Date | null, sum: 'payMin' | 'serveMin' | 'prepMin', n: 'payN' | 'serveN' | 'prepN') => {
+      const m = minutesBetween(a, b);
+      if (m !== null && m <= 720) { timing[sum] += m; timing[n]++; } // ignore clock glitches over 12 hours
+    };
+    addTiming(placed, paid, 'payMin', 'payN');
+    addTiming(placed, served, 'serveMin', 'serveN');
+    addTiming(accepted ?? placed, prepared, 'prepMin', 'prepN');
 
     const seenChannels = new Set<Channel>();
     for (const it of o.items || []) {
@@ -349,6 +378,8 @@ export function summarizeDay(key: string, orders: Order[]): DaySummary {
     items: [...items.values()],
     hourly: [...hours.entries()].map(([hour, v]) => ({ hour, ...v })),
     staff: [...staff.entries()].map(([name, v]) => ({ name, ...v })),
+    tables: [...tables.values()],
+    timing,
   };
 }
 
@@ -382,6 +413,10 @@ export function combineDays(days: DaySummary[], range: RevenueRange, costs: Reco
   const cats = new Map<string, { name: string; channel: Channel; revenue: number; qty: number }>();
   const items = new Map<string, { id: string; name: string; category: string; channel: Channel; revenue: number; qty: number }>();
   const staff = new Map<string, { orders: number; revenue: number; cancelled: number }>();
+  const tableMap = new Map<string, { id: string; number: number; revenue: number; orders: number }>();
+  const timing = { payMin: 0, payN: 0, serveMin: 0, serveN: 0, prepMin: 0, prepN: 0 };
+  const heatmap = WEEKDAYS.map(() => new Array(24).fill(0) as number[]);
+  const uncostedRows = new Map<string, { id: string; name: string; revenue: number; qty: number }>();
   const uncosted = new Set<string>();
   const cancelled = { count: 0, value: 0 };
   const open = { count: 0, value: 0 };
@@ -405,7 +440,9 @@ export function combineDays(days: DaySummary[], range: RevenueRange, costs: Reco
     weekdayAgg[dow].revenue += d.revenue; weekdayAgg[dow].orders += d.orders;
     if (d.orders > 0) weekdayAgg[dow].days.add(key);
 
-    for (const h of d.hourly) { const x = hourMap.get(h.hour)!; x.revenue += h.revenue; x.orders += h.orders; }
+    for (const h of d.hourly) { const x = hourMap.get(h.hour)!; x.revenue += h.revenue; x.orders += h.orders; heatmap[dow][h.hour] += h.revenue; }
+    for (const t of d.tables ?? []) { const x = tableMap.get(t.id) || { ...t, revenue: 0, orders: 0 }; x.revenue += t.revenue; x.orders += t.orders; tableMap.set(t.id, x); }
+    if (d.timing) for (const k of Object.keys(timing) as (keyof typeof timing)[]) timing[k] += d.timing[k];
     for (const p of d.payment) { const x = pay.get(p.method) || { revenue: 0, orders: 0 }; x.revenue += p.revenue; x.orders += p.orders; pay.set(p.method, x); }
     for (const t of d.types) { const x = type.get(t.type) || { revenue: 0, orders: 0 }; x.revenue += t.revenue; x.orders += t.orders; type.set(t.type, x); }
     for (const c of d.categories) { const x = cats.get(c.name) || { ...c, revenue: 0, qty: 0 }; x.revenue += c.revenue; x.qty += c.qty; cats.set(c.name, x); }
@@ -416,7 +453,11 @@ export function combineDays(days: DaySummary[], range: RevenueRange, costs: Reco
       cogs += i.cogs;
       if (i.uncostedQty > 0) {
         if (typeof costs[i.id] === 'number') cogs += costs[i.id] * i.uncostedQty;
-        else uncosted.add(i.id);
+        else {
+          uncosted.add(i.id);
+          const u = uncostedRows.get(i.id) || { id: i.id, name: i.name, revenue: 0, qty: 0 };
+          u.revenue += i.revenue * (i.uncostedQty / i.qty); u.qty += i.uncostedQty; uncostedRows.set(i.id, u);
+        }
       }
     }
   }
@@ -470,7 +511,31 @@ export function combineDays(days: DaySummary[], range: RevenueRange, costs: Reco
     peakHour: peak && peak.revenue > 0 ? { label: `${peak.label} – ${hourLabel((peak.hour + 1) % 24)}`, revenue: peak.revenue } : null,
     itemsMismatch: Math.round((revenue - itemsTotal) * 100) / 100,
     profit,
+    heatmap,
+    weeks: weeksOf(dailyArr),
+    tables: [...tableMap.values()].sort((a, b) => b.revenue - a.revenue),
+    timing: {
+      avgPayMin: timing.payN ? timing.payMin / timing.payN : null,
+      avgServeMin: timing.serveN ? timing.serveMin / timing.serveN : null,
+      avgPrepMin: timing.prepN ? timing.prepMin / timing.prepN : null,
+      payN: timing.payN, serveN: timing.serveN, prepN: timing.prepN,
+    },
+    uncostedItems: [...uncostedRows.values()].sort((a, b) => b.revenue - a.revenue).slice(0, 8),
   };
+}
+
+/** Monday-to-Sunday groups of the daily series. */
+function weeksOf(daily: RevenueSummary['daily']): RevenueSummary['weeks'] {
+  const weeks: RevenueSummary['weeks'] = [];
+  for (const d of daily) {
+    const k = parseKey(d.key);
+    const dow = (new Date(k.y, k.m, k.d).getDay() + 6) % 7;
+    let w = weeks[weeks.length - 1];
+    if (!w || dow === 0) { w = { startKey: d.key, endKey: d.key, revenue: 0, orders: 0, aov: 0, days: 0 }; weeks.push(w); }
+    w.endKey = d.key; w.revenue += d.revenue; w.orders += d.orders; w.days++;
+  }
+  weeks.forEach(w => { w.aov = w.orders ? w.revenue / w.orders : 0; });
+  return weeks;
 }
 
 /** Every order in the range as a row (paid, cancelled and open). Needs raw orders. */
@@ -521,3 +586,98 @@ export const rupees = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')
 /** Percentage change, or null when there is nothing to compare against. */
 export const pctChange = (now: number, before: number): number | null =>
   before ? ((now - before) / before) * 100 : null;
+
+// ---------- comparisons, projection and alerts ----------
+
+export interface Mover { id: string; name: string; now: number; before: number; delta: number; qtyNow: number; qtyBefore: number }
+
+/** Items whose revenue moved most against the comparison period. */
+export function movers(items: RevenueSummary['items'], prevItems: RevenueSummary['items'], limit = 5): { up: Mover[]; down: Mover[] } {
+  const before = new Map(prevItems.map(i => [i.id, i]));
+  const ids = new Set([...items.map(i => i.id), ...prevItems.map(i => i.id)]);
+  const now = new Map(items.map(i => [i.id, i]));
+  const all: Mover[] = [...ids].map(id => {
+    const a = now.get(id), b = before.get(id);
+    return { id, name: (a || b)!.name, now: a?.revenue ?? 0, before: b?.revenue ?? 0, delta: (a?.revenue ?? 0) - (b?.revenue ?? 0), qtyNow: a?.qty ?? 0, qtyBefore: b?.qty ?? 0 };
+  });
+  return {
+    up: all.filter(m => m.delta > 0).sort((x, y) => y.delta - x.delta).slice(0, limit),
+    down: all.filter(m => m.delta < 0).sort((x, y) => x.delta - y.delta).slice(0, limit),
+  };
+}
+
+/**
+ * Where the month is heading, from the average of its finished days.
+ * Returns null until three finished days exist, or when the range is already over.
+ */
+export function projectRevenue(daily: RevenueSummary['daily'], todayKey: string): { projected: number; perDay: number; basedOnDays: number } | null {
+  if (!daily.length || daily[daily.length - 1].key < todayKey) return null;
+  const finished = daily.filter(d => d.key < todayKey);
+  if (finished.length < 3) return null;
+  const total = finished.reduce((s, d) => s + d.revenue, 0);
+  const perDay = total / finished.length;
+  const remaining = daily.length - finished.length;
+  return { projected: total + perDay * remaining, perDay, basedOnDays: finished.length };
+}
+
+export interface Insight { level: 'warn' | 'info'; title: string; detail: string }
+
+export const INSIGHT_LIMITS = {
+  revenueDropPct: 20, // alert when revenue falls this much against the comparison
+  cancelRatePct: 10, // alert when this share of orders is cancelled (and at least minCancelled)
+  minCancelled: 5,
+  staffCancelShare: 50, // one person behind this share of cancellations
+  slowServeMin: 25, // average minutes from order to served
+  minTimedOrders: 10,
+  cashVariance: 50, // rupees
+};
+
+/** Things the admin should look at, worked out from the numbers on screen. */
+export function insights(
+  s: Omit<RevenueSummary, 'ledger'>,
+  prev: Omit<RevenueSummary, 'ledger'>,
+  opts: { range: RevenueRange; todayKey: string; compLabel: string; cashVariance?: number | null }
+): Insight[] {
+  const out: Insight[] = [];
+  const L = INSIGHT_LIMITS;
+  const finished = opts.range.endKey < opts.todayKey; // a part-way period would always look like a drop
+
+  const change = pctChange(s.revenue, prev.revenue);
+  if (finished && change !== null && change <= -L.revenueDropPct) {
+    out.push({ level: 'warn', title: `Revenue down ${Math.abs(change).toFixed(0)}%`, detail: `${rupees(s.revenue)} against ${rupees(prev.revenue)} for ${opts.compLabel}.` });
+  }
+
+  const all = s.orders + s.cancelled.count;
+  const rate = all ? (s.cancelled.count / all) * 100 : 0;
+  if (s.cancelled.count >= L.minCancelled && rate >= L.cancelRatePct) {
+    out.push({ level: 'warn', title: `${rate.toFixed(0)}% of orders were cancelled`, detail: `${s.cancelled.count} cancelled orders worth ${rupees(s.cancelled.value)}. Check the Cancelled filter in the ledger.` });
+  }
+
+  const known = s.staff.filter(x => x.name !== NOT_RECORDED);
+  const top = [...known].sort((a, b) => b.cancelled - a.cancelled)[0];
+  if (top && known.length > 1 && s.cancelled.count >= L.minCancelled && (top.cancelled / s.cancelled.count) * 100 >= L.staffCancelShare) {
+    out.push({ level: 'warn', title: `${top.name} handled most cancellations`, detail: `${top.cancelled} of ${s.cancelled.count} cancelled orders.` });
+  }
+
+  if (finished && s.open.count > 0) {
+    out.push({ level: 'warn', title: `${s.open.count} order${s.open.count > 1 ? 's' : ''} never paid`, detail: `${rupees(s.open.value)} left open on days that have ended. Settle or cancel them.` });
+  }
+
+  if (s.timing.avgServeMin !== null && s.timing.serveN >= L.minTimedOrders && s.timing.avgServeMin >= L.slowServeMin) {
+    out.push({ level: 'warn', title: 'Orders are slow to serve', detail: `Average ${Math.round(s.timing.avgServeMin)} minutes from order to served, across ${s.timing.serveN} orders.` });
+  }
+
+  if (opts.cashVariance != null && Math.abs(opts.cashVariance) >= L.cashVariance) {
+    out.push({ level: 'warn', title: `Cash is ${opts.cashVariance > 0 ? 'over' : 'short'} by ${rupees(Math.abs(opts.cashVariance))}`, detail: 'Counted cash does not match cash sales for the day.' });
+  }
+
+  if (!s.profit.available && s.uncostedItems.length > 0) {
+    out.push({ level: 'info', title: 'Enter making cost to see profit', detail: `Biggest items without a cost: ${s.uncostedItems.slice(0, 4).map(i => i.name.trim()).join(', ')}.` });
+  }
+
+  if (s.itemsMismatch !== 0 && s.orders > 0) {
+    out.push({ level: 'info', title: 'Item totals differ from order totals', detail: `${rupees(Math.abs(s.itemsMismatch))} difference. An order was edited after billing or has an extra charge.` });
+  }
+
+  return out;
+}
