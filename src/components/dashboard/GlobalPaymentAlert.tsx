@@ -1,15 +1,17 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
-import { useOrders } from '@/lib/hooks/useOrders';
+import { useOrders, staffStamp } from '@/lib/hooks/useOrders';
+import { useAuth } from '@/lib/context/AuthContext';
 import { useTables } from '@/lib/hooks/useTables';
 
 import { playNotificationSound } from '@/lib/audio';
-import { doc, runTransaction } from 'firebase/firestore';
+import { doc, runTransaction, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
 
 export function GlobalPaymentAlert() {
   const { orders } = useOrders();
+  const { user } = useAuth();
   const { tables } = useTables();
   
   // Find all orders awaiting confirmation
@@ -86,8 +88,10 @@ export function GlobalPaymentAlert() {
         const tableSnap = await transaction.get(tableRef);
         
         transaction.update(orderRef, {
-          status: 'completed', 
-          paymentStatus: 'paid'
+          status: 'completed',
+          paymentStatus: 'paid',
+          paidBy: staffStamp(user),
+          paidAt: serverTimestamp()
         });
 
         if (tableSnap.exists()) {

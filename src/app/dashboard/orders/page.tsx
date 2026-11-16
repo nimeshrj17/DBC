@@ -2,9 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
 
-import { useOrders, Order } from '@/lib/hooks/useOrders';
+import { useOrders, Order, staffStamp } from '@/lib/hooks/useOrders';
+import { useAuth } from '@/lib/context/AuthContext';
 import { useTables } from '@/lib/hooks/useTables';
-import { doc, runTransaction } from 'firebase/firestore';
+import { doc, runTransaction, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
 import PaymentModal from '@/components/dashboard/PaymentModal';
@@ -41,6 +42,7 @@ const formatDate = (timestamp: any) => {
 
 export default function OrdersPage() {
   const { orders, loading, updateOrderStatus, updateOrder } = useOrders();
+  const { user } = useAuth();
   const { tables, updateTableStatus } = useTables();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -135,7 +137,7 @@ export default function OrdersPage() {
     }
   };
 
-  const handleMarkPaid = async (method: 'cash' | 'qr') => {
+  const handleMarkPaid = async (method: 'cash' | 'upi') => {
     if (!orderToPay) return;
     try {
       const orderRef = doc(db, 'orders', orderToPay.id);
@@ -147,8 +149,10 @@ export default function OrdersPage() {
         // 1. Update order
         transaction.update(orderRef, {
           status: 'completed', 
-          paymentStatus: 'paid', 
-          paymentMethod: method 
+          paymentStatus: 'paid',
+          paymentMethod: method,
+          paidBy: staffStamp(user),
+          paidAt: serverTimestamp()
         });
 
         // 2. Update table

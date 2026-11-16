@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, doc, updateDoc, setDoc, runTransaction } from 'firebase/firestore';
 import { db } from '../firebase';
+import { useAuth } from '../context/AuthContext';
+
+export interface StaffStamp {
+  id: string;
+  name: string;
+}
+
+/** Who did something, stored on orders so revenue can be attributed to staff. */
+export const staffStamp = (user: { id: string; name: string } | null | undefined): StaffStamp | undefined =>
+  user ? { id: user.id, name: user.name } : undefined;
 
 export interface OrderItem {
   menuItemId: string;
@@ -28,6 +38,9 @@ export interface Order {
   paymentStatus: 'unpaid' | 'awaiting_confirmation' | 'paid';
   createdAt: any;
   updatedAt: any;
+  createdBy?: StaffStamp; // staff who rang up the order (absent on customer QR orders)
+  paidBy?: StaffStamp; // staff who took the payment
+  paidAt?: any;
   customerId?: string; // To track who made the order
   kitchenNotes?: string;
   kdsDismissed?: boolean;
@@ -172,8 +185,10 @@ export function useOrders() {
     return () => unsubscribe();
   }, []);
 
+  const { user } = useAuth();
+
   const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt' | 'displayId'> & { idempotencyKey?: string }) => {
-    return createOrderTransaction(orderData);
+    return createOrderTransaction({ createdBy: staffStamp(user), ...orderData });
   };
 
   const updateOrder = async (orderId: string, updates: Partial<Omit<Order, 'id'>>) => {

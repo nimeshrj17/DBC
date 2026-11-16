@@ -236,8 +236,8 @@ export default function DashboardLayout({
               Takeaway
             </Link>
             {hasPermission('view_revenue') && (
-              <Link href="/dashboard/analytics" className={pathname.startsWith('/dashboard/analytics') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#10B981] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
-                Analytics
+              <Link href="/dashboard/revenue" className={pathname.startsWith('/dashboard/revenue') ? 'flex items-center gap-2 px-3 py-2 bg-slate-900 text-[#10B981] font-bold text-sm transition-colors rounded-none' : 'flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-semibold text-sm transition-colors rounded-none'}>
+                Revenue
               </Link>
             )}
             {hasPermission('manage_menu') && (
@@ -434,7 +434,7 @@ export default function DashboardLayout({
         </Link>
         )}
         {hasPermission('view_revenue') && (
-        <Link href="/dashboard/analytics" className={getMobileLinkClass('/dashboard/analytics')}>
+        <Link href="/dashboard/revenue" className={getMobileLinkClass('/dashboard/revenue')}>
           <svg className="w-5 h-5 stroke-current fill-none stroke-[1.8]" viewBox="0 0 24 24">
             <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" strokeLinecap="round" strokeLinejoin="round"></path>
           </svg>

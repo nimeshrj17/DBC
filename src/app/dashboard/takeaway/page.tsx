@@ -1,9 +1,10 @@
 'use client';
 import React, { useState, useRef } from 'react';
 import { useMenu, MenuItem } from '@/lib/hooks/useMenu';
-import { useOrders } from '@/lib/hooks/useOrders';
+import { useOrders, staffStamp } from '@/lib/hooks/useOrders';
 import { createOrderTransaction } from '@/lib/hooks/useOrders';
-import { doc, updateDoc } from 'firebase/firestore';
+import { useAuth } from '@/lib/context/AuthContext';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
 
@@ -14,7 +15,8 @@ interface CartItem extends MenuItem {
 export default function TakeawayPage() {
   const { menuItems, loading: menuLoading } = useMenu();
   const { orders, loading: ordersLoading } = useOrders();
-  
+  const { user } = useAuth();
+
   const categories = ['All', ...Array.from(new Set(menuItems.map(item => item.category)))];
 
   const [activeTab, setActiveTab] = useState<'new' | 'active'>('new');
@@ -73,6 +75,7 @@ export default function TakeawayPage() {
       await createOrderTransaction({
         tableId: 'takeaway',
         tableNumber: 0,
+        createdBy: staffStamp(user),
         customerName: custName.trim() || 'Guest',
         customerPhone: custPhone.trim() || '',
         displayIdPrefix: 'PARCEL',
@@ -123,7 +126,9 @@ const handleStatusUpdate = async (orderId: string, newStatus: string) => {
       await updateDoc(doc(db, 'orders', orderId), { 
         status: 'completed', 
         paymentStatus: 'paid',
-        paymentMethod: method
+        paymentMethod: method,
+        paidBy: staffStamp(user),
+        paidAt: serverTimestamp()
       });
       toast.success(`Payment collected via ${method.toUpperCase()}`);
     } catch (e) {
